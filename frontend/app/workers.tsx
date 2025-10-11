@@ -15,52 +15,65 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { MaterialIcons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 
+// Types
+type AttendanceStatus = 'present' | 'absent' | 'halfday' | null;
+
+interface Worker {
+  id: string;
+  name: string;
+  phone: string;
+  role: string;
+  attendanceStatus: AttendanceStatus;
+  overtime: boolean;
+  maxAdvanceLimit: number;
+}
+
 // Mock worker data
-const mockWorkers = [
+const initialWorkers: Worker[] = [
   {
     id: '1',
     name: 'Sanga',
     phone: '9876543210',
     role: 'Mason',
-    present: true,
-    halfDay: false,
-    absent: false,
+    attendanceStatus: null,
+    overtime: false,
+    maxAdvanceLimit: 5000,
   },
   {
     id: '2',
     name: 'Liana',
     phone: '9876543211',
     role: 'Helper',
-    present: true,
-    halfDay: false,
-    absent: false,
+    attendanceStatus: null,
+    overtime: false,
+    maxAdvanceLimit: 3000,
   },
   {
     id: '3',
     name: 'Rema',
     phone: '9876543212',
     role: 'Carpenter',
-    present: true,
-    halfDay: false,
-    absent: false,
+    attendanceStatus: null,
+    overtime: false,
+    maxAdvanceLimit: 4500,
   },
   {
     id: '4',
     name: 'Joseph',
     phone: '9876543213',
     role: 'Electrician',
-    present: true,
-    halfDay: false,
-    absent: false,
+    attendanceStatus: null,
+    overtime: false,
+    maxAdvanceLimit: 4000,
   },
   {
     id: '5',
     name: 'Maria',
     phone: '9876543214',
     role: 'Painter',
-    present: true,
-    halfDay: false,
-    absent: false,
+    attendanceStatus: null,
+    overtime: false,
+    maxAdvanceLimit: 3500,
   },
 ];
 
