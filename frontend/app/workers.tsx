@@ -114,7 +114,7 @@ export default function WorkersPage() {
               </View>
 
               <View style={styles.workerActions}>
-                <View style={styles.statusBadges}>
+                <View style={styles.statusRow}>
                   <View style={styles.badge}>
                     <Text style={styles.badgeText}>P</Text>
                   </View>
@@ -125,11 +125,11 @@ export default function WorkersPage() {
                     <Text style={styles.badgeText}>A</Text>
                   </View>
                   <TouchableOpacity style={styles.moreButton}>
-                    <MaterialIcons name="more-vert" size={20} color="#757575" />
+                    <MaterialIcons name="more-vert" size={18} color="#757575" />
                   </TouchableOpacity>
                 </View>
                 <TouchableOpacity style={styles.advanceButton}>
-                  <MaterialIcons name="currency-rupee" size={14} color="#FF9800" />
+                  <MaterialIcons name="currency-rupee" size={13} color="#FF9800" />
                   <Text style={styles.advanceButtonText}>Advance</Text>
                 </TouchableOpacity>
               </View>
