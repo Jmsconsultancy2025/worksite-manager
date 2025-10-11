@@ -39,6 +39,8 @@ const mockSites = [
 ];
 
 export default function Index() {
+  const router = useRouter();
+
   return (
     <SafeAreaView style={styles.safeArea}>
       <StatusBar barStyle="dark-content" backgroundColor="#FFFFFF" />
