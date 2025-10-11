@@ -107,13 +107,17 @@ export default function WorkersPage() {
         >
           {filteredWorkers.map((worker) => (
             <View key={worker.id} style={styles.workerCard}>
-              <View style={styles.workerInfo}>
-                <Text style={styles.workerName}>{worker.name}</Text>
-                <Text style={styles.workerPhone}>{worker.phone}</Text>
-                <Text style={styles.workerRole}>{worker.role}</Text>
+              {/* Left Column: Worker Info */}
+              <View style={styles.leftColumn}>
+                <View style={styles.workerBasicInfo}>
+                  <Text style={styles.workerName}>{worker.name}</Text>
+                  <Text style={styles.workerPhone}>{worker.phone}</Text>
+                  <Text style={styles.workerRole}>{worker.role}</Text>
+                </View>
               </View>
 
-              <View style={styles.workerActions}>
+              {/* Middle Column: Status Badges */}
+              <View style={styles.middleColumn}>
                 <View style={styles.statusRow}>
                   <View style={styles.badge}>
                     <Text style={styles.badgeText}>P</Text>
@@ -128,6 +132,10 @@ export default function WorkersPage() {
                     <MaterialIcons name="more-vert" size={18} color="#757575" />
                   </TouchableOpacity>
                 </View>
+              </View>
+
+              {/* Right Column: Advance Button - Always aligned with name */}
+              <View style={styles.rightColumn}>
                 <TouchableOpacity style={styles.advanceButton}>
                   <MaterialIcons name="currency-rupee" size={13} color="#FF9800" />
                   <Text style={styles.advanceButtonText}>Advance</Text>
