@@ -79,7 +79,11 @@ export default function Index() {
 
         {/* Site Cards */}
         {mockSites.map((site) => (
-          <TouchableOpacity key={site.id} style={styles.siteCard}>
+          <TouchableOpacity 
+            key={site.id} 
+            style={styles.siteCard}
+            onPress={() => router.push('/workers')}
+          >
             <Text style={styles.siteName}>{site.name}</Text>
             <Text style={styles.siteLocation}>{site.location}</Text>
             <View style={styles.workerStats}>
