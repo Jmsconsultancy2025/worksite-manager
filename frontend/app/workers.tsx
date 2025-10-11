@@ -8,6 +8,8 @@ import {
   TextInput,
   Platform,
   StatusBar,
+  Modal,
+  Pressable,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { MaterialIcons } from '@expo/vector-icons';
