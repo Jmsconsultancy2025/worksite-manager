@@ -267,11 +267,11 @@ const styles = StyleSheet.create({
   workerCard: {
     backgroundColor: '#FFFFFF',
     borderRadius: 12,
-    padding: 16,
+    paddingVertical: 16,
+    paddingHorizontal: 16,
     marginBottom: 12,
     flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'flex-start',
+    alignItems: 'center',
     minHeight: 88,
     ...Platform.select({
       ios: {
@@ -285,10 +285,14 @@ const styles = StyleSheet.create({
       },
     }),
   },
-  workerInfo: {
+  // Left Column: Worker Basic Info
+  leftColumn: {
     flex: 1,
-    justifyContent: 'flex-start',
-    paddingRight: 12,
+    justifyContent: 'center',
+    paddingRight: 8,
+  },
+  workerBasicInfo: {
+    justifyContent: 'center',
   },
   workerName: {
     fontSize: 16,
@@ -309,16 +313,16 @@ const styles = StyleSheet.create({
     color: '#9E9E9E',
     lineHeight: 16,
   },
-  workerActions: {
-    alignItems: 'flex-end',
-    justifyContent: 'space-between',
-    height: '100%',
+  // Middle Column: Status Badges
+  middleColumn: {
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingHorizontal: 4,
   },
   statusRow: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 6,
-    marginBottom: 6,
   },
   badge: {
     width: 26,
@@ -338,6 +342,12 @@ const styles = StyleSheet.create({
     height: 26,
     alignItems: 'center',
     justifyContent: 'center',
+  },
+  // Right Column: Advance Button (Always aligned)
+  rightColumn: {
+    justifyContent: 'center',
+    alignItems: 'flex-end',
+    paddingLeft: 8,
   },
   advanceButton: {
     flexDirection: 'row',
