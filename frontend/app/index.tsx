@@ -11,7 +11,7 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { MaterialIcons } from '@expo/vector-icons';
-import { useRouter } from 'expo-router';
+import { useRouter, Stack } from 'expo-router';
 
 // Mock site data
 const mockSites = [
@@ -42,7 +42,9 @@ export default function Index() {
   const router = useRouter();
 
   return (
-    <SafeAreaView style={styles.safeArea}>
+    <>
+      <Stack.Screen options={{ headerShown: false }} />
+      <SafeAreaView style={styles.safeArea}>
       <StatusBar barStyle="dark-content" backgroundColor="#FFFFFF" />
       <ScrollView
         style={styles.container}
@@ -139,6 +141,7 @@ export default function Index() {
         </TouchableOpacity>
       </View>
     </SafeAreaView>
+    </>
   );
 }
 
