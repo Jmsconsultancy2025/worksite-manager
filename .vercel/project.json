@@ -1,0 +1,16 @@
+{
+  "projectId": "prj_fc1yLH0HxkT9uNA4rpnFoTPPeWd5",
+  "orgId": "team_76MZcgha3qAMGt3xTg7Yy6tx",
+  "projectName": "worksite-manager-app",
+  "settings": {
+    "createdAt": 1760353756381,
+    "framework": null,
+    "devCommand": null,
+    "installCommand": "npm install",
+    "buildCommand": "npm run build",
+    "outputDirectory": "web-build",
+    "rootDirectory": "frontend/frontend",
+    "directoryListing": false,
+    "nodeVersion": "22.x"
+  }
+}
