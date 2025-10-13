@@ -21,7 +21,7 @@
     "web": {
       "bundler": "metro",
       "output": "static",
-      "favicon": "./assets/images/favicon.png",
+      "favicon": "./assets/icons/favicon-32.png",
       "shortName": "Worksite",
       "description": "Worksite Manager App"
     },
