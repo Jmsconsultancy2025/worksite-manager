@@ -90,3 +90,7 @@ android-sdk/ -e
 *.env
 *.env.*
 project_export.tar.gz
+-e 
+# Environment files
+*.env
+*.env.*
