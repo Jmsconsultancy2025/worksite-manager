@@ -12,7 +12,7 @@ import {
   Pressable,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { MaterialIcons } from '@expo/vector-icons';
+import { MdArrowBack, MdSearch, MdMoreVert, MdCurrencyRupee, MdAdd, MdHome, MdPeople, MdEventNote, MdAccountBalanceWallet, MdSettings, MdCheckCircle, MdCancel, MdTimelapse, MdAccessTime, MdMoreHoriz, MdCalendarToday } from 'react-icons/md';
 import { useRouter } from 'expo-router';
 
 // Types
@@ -161,7 +161,7 @@ export default function WorkersPage() {
         {/* Header */}
         <View style={styles.header}>
           <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
-            <MaterialIcons name="arrow-back" size={24} color="#1A237E" />
+            <MdArrowBack size={24} color="#1A237E" />
           </TouchableOpacity>
           <View style={styles.headerTextContainer}>
             <Text style={styles.headerTitle}>Zonuam Site Workers</Text>
@@ -171,7 +171,7 @@ export default function WorkersPage() {
 
         {/* Search Bar */}
         <View style={styles.searchContainer}>
-          <MaterialIcons name="search" size={24} color="#9E9E9E" style={styles.searchIcon} />
+          <MdSearch size={24} color="#9E9E9E" style={styles.searchIcon} />
           <TextInput
             style={styles.searchInput}
             placeholder="Search worker by name or phone number"
@@ -223,7 +223,7 @@ export default function WorkersPage() {
                     style={styles.moreButton}
                     onPress={() => openOptionsMenu(worker)}
                   >
-                    <MaterialIcons name="more-vert" size={18} color="#757575" />
+                    <MdMoreVert size={18} color="#757575" />
                   </TouchableOpacity>
                 </View>
               </View>
@@ -234,7 +234,7 @@ export default function WorkersPage() {
                   style={styles.advanceButton}
                   onPress={() => openAdvanceModal(worker)}
                 >
-                  <MaterialIcons name="currency-rupee" size={13} color="#FF9800" />
+                  <MdCurrencyRupee size={13} color="#FF9800" />
                   <Text style={styles.advanceButtonText}>Advance</Text>
                 </TouchableOpacity>
               </View>
@@ -247,29 +247,29 @@ export default function WorkersPage() {
 
         {/* Floating Add Button */}
         <TouchableOpacity style={styles.floatingButton}>
-          <MaterialIcons name="add" size={32} color="#FFFFFF" />
+          <MdAdd size={32} color="#FFFFFF" />
         </TouchableOpacity>
 
         {/* Bottom Navigation Bar */}
         <View style={styles.bottomNav}>
           <TouchableOpacity style={styles.navItem} onPress={() => router.push('/')}>
-            <MaterialIcons name="home" size={24} color="#757575" />
+            <MdHome size={24} color="#757575" />
             <Text style={styles.navLabel}>Home</Text>
           </TouchableOpacity>
           <TouchableOpacity style={styles.navItem}>
-            <MaterialIcons name="people" size={24} color="#181e29" />
+            <MdPeople size={24} color="#181e29" />
             <Text style={[styles.navLabel, styles.navLabelActive]}>Workers</Text>
           </TouchableOpacity>
           <TouchableOpacity style={styles.navItem}>
-            <MaterialIcons name="event-note" size={24} color="#757575" />
+            <MdEventNote size={24} color="#757575" />
             <Text style={styles.navLabel}>Attendance</Text>
           </TouchableOpacity>
           <TouchableOpacity style={styles.navItem}>
-            <MaterialIcons name="account-balance-wallet" size={24} color="#757575" />
+            <MdAccountBalanceWallet size={24} color="#757575" />
             <Text style={styles.navLabel}>Payroll</Text>
           </TouchableOpacity>
           <TouchableOpacity style={styles.navItem}>
-            <MaterialIcons name="settings" size={24} color="#757575" />
+            <MdSettings size={24} color="#757575" />
             <Text style={styles.navLabel}>Settings</Text>
           </TouchableOpacity>
         </View>
@@ -295,7 +295,7 @@ export default function WorkersPage() {
               style={styles.optionItem}
               onPress={() => selectedWorker && updateAttendanceStatus(selectedWorker.id, 'present')}
             >
-              <MaterialIcons name="check-circle" size={24} color="#4CAF50" />
+              <MdCheckCircle size={24} color="#4CAF50" />
               <Text style={styles.optionText}>Present</Text>
             </TouchableOpacity>
 
@@ -303,7 +303,7 @@ export default function WorkersPage() {
               style={styles.optionItem}
               onPress={() => selectedWorker && updateAttendanceStatus(selectedWorker.id, 'absent')}
             >
-              <MaterialIcons name="cancel" size={24} color="#F44336" />
+              <MdCancel size={24} color="#F44336" />
               <Text style={styles.optionText}>Absent</Text>
             </TouchableOpacity>
 
@@ -311,17 +311,17 @@ export default function WorkersPage() {
               style={styles.optionItem}
               onPress={() => selectedWorker && updateAttendanceStatus(selectedWorker.id, 'halfday')}
             >
-              <MaterialIcons name="timelapse" size={24} color="#FFC107" />
+              <MdTimelapse size={24} color="#FFC107" />
               <Text style={styles.optionText}>Half Day</Text>
             </TouchableOpacity>
 
             <TouchableOpacity style={styles.optionItem}>
-              <MaterialIcons name="access-time" size={24} color="#2196F3" />
+              <MdAccessTime size={24} color="#2196F3" />
               <Text style={styles.optionText}>Overtime</Text>
             </TouchableOpacity>
 
             <TouchableOpacity style={styles.optionItem}>
-              <MaterialIcons name="more-horiz" size={24} color="#757575" />
+              <MdMoreHoriz size={24} color="#757575" />
               <Text style={styles.optionText}>Others</Text>
             </TouchableOpacity>
           </View>
@@ -353,7 +353,7 @@ export default function WorkersPage() {
               <View style={styles.formGroup}>
                 <Text style={styles.formLabel}>Date</Text>
                 <View style={styles.formInput}>
-                  <MaterialIcons name="calendar-today" size={20} color="#757575" />
+                  <MdCalendarToday size={20} color="#757575" />
                   <TextInput
                     style={styles.formInputField}
                     value={advanceDate}
@@ -366,7 +366,7 @@ export default function WorkersPage() {
               <View style={styles.formGroup}>
                 <Text style={styles.formLabel}>Amount (₹)</Text>
                 <View style={styles.formInput}>
-                  <MaterialIcons name="currency-rupee" size={20} color="#757575" />
+                  <MdCurrencyRupee size={20} color="#757575" />
                   <TextInput
                     style={styles.formInputField}
                     value={advanceAmount}

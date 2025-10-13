@@ -10,7 +10,7 @@ import {
   StatusBar,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { MaterialIcons } from '@expo/vector-icons';
+import { MdHome, MdPeople, MdEventNote, MdAccountBalanceWallet, MdSettings, MdSearch, MdPersonAdd, MdCardGiftcard, MdSettings as MdSettingsIcon, MdAdd, MdBusiness } from 'react-icons/md';
 import { useRouter } from 'expo-router';
 
 // Mock site data
@@ -54,22 +54,22 @@ export default function Index() {
           <Text style={styles.brandTitle}>Worksite</Text>
           <View style={styles.topBarRight}>
             <TouchableOpacity style={styles.signInButton}>
-              <MaterialIcons name="person-add" size={16} color="#4CAF50" />
+              <MdPersonAdd size={16} color="#4CAF50" />
               <Text style={styles.signInText}>Sign In</Text>
             </TouchableOpacity>
             <TouchableOpacity style={styles.referButton}>
-              <MaterialIcons name="card-giftcard" size={16} color="#4CAF50" />
+              <MdCardGiftcard size={16} color="#4CAF50" />
               <Text style={styles.referText}>Refer a Friend</Text>
             </TouchableOpacity>
             <TouchableOpacity style={styles.settingsIcon}>
-              <MaterialIcons name="settings" size={24} color="#757575" />
+              <MdSettingsIcon size={24} color="#757575" />
             </TouchableOpacity>
           </View>
         </View>
 
         {/* Search Bar */}
         <View style={styles.searchContainer}>
-          <MaterialIcons name="search" size={24} color="#9E9E9E" style={styles.searchIcon} />
+          <MdSearch size={24} color="#9E9E9E" style={styles.searchIcon} />
           <TextInput
             style={styles.searchInput}
             placeholder="Search sites or workers by name / location"
@@ -101,7 +101,7 @@ export default function Index() {
         {/* Add New Site Card */}
         <TouchableOpacity style={styles.addSiteCard}>
           <View style={styles.addIconCircle}>
-            <MaterialIcons name="add" size={32} color="#9E9E9E" />
+            <MdAdd size={32} color="#9E9E9E" />
           </View>
           <Text style={styles.addSiteTitle}>Add New Site</Text>
           <Text style={styles.addSiteSubtitle}>Create a new construction site</Text>
@@ -111,7 +111,7 @@ export default function Index() {
         <View style={styles.poweredBySection}>
           <Text style={styles.poweredByText}>Powered by</Text>
           <View style={styles.logoContainer}>
-            <MaterialIcons name="business" size={32} color="#424242" />
+            <MdBusiness size={32} color="#424242" />
           </View>
         </View>
 
@@ -122,23 +122,23 @@ export default function Index() {
       {/* Bottom Navigation Bar */}
       <View style={styles.bottomNav}>
         <TouchableOpacity style={styles.navItem}>
-          <MaterialIcons name="home" size={24} color="#181e29" />
+          <MdHome size={24} color="#181e29" />
           <Text style={[styles.navLabel, styles.navLabelActive]}>Home</Text>
         </TouchableOpacity>
         <TouchableOpacity style={styles.navItem}>
-          <MaterialIcons name="people" size={24} color="#757575" />
+          <MdPeople size={24} color="#757575" />
           <Text style={styles.navLabel}>Workers</Text>
         </TouchableOpacity>
         <TouchableOpacity style={styles.navItem}>
-          <MaterialIcons name="event-note" size={24} color="#757575" />
+          <MdEventNote size={24} color="#757575" />
           <Text style={styles.navLabel}>Attendance</Text>
         </TouchableOpacity>
         <TouchableOpacity style={styles.navItem}>
-          <MaterialIcons name="account-balance-wallet" size={24} color="#757575" />
+          <MdAccountBalanceWallet size={24} color="#757575" />
           <Text style={styles.navLabel}>Payroll</Text>
         </TouchableOpacity>
         <TouchableOpacity style={styles.navItem}>
-          <MaterialIcons name="settings" size={24} color="#757575" />
+          <MdSettings size={24} color="#757575" />
           <Text style={styles.navLabel}>Settings</Text>
         </TouchableOpacity>
       </View>
