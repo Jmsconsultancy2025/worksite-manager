@@ -253,24 +253,24 @@ export default function WorkersPage() {
         {/* Bottom Navigation Bar */}
         <View style={styles.bottomNav}>
           <TouchableOpacity style={styles.navItem} onPress={() => router.push('/')}>
-            <MaterialIcons name="home" size={24} color="#9E9E9E" />
+            <MaterialIcons name="home" size={24} color="#757575" />
             <Text style={styles.navLabel}>Home</Text>
           </TouchableOpacity>
           <TouchableOpacity style={styles.navItem}>
-            <MaterialIcons name="people" size={24} color="#4CAF50" />
+            <MaterialIcons name="people" size={24} color="#181e29" />
             <Text style={[styles.navLabel, styles.navLabelActive]}>Workers</Text>
           </TouchableOpacity>
           <TouchableOpacity style={styles.navItem}>
-            <MaterialIcons name="account-balance-wallet" size={24} color="#9E9E9E" />
-            <Text style={styles.navLabel}>Cashbook</Text>
+            <MaterialIcons name="event-note" size={24} color="#757575" />
+            <Text style={styles.navLabel}>Attendance</Text>
           </TouchableOpacity>
           <TouchableOpacity style={styles.navItem}>
-            <MaterialIcons name="note" size={24} color="#9E9E9E" />
-            <Text style={styles.navLabel}>Notes</Text>
+            <MaterialIcons name="account-balance-wallet" size={24} color="#757575" />
+            <Text style={styles.navLabel}>Payroll</Text>
           </TouchableOpacity>
           <TouchableOpacity style={styles.navItem}>
-            <MaterialIcons name="bar-chart" size={24} color="#9E9E9E" />
-            <Text style={styles.navLabel}>Reports</Text>
+            <MaterialIcons name="settings" size={24} color="#757575" />
+            <Text style={styles.navLabel}>Settings</Text>
           </TouchableOpacity>
         </View>
       </View>
@@ -639,7 +639,7 @@ const styles = StyleSheet.create({
     marginTop: 4,
   },
   navLabelActive: {
-    color: '#4CAF50',
+    color: '#181e29',
     fontWeight: '600',
   },
   // Modal Styles
