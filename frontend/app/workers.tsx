@@ -188,7 +188,11 @@ export default function WorkersPage() {
           showsVerticalScrollIndicator={false}
         >
           {filteredWorkers.map((worker) => (
-            <View key={worker.id} style={styles.workerCard}>
+            <TouchableOpacity
+              key={worker.id}
+              style={styles.workerCard}
+              onPress={() => router.push(`/workers/${worker.id}`)}
+            >
               {/* Left Column: Worker Info */}
               <View style={styles.leftColumn}>
                 <View style={styles.workerBasicInfo}>
