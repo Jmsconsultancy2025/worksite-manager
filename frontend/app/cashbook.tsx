@@ -514,10 +514,7 @@ export default function CashbookPage() {
       >
         <TouchableOpacity
           style={styles.fabButton}
-          onPress={() => {
-            setEditingEntry(null);
-            setModalVisible(true);
-          }}
+          onPress={openAddModal}
         >
           <MaterialIcons name="add" size={28} color="#FFFFFF" />
         </TouchableOpacity>
