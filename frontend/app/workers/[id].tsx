@@ -382,14 +382,14 @@ export default function WorkerProfilePage() {
                   const dayNames = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
                   
                   return (
-                    <View key={index} style={styles.dayCard}>
+                    <TouchableOpacity key={index} style={styles.dayCard} onPress={() => handleDateClick(date)}>
                       <Text style={styles.dayName}>{dayNames[index]}</Text>
                       <Text style={styles.dayDate}>{date.getDate()}</Text>
                       <View style={[styles.statusDot, { backgroundColor: getStatusColor(attendance?.status || 'absent') }]} />
                       <Text style={styles.statusText}>
                         {attendance?.status === 'present' ? 'P' : attendance?.status === 'half' ? 'H' : attendance?.status === 'holiday' ? 'Off' : 'A'}
                       </Text>
-                    </View>
+                    </TouchableOpacity>
                   );
                 })}
               </View>
