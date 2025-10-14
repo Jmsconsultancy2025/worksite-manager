@@ -478,10 +478,7 @@ export default function CashbookPage() {
                 <View style={styles.actions}>
                   <TouchableOpacity 
                     style={styles.editButton}
-                    onPress={() => {
-                      setEditingEntry(entry);
-                      setModalVisible(true);
-                    }}
+                    onPress={() => openEditModal(entry)}
                   >
                     <MaterialIcons name="edit" size={16} color="#2563EB" />
                   </TouchableOpacity>
