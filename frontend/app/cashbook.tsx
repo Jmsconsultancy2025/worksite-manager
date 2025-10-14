@@ -183,12 +183,27 @@ export default function CashbookPage() {
           style: 'destructive',
           onPress: () => {
             setEntries(entries.filter(e => e.id !== id));
-            Alert.alert('Success', '🗑️ Entry deleted successfully!');
+            showToastMessage('🗑️ Entry deleted successfully!');
           },
         },
       ]
     );
   };
+
+  const categories = [
+    'Booking Income',
+    'Payroll',
+    'Materials',
+    'Equipment',
+    'Transportation',
+    'Utilities',
+    'Professional Services',
+    'Office Expenses',
+    'Marketing',
+    'Client Payment',
+    'Advance Payment',
+    'Other',
+  ];
 
   const clearFilters = () => {
     setFromDate('');
