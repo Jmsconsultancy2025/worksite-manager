@@ -106,6 +106,8 @@ export default function CashbookPage() {
   const [editingEntry, setEditingEntry] = useState<CashbookEntry | null>(null);
   const [toastMessage, setToastMessage] = useState('');
   const [showToast, setShowToast] = useState(false);
+  const [datePickerVisible, setDatePickerVisible] = useState(false);
+  const [datePickerMode, setDatePickerMode] = useState<'from' | 'to' | 'entry'>('from');
   
   // Form state
   const [formDate, setFormDate] = useState('');
