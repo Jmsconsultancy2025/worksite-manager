@@ -86,11 +86,21 @@ export default function WorkersPage() {
   // Modal states
   const [optionsModalVisible, setOptionsModalVisible] = useState(false);
   const [advanceModalVisible, setAdvanceModalVisible] = useState(false);
+  const [overtimeModalVisible, setOvertimeModalVisible] = useState(false);
+  const [adjustmentModalVisible, setAdjustmentModalVisible] = useState(false);
   const [selectedWorker, setSelectedWorker] = useState<Worker | null>(null);
   
   // Advance form state
   const [advanceAmount, setAdvanceAmount] = useState('');
   const [advanceDate, setAdvanceDate] = useState(new Date().toISOString().split('T')[0]);
+  
+  // Overtime form state
+  const [overtimeRate, setOvertimeRate] = useState('');
+  const [overtimeHours, setOvertimeHours] = useState('');
+  
+  // Adjustment form state
+  const [adjustmentAmount, setAdjustmentAmount] = useState('');
+  const [adjustmentNote, setAdjustmentNote] = useState('');
 
   const filteredWorkers = workers.filter(
     (worker) =>
