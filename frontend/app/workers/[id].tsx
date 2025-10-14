@@ -680,14 +680,13 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     color: '#1A237E',
   },
-  // Worker Info Card
+  // Worker Info Card - Compact
   infoCard: {
     backgroundColor: '#FFFFFF',
     marginHorizontal: 16,
     marginTop: 16,
     borderRadius: 12,
-    padding: 20,
-    alignItems: 'center',
+    padding: 16,
     ...Platform.select({
       ios: {
         shadowColor: '#000',
@@ -700,51 +699,55 @@ const styles = StyleSheet.create({
       },
     }),
   },
-  avatar: {
-    width: 80,
-    height: 80,
-    borderRadius: 40,
+  compactHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+  },
+  avatarSmall: {
+    width: 56,
+    height: 56,
+    borderRadius: 28,
     backgroundColor: '#4CAF50',
     alignItems: 'center',
     justifyContent: 'center',
-    marginBottom: 12,
   },
-  workerName: {
-    fontSize: 24,
+  workerDetails: {
+    flex: 1,
+  },
+  workerNameCompact: {
+    fontSize: 18,
     fontWeight: 'bold',
     color: '#1A237E',
-    marginBottom: 4,
+    marginBottom: 2,
   },
-  workerRole: {
-    fontSize: 16,
-    color: '#757575',
-    marginBottom: 16,
-  },
-  infoRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 8,
-    gap: 8,
-  },
-  infoText: {
-    fontSize: 14,
-    color: '#424242',
-  },
-  dailyRateCard: {
-    marginTop: 16,
-    paddingTop: 16,
-    borderTopWidth: 1,
-    borderTopColor: '#E0E0E0',
-    width: '100%',
-    alignItems: 'center',
-  },
-  dailyRateLabel: {
+  workerRoleCompact: {
     fontSize: 13,
     color: '#757575',
-    marginBottom: 4,
+    marginBottom: 6,
   },
-  dailyRateValue: {
-    fontSize: 20,
+  contactRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+  },
+  phoneCompact: {
+    fontSize: 12,
+    color: '#4CAF50',
+    fontWeight: '500',
+  },
+  siteCompact: {
+    fontSize: 12,
+    color: '#757575',
+  },
+  dailyRateBadge: {
+    backgroundColor: '#E8F5E9',
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    borderRadius: 8,
+  },
+  dailyRateValueCompact: {
+    fontSize: 14,
     fontWeight: 'bold',
     color: '#4CAF50',
   },
