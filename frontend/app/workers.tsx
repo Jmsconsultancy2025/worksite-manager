@@ -354,14 +354,26 @@ export default function WorkersPage() {
               <Text style={styles.optionText}>Half Day</Text>
             </TouchableOpacity>
 
-            <TouchableOpacity style={styles.optionItem}>
+            <TouchableOpacity 
+              style={styles.optionItem}
+              onPress={() => {
+                setOptionsModalVisible(false);
+                setTimeout(() => setOvertimeModalVisible(true), 300);
+              }}
+            >
               <MaterialIcons name="access-time" size={24} color="#2196F3" />
               <Text style={styles.optionText}>Overtime</Text>
             </TouchableOpacity>
 
-            <TouchableOpacity style={styles.optionItem}>
-              <MaterialIcons name="more-horiz" size={24} color="#757575" />
-              <Text style={styles.optionText}>Others</Text>
+            <TouchableOpacity 
+              style={styles.optionItem}
+              onPress={() => {
+                setOptionsModalVisible(false);
+                setTimeout(() => setAdjustmentModalVisible(true), 300);
+              }}
+            >
+              <MaterialIcons name="attach-money" size={24} color="#FF9800" />
+              <Text style={styles.optionText}>Other Adjustments</Text>
             </TouchableOpacity>
           </View>
         </Pressable>
