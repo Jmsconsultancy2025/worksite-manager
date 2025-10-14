@@ -647,6 +647,58 @@ export default function WorkerProfilePage() {
         </Pressable>
       </Modal>
 
+      {/* Advance History Modal */}
+      <Modal
+        animationType="slide"
+        transparent={true}
+        visible={advanceHistoryVisible}
+        onRequestClose={() => setAdvanceHistoryVisible(false)}
+      >
+        <Pressable
+          style={styles.modalOverlay}
+          onPress={() => setAdvanceHistoryVisible(false)}
+        >
+          <Pressable style={styles.advanceModalContent} onPress={(e) => e.stopPropagation()}>
+            <Text style={styles.advanceModalTitle}>Advance Payments</Text>
+            <Text style={styles.attendanceModalDate}>{workerData?.name}</Text>
+            
+            <ScrollView style={styles.advanceHistoryList}>
+              {workerData && workerData.advances && workerData.advances.length > 0 ? (
+                workerData.advances.map((advance, index) => (
+                  <View key={index} style={styles.advanceHistoryItem}>
+                    <View style={styles.advanceHistoryInfo}>
+                      <MaterialIcons name="receipt" size={24} color="#FF9800" />
+                      <View style={styles.advanceHistoryDetails}>
+                        <Text style={styles.advanceHistoryAmount}>₹{advance.amount}</Text>
+                        <Text style={styles.advanceHistoryDate}>
+                          {new Date(advance.date).toLocaleDateString('en-US', {
+                            month: 'short',
+                            day: 'numeric',
+                            year: 'numeric',
+                          })}
+                        </Text>
+                      </View>
+                    </View>
+                  </View>
+                ))
+              ) : (
+                <View style={styles.emptyState}>
+                  <MaterialIcons name="info-outline" size={48} color="#BDBDBD" />
+                  <Text style={styles.emptyStateText}>No advance payments yet</Text>
+                </View>
+              )}
+            </ScrollView>
+
+            <TouchableOpacity
+              style={styles.closeButton}
+              onPress={() => setAdvanceHistoryVisible(false)}
+            >
+              <Text style={styles.closeButtonText}>Close</Text>
+            </TouchableOpacity>
+          </Pressable>
+        </Pressable>
+      </Modal>
+
       {/* Toast Notification */}
       <Toast message={toastMessage} visible={toastVisible} onHide={() => setToastVisible(false)} />
     </SafeAreaView>
