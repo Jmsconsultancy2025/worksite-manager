@@ -71,6 +71,7 @@ export default function WorkerProfilePage() {
   const [attendanceModalVisible, setAttendanceModalVisible] = useState(false);
   const [toastMessage, setToastMessage] = useState('');
   const [toastVisible, setToastVisible] = useState(false);
+  const [advanceHistoryVisible, setAdvanceHistoryVisible] = useState(false);
 
   const worker = workerData;
 
