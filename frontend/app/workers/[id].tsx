@@ -810,35 +810,45 @@ const styles = StyleSheet.create({
     color: '#424242',
     fontWeight: '500',
   },
-  weekDays: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
+  // Vertical Week Days
+  weekDaysVertical: {
     marginBottom: 16,
   },
-  dayCard: {
+  dayRowVertical: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
     alignItems: 'center',
-    padding: 8,
-  },
-  dayName: {
-    fontSize: 12,
-    color: '#757575',
-    marginBottom: 4,
-  },
-  dayDate: {
-    fontSize: 14,
-    fontWeight: 'bold',
-    color: '#424242',
+    paddingVertical: 12,
+    paddingHorizontal: 16,
+    backgroundColor: '#F9F9F9',
+    borderRadius: 8,
     marginBottom: 8,
   },
-  statusDot: {
-    width: 8,
-    height: 8,
-    borderRadius: 4,
-    marginBottom: 4,
+  dayInfo: {
+    flex: 1,
   },
-  statusText: {
-    fontSize: 11,
-    color: '#757575',
+  dayNameVertical: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: '#424242',
+    marginBottom: 2,
+  },
+  dayDateVertical: {
+    fontSize: 12,
+    color: '#9E9E9E',
+  },
+  dayStatus: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+  },
+  statusDotVertical: {
+    width: 10,
+    height: 10,
+    borderRadius: 5,
+  },
+  statusTextVertical: {
+    fontSize: 13,
     fontWeight: '600',
   },
   statsContainer: {
