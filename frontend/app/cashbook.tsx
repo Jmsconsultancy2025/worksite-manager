@@ -875,6 +875,15 @@ const styles = StyleSheet.create({
     fontSize: 12,
     color: '#6B7280',
   },
+  dateButtonActive: {
+    backgroundColor: '#E8F5E9',
+    borderColor: '#A7F3D0',
+    borderWidth: 1,
+  },
+  dateButtonTextActive: {
+    color: '#16A34A',
+    fontWeight: '600',
+  },
   clearButton: {
     padding: 8,
   },
