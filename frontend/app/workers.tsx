@@ -380,7 +380,7 @@ export default function WorkersPage() {
             <MaterialIcons name="people" size={24} color="#4CAF50" />
             <Text style={[styles.navLabel, styles.navLabelActive]}>Workers</Text>
           </TouchableOpacity>
-          <TouchableOpacity style={styles.navItem}>
+          <TouchableOpacity style={styles.navItem} onPress={() => router.push('/cashbook')}>
             <MaterialIcons name="account-balance-wallet" size={24} color="#9E9E9E" />
             <Text style={styles.navLabel}>Cashbook</Text>
           </TouchableOpacity>
