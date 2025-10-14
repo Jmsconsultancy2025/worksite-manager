@@ -193,7 +193,91 @@ export default function CashbookPage() {
   const clearFilters = () => {
     setFromDate('');
     setToDate('');
-    Alert.alert('Filters Cleared', 'Date filters cleared');
+    showToastMessage('Date filters cleared');
+  };
+
+  // Show toast
+  const showToastMessage = (message: string) => {
+    setToastMessage(message);
+    setShowToast(true);
+    Animated.sequence([
+      Animated.timing(toastOpacity, {
+        toValue: 1,
+        duration: 300,
+        useNativeDriver: true,
+      }),
+      Animated.delay(2000),
+      Animated.timing(toastOpacity, {
+        toValue: 0,
+        duration: 300,
+        useNativeDriver: true,
+      }),
+    ]).start(() => setShowToast(false));
+  };
+
+  // Open modal for adding
+  const openAddModal = () => {
+    setEditingEntry(null);
+    setFormDate(new Date().toISOString().split('T')[0]);
+    setFormDescription('');
+    setFormCategory('');
+    setFormType('expense');
+    setFormPaymentMode('cash');
+    setFormAmount('');
+    setFormHasGST(false);
+    setFormGSTAmount('');
+    setModalVisible(true);
+  };
+
+  // Open modal for editing
+  const openEditModal = (entry: CashbookEntry) => {
+    setEditingEntry(entry);
+    setFormDate(entry.date);
+    setFormDescription(entry.description);
+    setFormCategory(entry.category);
+    setFormType(entry.type);
+    setFormPaymentMode(entry.paymentMode);
+    setFormAmount(entry.amount.toString());
+    setFormHasGST(entry.hasGST);
+    setFormGSTAmount(entry.gstAmount?.toString() || '');
+    setModalVisible(true);
+  };
+
+  // Save entry
+  const handleSaveEntry = () => {
+    if (!formDescription || !formCategory || !formAmount) {
+      Alert.alert('Error', 'Please fill all required fields');
+      return;
+    }
+
+    const amount = parseFloat(formAmount);
+    if (isNaN(amount) || amount <= 0) {
+      Alert.alert('Error', 'Please enter a valid amount');
+      return;
+    }
+
+    const newEntry: CashbookEntry = {
+      id: editingEntry?.id || Date.now().toString(),
+      date: formDate,
+      description: formDescription,
+      category: formCategory,
+      type: formType,
+      paymentMode: formPaymentMode,
+      amount: amount,
+      linkedProject: 'Zonuam Site',
+      hasGST: formHasGST,
+      gstAmount: formHasGST ? parseFloat(formGSTAmount) : undefined,
+    };
+
+    if (editingEntry) {
+      setEntries(entries.map(e => e.id === editingEntry.id ? newEntry : e));
+      showToastMessage('✏️ Entry updated successfully!');
+    } else {
+      setEntries([newEntry, ...entries]);
+      showToastMessage(`✨ Entry added! ${formType === 'income' ? 'Income' : 'Expense'} of ${formatAmount(amount)}`);
+    }
+
+    setModalVisible(false);
   };
 
   return (
