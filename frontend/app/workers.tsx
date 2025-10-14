@@ -129,15 +129,39 @@ export default function WorkersPage() {
 
   // Handle give advance
   const handleGiveAdvance = () => {
-    if (selectedWorker && advanceAmount) {
-      const amount = parseFloat(advanceAmount);
-      if (amount > 0 && amount <= selectedWorker.maxAdvanceLimit) {
-        // Here you would typically call an API to record the advance
-        alert(`Advance of ₹${amount} given to ${selectedWorker.name}`);
+    if (!selectedWorker) return;
+    
+    const amount = parseFloat(advanceAmount);
+    if (isNaN(amount) || amount <= 0 || amount > selectedWorker.maxAdvanceLimit) {
+      Alert.alert('Error', `Please enter a valid amount between ₹1 and ₹${selectedWorker.maxAdvanceLimit}`);
+      return;
+    }
+    
+    try {
+      // Load worker profile data from localStorage
+      const storedData = localStorage.getItem(`worker_${selectedWorker.id}`);
+      if (storedData) {
+        const workerData = JSON.parse(storedData);
+        
+        // Add new advance to worker's data
+        const newAdvance = {
+          date: advanceDate,
+          amount: amount,
+        };
+        
+        workerData.advances = [...(workerData.advances || []), newAdvance];
+        
+        // Save updated data back to localStorage
+        localStorage.setItem(`worker_${selectedWorker.id}`, JSON.stringify(workerData));
+        
+        Alert.alert('Success', `Advance of ₹${amount} given to ${selectedWorker.name}`);
         setAdvanceModalVisible(false);
+        setAdvanceAmount('');
       } else {
-        alert(`Amount must be between ₹1 and ₹${selectedWorker.maxAdvanceLimit}`);
+        Alert.alert('Error', 'Worker profile not found');
       }
+    } catch (error) {
+      Alert.alert('Error', 'Failed to record advance payment');
     }
   };
 
