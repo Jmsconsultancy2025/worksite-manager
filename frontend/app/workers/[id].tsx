@@ -1006,11 +1006,52 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     color: '#FFFFFF',
   },
-  addAdvanceButton: {
-    backgroundColor: '#FF9800',
-    borderRadius: 8,
-    paddingVertical: 14,
+  // Transaction History
+  transactionHistory: {
+    marginTop: 20,
+    paddingTop: 16,
+    borderTopWidth: 1,
+    borderTopColor: '#E0E0E0',
+  },
+  transactionTitle: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#1A237E',
+    marginBottom: 12,
+  },
+  transactionItem: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
     alignItems: 'center',
+    paddingVertical: 12,
+    paddingHorizontal: 16,
+    backgroundColor: '#F9F9F9',
+    borderRadius: 8,
+    marginBottom: 8,
+  },
+  transactionInfo: {
+    flex: 1,
+  },
+  transactionAmount: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    color: '#4CAF50',
+    marginBottom: 2,
+  },
+  transactionDate: {
+    fontSize: 12,
+    color: '#757575',
+  },
+  transactionPeriod: {
+    backgroundColor: '#E8F5E9',
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 6,
+  },
+  transactionPeriodText: {
+    fontSize: 11,
+    color: '#4CAF50',
+    fontWeight: '500',
   },
   // Attendance Modal
   modalOverlay: {
