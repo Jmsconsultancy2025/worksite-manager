@@ -236,15 +236,54 @@ export default function WorkerProfilePage() {
     };
   }, [dateFrom, dateTo, worker]);
 
+  // Handle advance payment
+  const handleAddAdvance = () => {
+    if (!workerData) return;
+    
+    const amount = parseFloat(advanceAmount);
+    if (isNaN(amount) || amount <= 0) {
+      Alert.alert('Error', 'Please enter a valid advance amount');
+      return;
+    }
+    
+    const newAdvance = {
+      date: new Date().toISOString().split('T')[0],
+      amount,
+    };
+    
+    setWorkerData({
+      ...workerData,
+      advances: [...workerData.advances, newAdvance],
+    });
+    
+    showToast(`Advance payment of ₹${amount} added successfully!`);
+    setAdvanceAmount('');
+  };
+
   // Handle payment
   const handleMarkPaid = () => {
+    if (!workerData) return;
+    
     const amount = parseFloat(paymentAmount);
     if (isNaN(amount) || amount <= 0) {
       Alert.alert('Error', 'Please enter a valid amount');
       return;
     }
     
-    Alert.alert('Success', `Payment of ₹${amount} recorded successfully!`);
+    const newPayment = {
+      id: `p${Date.now()}`,
+      date: new Date().toISOString().split('T')[0],
+      amount,
+      from: dateFrom,
+      to: dateTo,
+    };
+    
+    setWorkerData({
+      ...workerData,
+      payments: [...workerData.payments, newPayment],
+    });
+    
+    showToast(`Payment of ₹${amount} recorded successfully!`);
     setPaymentAmount('');
   };
 
