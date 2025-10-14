@@ -1,75 +1,127 @@
-diff --git a/frontend/app/workers/[id].tsx b/frontend/app/workers/[id].tsx
-index a8c3330..e9de3dc 100644
---- a/frontend/app/workers/[id].tsx
-+++ b/frontend/app/workers/[id].tsx
-@@ -71,6 +71,7 @@ export default function WorkerProfilePage() {
-   const [attendanceModalVisible, setAttendanceModalVisible] = useState(false);
-   const [toastMessage, setToastMessage] = useState('');
-   const [toastVisible, setToastVisible] = useState(false);
-+  const [advanceHistoryVisible, setAdvanceHistoryVisible] = useState(false);
- 
-   const worker = workerData;
- 
+diff --git a/frontend/app/index.tsx b/frontend/app/index.tsx
+index 28d549e..1cb9b0a 100644
+--- a/frontend/app/index.tsx
++++ b/frontend/app/index.tsx
+@@ -122,20 +122,24 @@ export default function Index() {
+       {/* Bottom Navigation Bar */}
+       <View style={styles.bottomNav}>
+         <TouchableOpacity style={styles.navItem}>
+-          <MaterialIcons name="bar-chart" size={24} color="#757575" />
+-          <Text style={styles.navLabel}>Reports</Text>
++          <MaterialIcons name="home" size={24} color="#4CAF50" />
++          <Text style={[styles.navLabel, styles.navLabelActive]}>Home</Text>
+         </TouchableOpacity>
+-        <TouchableOpacity style={styles.navItem}>
+-          <MaterialIcons name="feedback" size={24} color="#757575" />
+-          <Text style={styles.navLabel}>Feedback</Text>
++        <TouchableOpacity style={styles.navItem} onPress={() => router.push('/workers')}>
++          <MaterialIcons name="people" size={24} color="#9E9E9E" />
++          <Text style={styles.navLabel}>Workers</Text>
++        </TouchableOpacity>
++        <TouchableOpacity style={styles.navItem} onPress={() => router.push('/cashbook')}>
++          <MaterialIcons name="account-balance-wallet" size={24} color="#9E9E9E" />
++          <Text style={styles.navLabel}>Cashbook</Text>
+         </TouchableOpacity>
+         <TouchableOpacity style={styles.navItem}>
+-          <MaterialIcons name="info" size={24} color="#757575" />
+-          <Text style={styles.navLabel}>About Us</Text>
++          <MaterialIcons name="note" size={24} color="#9E9E9E" />
++          <Text style={styles.navLabel}>Notes</Text>
+         </TouchableOpacity>
+         <TouchableOpacity style={styles.navItem}>
+-          <MaterialIcons name="star" size={24} color="#757575" />
+-          <Text style={styles.navLabel}>Plans</Text>
++          <MaterialIcons name="bar-chart" size={24} color="#9E9E9E" />
++          <Text style={styles.navLabel}>Reports</Text>
+         </TouchableOpacity>
+       </View>
+     </SafeAreaView>
+@@ -366,4 +370,8 @@ const styles = StyleSheet.create({
+     color: '#757575',
+     marginTop: 4,
+   },
++  navLabelActive: {
++    color: '#4CAF50',
++    fontWeight: '600',
++  },
+ });
 diff --git a/model.patch b/model.patch
-index 5ac0004..e69de29 100644
+index 6e63374..e69de29 100644
 --- a/model.patch
 +++ b/model.patch
-@@ -1,58 +0,0 @@
--diff --git a/frontend/app/workers.tsx b/frontend/app/workers.tsx
--index 73e815b..e1a9ea9 100644
----- a/frontend/app/workers.tsx
--+++ b/frontend/app/workers.tsx
--@@ -10,6 +10,7 @@ import {
--   StatusBar,
--   Modal,
--   Pressable,
--+  Alert,
-- } from 'react-native';
-- import { SafeAreaView } from 'react-native-safe-area-context';
-- import { MaterialIcons } from '@expo/vector-icons';
--@@ -129,15 +130,39 @@ export default function WorkersPage() {
+@@ -1,75 +0,0 @@
+-diff --git a/frontend/app/workers/[id].tsx b/frontend/app/workers/[id].tsx
+-index a8c3330..e9de3dc 100644
+---- a/frontend/app/workers/[id].tsx
+-+++ b/frontend/app/workers/[id].tsx
+-@@ -71,6 +71,7 @@ export default function WorkerProfilePage() {
+-   const [attendanceModalVisible, setAttendanceModalVisible] = useState(false);
+-   const [toastMessage, setToastMessage] = useState('');
+-   const [toastVisible, setToastVisible] = useState(false);
+-+  const [advanceHistoryVisible, setAdvanceHistoryVisible] = useState(false);
 - 
--   // Handle give advance
--   const handleGiveAdvance = () => {
---    if (selectedWorker && advanceAmount) {
---      const amount = parseFloat(advanceAmount);
---      if (amount > 0 && amount <= selectedWorker.maxAdvanceLimit) {
---        // Here you would typically call an API to record the advance
---        alert(`Advance of ₹${amount} given to ${selectedWorker.name}`);
--+    if (!selectedWorker) return;
--+    
--+    const amount = parseFloat(advanceAmount);
--+    if (isNaN(amount) || amount <= 0 || amount > selectedWorker.maxAdvanceLimit) {
--+      Alert.alert('Error', `Please enter a valid amount between ₹1 and ₹${selectedWorker.maxAdvanceLimit}`);
--+      return;
--+    }
--+    
--+    try {
--+      // Load worker profile data from localStorage
--+      const storedData = localStorage.getItem(`worker_${selectedWorker.id}`);
--+      if (storedData) {
--+        const workerData = JSON.parse(storedData);
--+        
--+        // Add new advance to worker's data
--+        const newAdvance = {
--+          date: advanceDate,
--+          amount: amount,
--+        };
--+        
--+        workerData.advances = [...(workerData.advances || []), newAdvance];
--+        
--+        // Save updated data back to localStorage
--+        localStorage.setItem(`worker_${selectedWorker.id}`, JSON.stringify(workerData));
--+        
--+        Alert.alert('Success', `Advance of ₹${amount} given to ${selectedWorker.name}`);
--         setAdvanceModalVisible(false);
--+        setAdvanceAmount('');
--       } else {
---        alert(`Amount must be between ₹1 and ₹${selectedWorker.maxAdvanceLimit}`);
--+        Alert.alert('Error', 'Worker profile not found');
--       }
--+    } catch (error) {
--+      Alert.alert('Error', 'Failed to record advance payment');
--     }
--   };
+-   const worker = workerData;
 - 
+-diff --git a/model.patch b/model.patch
+-index 5ac0004..e69de29 100644
+---- a/model.patch
+-+++ b/model.patch
+-@@ -1,58 +0,0 @@
+--diff --git a/frontend/app/workers.tsx b/frontend/app/workers.tsx
+--index 73e815b..e1a9ea9 100644
+----- a/frontend/app/workers.tsx
+--+++ b/frontend/app/workers.tsx
+--@@ -10,6 +10,7 @@ import {
+--   StatusBar,
+--   Modal,
+--   Pressable,
+--+  Alert,
+-- } from 'react-native';
+-- import { SafeAreaView } from 'react-native-safe-area-context';
+-- import { MaterialIcons } from '@expo/vector-icons';
+--@@ -129,15 +130,39 @@ export default function WorkersPage() {
+-- 
+--   // Handle give advance
+--   const handleGiveAdvance = () => {
+---    if (selectedWorker && advanceAmount) {
+---      const amount = parseFloat(advanceAmount);
+---      if (amount > 0 && amount <= selectedWorker.maxAdvanceLimit) {
+---        // Here you would typically call an API to record the advance
+---        alert(`Advance of ₹${amount} given to ${selectedWorker.name}`);
+--+    if (!selectedWorker) return;
+--+    
+--+    const amount = parseFloat(advanceAmount);
+--+    if (isNaN(amount) || amount <= 0 || amount > selectedWorker.maxAdvanceLimit) {
+--+      Alert.alert('Error', `Please enter a valid amount between ₹1 and ₹${selectedWorker.maxAdvanceLimit}`);
+--+      return;
+--+    }
+--+    
+--+    try {
+--+      // Load worker profile data from localStorage
+--+      const storedData = localStorage.getItem(`worker_${selectedWorker.id}`);
+--+      if (storedData) {
+--+        const workerData = JSON.parse(storedData);
+--+        
+--+        // Add new advance to worker's data
+--+        const newAdvance = {
+--+          date: advanceDate,
+--+          amount: amount,
+--+        };
+--+        
+--+        workerData.advances = [...(workerData.advances || []), newAdvance];
+--+        
+--+        // Save updated data back to localStorage
+--+        localStorage.setItem(`worker_${selectedWorker.id}`, JSON.stringify(workerData));
+--+        
+--+        Alert.alert('Success', `Advance of ₹${amount} given to ${selectedWorker.name}`);
+--         setAdvanceModalVisible(false);
+--+        setAdvanceAmount('');
+--       } else {
+---        alert(`Amount must be between ₹1 and ₹${selectedWorker.maxAdvanceLimit}`);
+--+        Alert.alert('Error', 'Worker profile not found');
+--       }
+--+    } catch (error) {
+--+      Alert.alert('Error', 'Failed to record advance payment');
+--     }
+--   };
+-- 
