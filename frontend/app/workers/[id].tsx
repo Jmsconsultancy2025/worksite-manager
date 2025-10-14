@@ -310,29 +310,27 @@ export default function WorkerProfilePage() {
           <Text style={styles.headerTitle}>Worker Profile</Text>
         </View>
 
-        {/* Worker Info Card */}
+        {/* Worker Info Card - Compact */}
         <View style={styles.infoCard}>
-          <View style={styles.avatar}>
-            <MaterialIcons name="person" size={48} color="#FFFFFF" />
-          </View>
-          <Text style={styles.workerName}>{worker.name}</Text>
-          <Text style={styles.workerRole}>{worker.role}</Text>
-          
-          <View style={styles.infoRow}>
-            <MaterialIcons name="phone" size={18} color="#4CAF50" />
-            <TouchableOpacity onPress={() => Linking.openURL(`tel:${worker.phone}`)}>
-              <Text style={styles.infoText}>{worker.phone}</Text>
-            </TouchableOpacity>
-          </View>
-          
-          <View style={styles.infoRow}>
-            <MaterialIcons name="location-on" size={18} color="#757575" />
-            <Text style={styles.infoText}>{worker.site}</Text>
-          </View>
-          
-          <View style={styles.dailyRateCard}>
-            <Text style={styles.dailyRateLabel}>Daily Rate</Text>
-            <Text style={styles.dailyRateValue}>₹{worker.dailyRate}/day</Text>
+          <View style={styles.compactHeader}>
+            <View style={styles.avatarSmall}>
+              <MaterialIcons name="person" size={32} color="#FFFFFF" />
+            </View>
+            <View style={styles.workerDetails}>
+              <Text style={styles.workerNameCompact}>{worker.name}</Text>
+              <Text style={styles.workerRoleCompact}>{worker.role}</Text>
+              <View style={styles.contactRow}>
+                <MaterialIcons name="phone" size={14} color="#4CAF50" />
+                <TouchableOpacity onPress={() => Linking.openURL(`tel:${worker.phone}`)}>
+                  <Text style={styles.phoneCompact}>{worker.phone}</Text>
+                </TouchableOpacity>
+                <MaterialIcons name="location-on" size={14} color="#757575" style={{ marginLeft: 12 }} />
+                <Text style={styles.siteCompact}>{worker.site}</Text>
+              </View>
+            </View>
+            <View style={styles.dailyRateBadge}>
+              <Text style={styles.dailyRateValueCompact}>₹{worker.dailyRate}/day</Text>
+            </View>
           </View>
         </View>
 
