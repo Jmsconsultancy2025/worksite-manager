@@ -177,7 +177,7 @@ export default function CashbookPage() {
   const handleDelete = (id: string) => {
     Alert.alert(
       'Delete Entry',
-      'Are you sure you want to delete this transaction?',
+      'Are you sure you want to delete this entry? This action cannot be undone.',
       [
         { text: 'Cancel', style: 'cancel' },
         {
