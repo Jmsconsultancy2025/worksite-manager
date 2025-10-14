@@ -517,6 +517,148 @@ export default function CashbookPage() {
         </TouchableOpacity>
       </Animated.View>
 
+      {/* Entry Modal */}
+      <Modal
+        animationType="slide"
+        transparent={true}
+        visible={modalVisible}
+        onRequestClose={() => setModalVisible(false)}
+      >
+        <Pressable style={styles.modalOverlay} onPress={() => setModalVisible(false)}>
+          <Pressable style={styles.modalContent} onPress={(e) => e.stopPropagation()}>
+            <ScrollView showsVerticalScrollIndicator={false}>
+              <Text style={styles.modalTitle}>{editingEntry ? '✏️ Edit Entry' : '✨ Add New Entry'}</Text>
+              
+              <View style={styles.formGroup}>
+                <Text style={styles.formLabel}>Date</Text>
+                <TextInput
+                  style={styles.formInput}
+                  value={formDate}
+                  onChangeText={setFormDate}
+                  placeholder="YYYY-MM-DD"
+                />
+              </View>
+
+              <View style={styles.formGroup}>
+                <Text style={styles.formLabel}>Description *</Text>
+                <TextInput
+                  style={[styles.formInput, { minHeight: 80 }]}
+                  value={formDescription}
+                  onChangeText={setFormDescription}
+                  placeholder="Enter description"
+                  multiline
+                />
+              </View>
+
+              <View style={styles.formGroup}>
+                <Text style={styles.formLabel}>Category *</Text>
+                <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.categoryScroll}>
+                  {categories.map((cat) => (
+                    <TouchableOpacity
+                      key={cat}
+                      style={[styles.categoryChip, formCategory === cat && styles.categoryChipActive]}
+                      onPress={() => setFormCategory(cat)}
+                    >
+                      <Text style={[styles.categoryChipText, formCategory === cat && styles.categoryChipTextActive]}>
+                        {cat}
+                      </Text>
+                    </TouchableOpacity>
+                  ))}
+                </ScrollView>
+              </View>
+
+              <View style={styles.formGroup}>
+                <Text style={styles.formLabel}>Type *</Text>
+                <View style={styles.typeButtons}>
+                  <TouchableOpacity
+                    style={[styles.typeButton, formType === 'expense' && styles.typeButtonExpense]}
+                    onPress={() => setFormType('expense')}
+                  >
+                    <Text style={[styles.typeButtonText, formType === 'expense' && styles.typeButtonTextActive]}>
+                      💸 Expense
+                    </Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity
+                    style={[styles.typeButton, formType === 'income' && styles.typeButtonIncome]}
+                    onPress={() => setFormType('income')}
+                  >
+                    <Text style={[styles.typeButtonText, formType === 'income' && styles.typeButtonTextActive]}>
+                      💰 Income
+                    </Text>
+                  </TouchableOpacity>
+                </View>
+              </View>
+
+              <View style={styles.formGroup}>
+                <Text style={styles.formLabel}>Payment Mode *</Text>
+                <View style={styles.paymentModeButtons}>
+                  {(['cash', 'upi', 'bank'] as const).map((mode) => (
+                    <TouchableOpacity
+                      key={mode}
+                      style={[styles.paymentModeButton, formPaymentMode === mode && styles.paymentModeButtonActive]}
+                      onPress={() => setFormPaymentMode(mode)}
+                    >
+                      <Text style={[styles.paymentModeText, formPaymentMode === mode && styles.paymentModeTextActive]}>
+                        {mode.toUpperCase()}
+                      </Text>
+                    </TouchableOpacity>
+                  ))}
+                </View>
+              </View>
+
+              <View style={styles.formGroup}>
+                <Text style={styles.formLabel}>Amount (₹) *</Text>
+                <TextInput
+                  style={styles.formInput}
+                  value={formAmount}
+                  onChangeText={setFormAmount}
+                  placeholder="0"
+                  keyboardType="numeric"
+                />
+              </View>
+
+              <View style={styles.formGroup}>
+                <View style={styles.gstToggleRow}>
+                  <Text style={styles.formLabel}>GST Applicable</Text>
+                  <TouchableOpacity
+                    style={[styles.gstToggle, formHasGST && styles.gstToggleActive]}
+                    onPress={() => setFormHasGST(!formHasGST)}
+                  >
+                    <View style={[styles.gstToggleThumb, formHasGST && styles.gstToggleThumbActive]} />
+                  </TouchableOpacity>
+                </View>
+                {formHasGST && (
+                  <TextInput
+                    style={[styles.formInput, { marginTop: 8 }]}
+                    value={formGSTAmount}
+                    onChangeText={setFormGSTAmount}
+                    placeholder="GST Amount"
+                    keyboardType="numeric"
+                  />
+                )}
+              </View>
+
+              <View style={styles.modalButtons}>
+                <TouchableOpacity style={styles.cancelButton} onPress={() => setModalVisible(false)}>
+                  <Text style={styles.cancelButtonText}>Cancel</Text>
+                </TouchableOpacity>
+                <TouchableOpacity style={styles.saveButton} onPress={handleSaveEntry}>
+                  <Text style={styles.saveButtonText}>{editingEntry ? 'Update' : 'Add Entry'}</Text>
+                </TouchableOpacity>
+              </View>
+            </ScrollView>
+          </Pressable>
+        </Pressable>
+      </Modal>
+
+      {/* Toast */}
+      {showToast && (
+        <Animated.View style={[styles.toast, { opacity: toastOpacity }]}>
+          <MaterialIcons name="check-circle" size={20} color="#FFFFFF" />
+          <Text style={styles.toastText}>{toastMessage}</Text>
+        </Animated.View>
+      )}
+
       {/* Bottom Navigation */}
       <View style={styles.bottomNav}>
         <TouchableOpacity style={styles.navItem} onPress={() => router.push('/')}>
