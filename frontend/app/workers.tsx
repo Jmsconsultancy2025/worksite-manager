@@ -176,6 +176,87 @@ export default function WorkersPage() {
     }
   };
 
+  // Handle overtime entry
+  const handleAddOvertime = () => {
+    if (!selectedWorker) return;
+    
+    const rate = parseFloat(overtimeRate);
+    const hours = parseFloat(overtimeHours);
+    
+    if (isNaN(rate) || isNaN(hours) || rate <= 0 || hours <= 0) {
+      Alert.alert('Error', 'Please enter valid rate and hours');
+      return;
+    }
+    
+    try {
+      const storedData = localStorage.getItem(`worker_${selectedWorker.id}`);
+      if (storedData) {
+        const workerData = JSON.parse(storedData);
+        
+        const overtimeEntry = {
+          date: new Date().toISOString().split('T')[0],
+          rate: rate,
+          hours: hours,
+          amount: rate * hours,
+        };
+        
+        workerData.overtimeEntries = [...(workerData.overtimeEntries || []), overtimeEntry];
+        workerData.overtime = (workerData.overtime || 0) + overtimeEntry.amount;
+        
+        localStorage.setItem(`worker_${selectedWorker.id}`, JSON.stringify(workerData));
+        
+        Alert.alert('Success', `Overtime of ₹${overtimeEntry.amount} added for ${selectedWorker.name}`);
+        setOvertimeModalVisible(false);
+        setOvertimeRate('');
+        setOvertimeHours('');
+      }
+    } catch (error) {
+      Alert.alert('Error', 'Failed to add overtime');
+    }
+  };
+
+  // Handle adjustment entry
+  const handleAddAdjustment = () => {
+    if (!selectedWorker) return;
+    
+    const amount = parseFloat(adjustmentAmount);
+    
+    if (isNaN(amount) || amount === 0) {
+      Alert.alert('Error', 'Please enter a valid amount');
+      return;
+    }
+    
+    if (adjustmentNote.length > 100) {
+      Alert.alert('Error', 'Note must be 100 characters or less');
+      return;
+    }
+    
+    try {
+      const storedData = localStorage.getItem(`worker_${selectedWorker.id}`);
+      if (storedData) {
+        const workerData = JSON.parse(storedData);
+        
+        const adjustmentEntry = {
+          date: new Date().toISOString().split('T')[0],
+          amount: amount,
+          note: adjustmentNote || 'No note',
+        };
+        
+        workerData.adjustmentEntries = [...(workerData.adjustmentEntries || []), adjustmentEntry];
+        workerData.otherAdjustments = (workerData.otherAdjustments || 0) + amount;
+        
+        localStorage.setItem(`worker_${selectedWorker.id}`, JSON.stringify(workerData));
+        
+        Alert.alert('Success', `Adjustment of ₹${amount} added for ${selectedWorker.name}`);
+        setAdjustmentModalVisible(false);
+        setAdjustmentAmount('');
+        setAdjustmentNote('');
+      }
+    } catch (error) {
+      Alert.alert('Error', 'Failed to add adjustment');
+    }
+  };
+
   // Get badge style based on status
   const getBadgeStyle = (worker: Worker, badgeType: 'P' | 'H' | 'A') => {
     const statusMap = { P: 'present', H: 'halfday', A: 'absent' };
