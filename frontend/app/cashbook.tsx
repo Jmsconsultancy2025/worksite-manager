@@ -260,17 +260,45 @@ export default function CashbookPage() {
     setModalVisible(true);
   };
 
-  // Save entry
+  // Handle date picker
+  const openDatePicker = (mode: 'from' | 'to' | 'entry') => {
+    setDatePickerMode(mode);
+    setDatePickerVisible(true);
+  };
+
+  const handleDateSelect = (dateString: string) => {
+    if (datePickerMode === 'from') {
+      setFromDate(dateString);
+    } else if (datePickerMode === 'to') {
+      setToDate(dateString);
+    } else {
+      setFormDate(dateString);
+    }
+    setDatePickerVisible(false);
+  };
+
+  // Save entry with GST calculation
   const handleSaveEntry = () => {
     if (!formDescription || !formCategory || !formAmount) {
       Alert.alert('Error', 'Please fill all required fields');
       return;
     }
 
-    const amount = parseFloat(formAmount);
-    if (isNaN(amount) || amount <= 0) {
+    const baseAmount = parseFloat(formAmount);
+    if (isNaN(baseAmount) || baseAmount <= 0) {
       Alert.alert('Error', 'Please enter a valid amount');
       return;
+    }
+
+    // Calculate total amount including GST
+    let totalAmount = baseAmount;
+    let gstValue = 0;
+    
+    if (formHasGST && formGSTAmount) {
+      gstValue = parseFloat(formGSTAmount);
+      if (!isNaN(gstValue) && gstValue > 0) {
+        totalAmount = baseAmount + gstValue;
+      }
     }
 
     const newEntry: CashbookEntry = {
@@ -280,10 +308,10 @@ export default function CashbookPage() {
       category: formCategory,
       type: formType,
       paymentMode: formPaymentMode,
-      amount: amount,
+      amount: totalAmount, // Total amount including GST
       linkedProject: 'Zonuam Site',
       hasGST: formHasGST,
-      gstAmount: formHasGST ? parseFloat(formGSTAmount) : undefined,
+      gstAmount: gstValue > 0 ? gstValue : undefined,
     };
 
     if (editingEntry) {
@@ -291,7 +319,7 @@ export default function CashbookPage() {
       showToastMessage('✏️ Entry updated successfully!');
     } else {
       setEntries([newEntry, ...entries]);
-      showToastMessage(`✨ Entry added! ${formType === 'income' ? 'Income' : 'Expense'} of ${formatAmount(amount)}`);
+      showToastMessage(`✨ Entry added! ${formType === 'income' ? 'Income' : 'Expense'} of ${formatAmount(totalAmount)}`);
     }
 
     setModalVisible(false);
