@@ -524,26 +524,6 @@ export default function WorkerProfilePage() {
           </View>
         </View>
 
-        {/* Advance Payment Section */}
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Add Advance Payment</Text>
-          <View style={styles.paymentContainer}>
-            <View style={styles.paymentInput}>
-              <MaterialIcons name="currency-rupee" size={20} color="#757575" />
-              <TextInput
-                style={styles.paymentField}
-                placeholder="Advance Amount"
-                keyboardType="numeric"
-                value={advanceAmount}
-                onChangeText={setAdvanceAmount}
-              />
-            </View>
-            <TouchableOpacity style={styles.addAdvanceButton} onPress={handleAddAdvance}>
-              <Text style={styles.markPaidText}>Add Advance</Text>
-            </TouchableOpacity>
-          </View>
-        </View>
-
         {/* Payment Section */}
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Record Payment</Text>
@@ -562,6 +542,32 @@ export default function WorkerProfilePage() {
               <Text style={styles.markPaidText}>Mark Paid</Text>
             </TouchableOpacity>
           </View>
+
+          {/* Transaction History */}
+          {workerData && workerData.payments.length > 0 && (
+            <View style={styles.transactionHistory}>
+              <Text style={styles.transactionTitle}>Payment History</Text>
+              {workerData.payments.map((payment) => (
+                <View key={payment.id} style={styles.transactionItem}>
+                  <View style={styles.transactionInfo}>
+                    <Text style={styles.transactionAmount}>₹{payment.amount}</Text>
+                    <Text style={styles.transactionDate}>
+                      {new Date(payment.date).toLocaleDateString('en-US', { 
+                        month: 'short', 
+                        day: 'numeric', 
+                        year: 'numeric' 
+                      })}
+                    </Text>
+                  </View>
+                  <View style={styles.transactionPeriod}>
+                    <Text style={styles.transactionPeriodText}>
+                      {new Date(payment.from).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })} - {new Date(payment.to).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
+                    </Text>
+                  </View>
+                </View>
+              ))}
+            </View>
+          )}
         </View>
 
         {/* Bottom Spacing */}
