@@ -1208,4 +1208,75 @@ const styles = StyleSheet.create({
     fontWeight: '500',
     flex: 1,
   },
+  // Section Header with Button
+  sectionHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 12,
+  },
+  viewAdvanceButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+    paddingHorizontal: 10,
+    paddingVertical: 6,
+    borderRadius: 16,
+    backgroundColor: '#E8F5E9',
+  },
+  viewAdvanceText: {
+    fontSize: 12,
+    color: '#4CAF50',
+    fontWeight: '600',
+  },
+  // Advance History Modal
+  advanceHistoryList: {
+    maxHeight: 400,
+  },
+  advanceHistoryItem: {
+    backgroundColor: '#F9F9F9',
+    borderRadius: 8,
+    padding: 12,
+    marginBottom: 8,
+  },
+  advanceHistoryInfo: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+  },
+  advanceHistoryDetails: {
+    flex: 1,
+  },
+  advanceHistoryAmount: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: '#FF9800',
+    marginBottom: 2,
+  },
+  advanceHistoryDate: {
+    fontSize: 12,
+    color: '#757575',
+  },
+  emptyState: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 40,
+  },
+  emptyStateText: {
+    fontSize: 14,
+    color: '#9E9E9E',
+    marginTop: 12,
+  },
+  closeButton: {
+    backgroundColor: '#4CAF50',
+    borderRadius: 8,
+    paddingVertical: 12,
+    alignItems: 'center',
+    marginTop: 16,
+  },
+  closeButtonText: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: '#FFFFFF',
+  },
 });
