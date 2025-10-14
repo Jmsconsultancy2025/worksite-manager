@@ -985,4 +985,103 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     color: '#FFFFFF',
   },
+  addAdvanceButton: {
+    backgroundColor: '#FF9800',
+    borderRadius: 8,
+    paddingVertical: 14,
+    alignItems: 'center',
+  },
+  // Attendance Modal
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  attendanceModalContent: {
+    backgroundColor: '#FFFFFF',
+    borderRadius: 16,
+    padding: 24,
+    width: '90%',
+    maxWidth: 400,
+    ...Platform.select({
+      ios: {
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.3,
+        shadowRadius: 8,
+      },
+      android: {
+        elevation: 8,
+      },
+    }),
+  },
+  attendanceModalTitle: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    color: '#1A237E',
+    marginBottom: 8,
+    textAlign: 'center',
+  },
+  attendanceModalDate: {
+    fontSize: 14,
+    color: '#757575',
+    marginBottom: 24,
+    textAlign: 'center',
+  },
+  attendanceOptions: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 12,
+    justifyContent: 'space-between',
+  },
+  attendanceOption: {
+    width: '48%',
+    padding: 16,
+    borderRadius: 12,
+    alignItems: 'center',
+    justifyContent: 'center',
+    minHeight: 120,
+  },
+  attendanceOptionText: {
+    fontSize: 16,
+    fontWeight: '600',
+    marginTop: 8,
+  },
+  attendanceOptionHint: {
+    fontSize: 12,
+    color: '#9E9E9E',
+    marginTop: 4,
+  },
+  // Toast
+  toast: {
+    position: 'absolute',
+    bottom: 100,
+    left: 20,
+    right: 20,
+    backgroundColor: '#4CAF50',
+    borderRadius: 8,
+    padding: 16,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+    zIndex: 9999,
+    ...Platform.select({
+      ios: {
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.3,
+        shadowRadius: 8,
+      },
+      android: {
+        elevation: 8,
+      },
+    }),
+  },
+  toastText: {
+    fontSize: 14,
+    color: '#FFFFFF',
+    fontWeight: '500',
+    flex: 1,
+  },
 });
