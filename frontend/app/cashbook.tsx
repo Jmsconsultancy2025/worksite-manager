@@ -692,6 +692,66 @@ export default function CashbookPage() {
         </Pressable>
       </Modal>
 
+      {/* Date Picker Modal */}
+      <Modal
+        animationType="fade"
+        transparent={true}
+        visible={datePickerVisible}
+        onRequestClose={() => setDatePickerVisible(false)}
+      >
+        <Pressable style={styles.modalOverlay} onPress={() => setDatePickerVisible(false)}>
+          <Pressable style={styles.datePickerModal} onPress={(e) => e.stopPropagation()}>
+            <Text style={styles.datePickerTitle}>Select Date</Text>
+            <View style={styles.dateInputContainer}>
+              <TextInput
+                style={styles.datePickerInput}
+                placeholder="YYYY-MM-DD"
+                placeholderTextColor="#9CA3AF"
+                onChangeText={(text) => {
+                  if (text.length === 10) {
+                    handleDateSelect(text);
+                  }
+                }}
+              />
+            </View>
+            <View style={styles.quickDateButtons}>
+              <TouchableOpacity 
+                style={styles.quickDateButton}
+                onPress={() => handleDateSelect(new Date().toISOString().split('T')[0])}
+              >
+                <Text style={styles.quickDateText}>Today</Text>
+              </TouchableOpacity>
+              <TouchableOpacity 
+                style={styles.quickDateButton}
+                onPress={() => {
+                  const yesterday = new Date();
+                  yesterday.setDate(yesterday.getDate() - 1);
+                  handleDateSelect(yesterday.toISOString().split('T')[0]);
+                }}
+              >
+                <Text style={styles.quickDateText}>Yesterday</Text>
+              </TouchableOpacity>
+              <TouchableOpacity 
+                style={styles.quickDateButton}
+                onPress={() => {
+                  const weekAgo = new Date();
+                  weekAgo.setDate(weekAgo.getDate() - 7);
+                  handleDateSelect(weekAgo.toISOString().split('T')[0]);
+                }}
+              >
+                <Text style={styles.quickDateText}>1 Week Ago</Text>
+              </TouchableOpacity>
+            </View>
+            <TouchableOpacity 
+              style={styles.datePickerClose}
+              onPress={() => setDatePickerVisible(false)}
+            >
+              <Text style={styles.datePickerCloseText}>Close</Text>
+            </TouchableOpacity>
+          </Pressable>
+        </Pressable>
+      </Modal>
+
       {/* Toast */}
       {showToast && (
         <Animated.View style={[styles.toast, { opacity: toastOpacity }]}>
