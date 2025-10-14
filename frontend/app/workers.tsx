@@ -530,6 +530,143 @@ export default function WorkersPage() {
           </Pressable>
         </Pressable>
       </Modal>
+
+      {/* Overtime Modal */}
+      <Modal
+        animationType="slide"
+        transparent={true}
+        visible={overtimeModalVisible}
+        onRequestClose={() => setOvertimeModalVisible(false)}
+      >
+        <Pressable
+          style={styles.modalOverlay}
+          onPress={() => setOvertimeModalVisible(false)}
+        >
+          <Pressable style={styles.advanceModalContent} onPress={(e) => e.stopPropagation()}>
+            <Text style={styles.advanceModalTitle}>Overtime Entry</Text>
+            <Text style={styles.modalSubtitle}>for {selectedWorker?.name}</Text>
+            
+            <View style={styles.advanceForm}>
+              <View style={styles.formGroup}>
+                <Text style={styles.formLabel}>Overtime Rate (₹ per hour)</Text>
+                <View style={styles.formInput}>
+                  <MaterialIcons name="currency-rupee" size={20} color="#757575" />
+                  <TextInput
+                    style={styles.formInputField}
+                    value={overtimeRate}
+                    onChangeText={setOvertimeRate}
+                    placeholder="Enter rate per hour"
+                    keyboardType="numeric"
+                  />
+                </View>
+              </View>
+
+              <View style={styles.formGroup}>
+                <Text style={styles.formLabel}>Overtime Hours</Text>
+                <View style={styles.formInput}>
+                  <MaterialIcons name="access-time" size={20} color="#757575" />
+                  <TextInput
+                    style={styles.formInputField}
+                    value={overtimeHours}
+                    onChangeText={setOvertimeHours}
+                    placeholder="Enter hours"
+                    keyboardType="numeric"
+                  />
+                </View>
+              </View>
+
+              {overtimeRate && overtimeHours && !isNaN(parseFloat(overtimeRate)) && !isNaN(parseFloat(overtimeHours)) && (
+                <Text style={styles.calculationHint}>
+                  Total: ₹{(parseFloat(overtimeRate) * parseFloat(overtimeHours)).toFixed(0)}
+                </Text>
+              )}
+            </View>
+
+            <View style={styles.advanceModalButtons}>
+              <TouchableOpacity
+                style={styles.cancelButton}
+                onPress={() => setOvertimeModalVisible(false)}
+              >
+                <Text style={styles.cancelButtonText}>Cancel</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={styles.giveAdvanceButton}
+                onPress={handleAddOvertime}
+              >
+                <Text style={styles.giveAdvanceButtonText}>Add Overtime</Text>
+              </TouchableOpacity>
+            </View>
+          </Pressable>
+        </Pressable>
+      </Modal>
+
+      {/* Adjustment Modal */}
+      <Modal
+        animationType="slide"
+        transparent={true}
+        visible={adjustmentModalVisible}
+        onRequestClose={() => setAdjustmentModalVisible(false)}
+      >
+        <Pressable
+          style={styles.modalOverlay}
+          onPress={() => setAdjustmentModalVisible(false)}
+        >
+          <Pressable style={styles.advanceModalContent} onPress={(e) => e.stopPropagation()}>
+            <Text style={styles.advanceModalTitle}>Add Custom Amount</Text>
+            <Text style={styles.modalSubtitle}>for {selectedWorker?.name}</Text>
+            
+            <View style={styles.advanceForm}>
+              <View style={styles.formGroup}>
+                <Text style={styles.formLabel}>Amount (₹)</Text>
+                <View style={styles.formInput}>
+                  <MaterialIcons name="currency-rupee" size={20} color="#757575" />
+                  <TextInput
+                    style={styles.formInputField}
+                    value={adjustmentAmount}
+                    onChangeText={setAdjustmentAmount}
+                    placeholder="Enter amount (+ or -)"
+                    keyboardType="numeric"
+                  />
+                </View>
+                <Text style={styles.formHint}>
+                  Use negative (-) for deductions, positive for additions
+                </Text>
+              </View>
+
+              <View style={styles.formGroup}>
+                <Text style={styles.formLabel}>Note / Comment</Text>
+                <TextInput
+                  style={styles.textAreaInput}
+                  value={adjustmentNote}
+                  onChangeText={setAdjustmentNote}
+                  placeholder="Add a note about this adjustment (optional)"
+                  multiline
+                  numberOfLines={3}
+                  maxLength={100}
+                />
+                <Text style={styles.characterCount}>
+                  {adjustmentNote.length}/100 characters
+                </Text>
+              </View>
+            </View>
+
+            <View style={styles.advanceModalButtons}>
+              <TouchableOpacity
+                style={styles.cancelButton}
+                onPress={() => setAdjustmentModalVisible(false)}
+              >
+                <Text style={styles.cancelButtonText}>Cancel</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={styles.giveAdvanceButton}
+                onPress={handleAddAdjustment}
+              >
+                <Text style={styles.giveAdvanceButtonText}>Add Amount</Text>
+              </TouchableOpacity>
+            </View>
+          </Pressable>
+        </Pressable>
+      </Modal>
     </SafeAreaView>
   );
 }
