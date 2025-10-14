@@ -522,6 +522,26 @@ export default function WorkerProfilePage() {
           </View>
         </View>
 
+        {/* Advance Payment Section */}
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Add Advance Payment</Text>
+          <View style={styles.paymentContainer}>
+            <View style={styles.paymentInput}>
+              <MaterialIcons name="currency-rupee" size={20} color="#757575" />
+              <TextInput
+                style={styles.paymentField}
+                placeholder="Advance Amount"
+                keyboardType="numeric"
+                value={advanceAmount}
+                onChangeText={setAdvanceAmount}
+              />
+            </View>
+            <TouchableOpacity style={styles.addAdvanceButton} onPress={handleAddAdvance}>
+              <Text style={styles.markPaidText}>Add Advance</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+
         {/* Payment Section */}
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Record Payment</Text>
@@ -545,6 +565,72 @@ export default function WorkerProfilePage() {
         {/* Bottom Spacing */}
         <View style={{ height: 40 }} />
       </ScrollView>
+
+      {/* Attendance Selection Modal */}
+      <Modal
+        animationType="fade"
+        transparent={true}
+        visible={attendanceModalVisible}
+        onRequestClose={() => setAttendanceModalVisible(false)}
+      >
+        <Pressable
+          style={styles.modalOverlay}
+          onPress={() => setAttendanceModalVisible(false)}
+        >
+          <Pressable style={styles.attendanceModalContent} onPress={(e) => e.stopPropagation()}>
+            <Text style={styles.attendanceModalTitle}>Mark Attendance</Text>
+            <Text style={styles.attendanceModalDate}>
+              {selectedDate && new Date(selectedDate).toLocaleDateString('en-US', { 
+                weekday: 'long', 
+                year: 'numeric', 
+                month: 'long', 
+                day: 'numeric' 
+              })}
+            </Text>
+            
+            <View style={styles.attendanceOptions}>
+              <TouchableOpacity
+                style={[styles.attendanceOption, { backgroundColor: '#E8F5E9' }]}
+                onPress={() => selectedDate && updateAttendance(selectedDate, 'present')}
+              >
+                <MaterialIcons name="check-circle" size={32} color="#4CAF50" />
+                <Text style={[styles.attendanceOptionText, { color: '#4CAF50' }]}>Present</Text>
+                <Text style={styles.attendanceOptionHint}>Full day</Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                style={[styles.attendanceOption, { backgroundColor: '#FFF9E6' }]}
+                onPress={() => selectedDate && updateAttendance(selectedDate, 'half')}
+              >
+                <MaterialIcons name="timelapse" size={32} color="#FFC107" />
+                <Text style={[styles.attendanceOptionText, { color: '#FFC107' }]}>Half Day</Text>
+                <Text style={styles.attendanceOptionHint}>50% pay</Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                style={[styles.attendanceOption, { backgroundColor: '#FFEBEE' }]}
+                onPress={() => selectedDate && updateAttendance(selectedDate, 'absent')}
+              >
+                <MaterialIcons name="cancel" size={32} color="#F44336" />
+                <Text style={[styles.attendanceOptionText, { color: '#F44336' }]}>Absent</Text>
+                <Text style={styles.attendanceOptionHint}>No pay</Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                style={[styles.attendanceOption, { backgroundColor: '#F5F5F5' }]}
+                onPress={() => selectedDate && updateAttendance(selectedDate, 'holiday')}
+              >
+                <MaterialIcons name="wb-sunny" size={32} color="#9E9E9E" />
+                <Text style={[styles.attendanceOptionText, { color: '#9E9E9E' }]}>Holiday</Text>
+                <Text style={styles.attendanceOptionHint}>Day off</Text>
+              </TouchableOpacity>
+            </View>
+          </Pressable>
+        </Pressable>
+      </Modal>
+
+      {/* Toast Notification */}
+      <Toast message={toastMessage} visible={toastVisible} onHide={() => setToastVisible(false)} />
     </SafeAreaView>
   );
 }
