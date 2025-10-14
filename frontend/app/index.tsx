@@ -370,4 +370,8 @@ const styles = StyleSheet.create({
     color: '#757575',
     marginTop: 4,
   },
+  navLabelActive: {
+    color: '#4CAF50',
+    fontWeight: '600',
+  },
 });
