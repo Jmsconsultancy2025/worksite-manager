@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import {
   Text,
   View,
@@ -10,24 +10,137 @@ import {
   StatusBar,
   Alert,
   Linking,
+  Modal,
+  Pressable,
+  Animated,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { MaterialIcons } from '@expo/vector-icons';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { getWorkerById, Worker, AttendanceRecord } from '../../data/workers';
 
+// Toast notification component
+const Toast = ({ message, visible, onHide }: { message: string; visible: boolean; onHide: () => void }) => {
+  const [fadeAnim] = useState(new Animated.Value(0));
+
+  useEffect(() => {
+    if (visible) {
+      Animated.sequence([
+        Animated.timing(fadeAnim, {
+          toValue: 1,
+          duration: 300,
+          useNativeDriver: true,
+        }),
+        Animated.delay(2000),
+        Animated.timing(fadeAnim, {
+          toValue: 0,
+          duration: 300,
+          useNativeDriver: true,
+        }),
+      ]).start(() => {
+        onHide();
+      });
+    }
+  }, [visible]);
+
+  if (!visible) return null;
+
+  return (
+    <Animated.View style={[styles.toast, { opacity: fadeAnim }]}>
+      <MaterialIcons name="check-circle" size={20} color="#FFFFFF" />
+      <Text style={styles.toastText}>{message}</Text>
+    </Animated.View>
+  );
+};
+
 export default function WorkerProfilePage() {
   const router = useRouter();
   const { id } = useLocalSearchParams();
-  const worker = getWorkerById(id as string);
+  const initialWorker = getWorkerById(id as string);
 
   // State
+  const [workerData, setWorkerData] = useState<Worker | null>(initialWorker);
   const [attendanceView, setAttendanceView] = useState<'weekly' | 'monthly'>('weekly');
   const [selectedWeekOffset, setSelectedWeekOffset] = useState(0);
   const [selectedMonth, setSelectedMonth] = useState(new Date());
   const [dateFrom, setDateFrom] = useState('2025-01-01');
   const [dateTo, setDateTo] = useState(new Date().toISOString().split('T')[0]);
   const [paymentAmount, setPaymentAmount] = useState('');
+  const [advanceAmount, setAdvanceAmount] = useState('');
+  const [selectedDate, setSelectedDate] = useState<string | null>(null);
+  const [attendanceModalVisible, setAttendanceModalVisible] = useState(false);
+  const [toastMessage, setToastMessage] = useState('');
+  const [toastVisible, setToastVisible] = useState(false);
+
+  const worker = workerData;
+
+  // Load worker data from localStorage on mount
+  useEffect(() => {
+    const loadWorkerData = () => {
+      try {
+        const stored = localStorage.getItem(`worker_${id}`);
+        if (stored) {
+          const parsedData = JSON.parse(stored);
+          setWorkerData(parsedData);
+        }
+      } catch (error) {
+        console.error('Error loading worker data:', error);
+      }
+    };
+    loadWorkerData();
+  }, [id]);
+
+  // Save worker data to localStorage whenever it changes
+  useEffect(() => {
+    if (workerData) {
+      try {
+        localStorage.setItem(`worker_${id}`, JSON.stringify(workerData));
+      } catch (error) {
+        console.error('Error saving worker data:', error);
+      }
+    }
+  }, [workerData, id]);
+
+  // Show toast notification
+  const showToast = (message: string) => {
+    setToastMessage(message);
+    setToastVisible(true);
+  };
+
+  // Update attendance for a specific date
+  const updateAttendance = (date: string, status: 'present' | 'half' | 'absent' | 'holiday') => {
+    if (!workerData) return;
+
+    const updatedAttendance = [...workerData.attendance];
+    const existingIndex = updatedAttendance.findIndex(a => a.date === date);
+
+    if (existingIndex >= 0) {
+      updatedAttendance[existingIndex] = { date, status };
+    } else {
+      updatedAttendance.push({ date, status });
+    }
+
+    setWorkerData({
+      ...workerData,
+      attendance: updatedAttendance,
+    });
+
+    const statusLabels = {
+      present: 'Present',
+      half: 'Half Day',
+      absent: 'Absent',
+      holiday: 'Holiday',
+    };
+    showToast(`Attendance updated: ${statusLabels[status]} for ${new Date(date).toLocaleDateString()}`);
+    setAttendanceModalVisible(false);
+  };
+
+  // Handle date cell click
+  const handleDateClick = (date: Date) => {
+    const dateStr = date.toISOString().split('T')[0];
+    setSelectedDate(dateStr);
+    setAttendanceModalVisible(true);
+  };
 
   if (!worker) {
     return (
