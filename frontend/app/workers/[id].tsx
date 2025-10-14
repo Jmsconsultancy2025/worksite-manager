@@ -465,7 +465,16 @@ export default function WorkerProfilePage() {
 
         {/* Salary & Earnings Section */}
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Salary & Earnings</Text>
+          <View style={styles.sectionHeader}>
+            <Text style={styles.sectionTitle}>Salary & Earnings</Text>
+            <TouchableOpacity 
+              style={styles.viewAdvanceButton}
+              onPress={() => setAdvanceHistoryVisible(true)}
+            >
+              <MaterialIcons name="receipt" size={18} color="#4CAF50" />
+              <Text style={styles.viewAdvanceText}>View Advances</Text>
+            </TouchableOpacity>
+          </View>
           
           {/* Date Range Selector */}
           <View style={styles.dateRangeContainer}>
