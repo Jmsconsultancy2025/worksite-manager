@@ -359,18 +359,24 @@ export default function CashbookPage() {
           </View>
 
           <View style={styles.dateFilters}>
-            <TouchableOpacity style={styles.dateButton}>
-              <MaterialIcons name="calendar-today" size={16} color="#6B7280" />
-              <Text style={styles.dateButtonText}>
+            <TouchableOpacity 
+              style={[styles.dateButton, fromDate && styles.dateButtonActive]}
+              onPress={() => openDatePicker('from')}
+            >
+              <MaterialIcons name="calendar-today" size={16} color={fromDate ? "#16A34A" : "#6B7280"} />
+              <Text style={[styles.dateButtonText, fromDate && styles.dateButtonTextActive]}>
                 {fromDate || 'From Date'}
               </Text>
             </TouchableOpacity>
             
             <MaterialIcons name="arrow-forward" size={16} color="#9CA3AF" />
             
-            <TouchableOpacity style={styles.dateButton}>
-              <MaterialIcons name="calendar-today" size={16} color="#6B7280" />
-              <Text style={styles.dateButtonText}>
+            <TouchableOpacity 
+              style={[styles.dateButton, toDate && styles.dateButtonActive]}
+              onPress={() => openDatePicker('to')}
+            >
+              <MaterialIcons name="calendar-today" size={16} color={toDate ? "#16A34A" : "#6B7280"} />
+              <Text style={[styles.dateButtonText, toDate && styles.dateButtonTextActive]}>
                 {toDate || 'To Date'}
               </Text>
             </TouchableOpacity>
