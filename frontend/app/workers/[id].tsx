@@ -373,20 +373,24 @@ export default function WorkerProfilePage() {
                 </TouchableOpacity>
               </View>
 
-              {/* Week Days */}
-              <View style={styles.weekDays}>
+              {/* Week Days - Vertical Layout */}
+              <View style={styles.weekDaysVertical}>
                 {weekDates.map((date, index) => {
                   const attendance = getAttendanceForDate(date);
-                  const dayNames = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+                  const dayNames = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
                   
                   return (
-                    <TouchableOpacity key={index} style={styles.dayCard} onPress={() => handleDateClick(date)}>
-                      <Text style={styles.dayName}>{dayNames[index]}</Text>
-                      <Text style={styles.dayDate}>{date.getDate()}</Text>
-                      <View style={[styles.statusDot, { backgroundColor: getStatusColor(attendance?.status || 'absent') }]} />
-                      <Text style={styles.statusText}>
-                        {attendance?.status === 'present' ? 'P' : attendance?.status === 'half' ? 'H' : attendance?.status === 'holiday' ? 'Off' : 'A'}
-                      </Text>
+                    <TouchableOpacity key={index} style={styles.dayRowVertical} onPress={() => handleDateClick(date)}>
+                      <View style={styles.dayInfo}>
+                        <Text style={styles.dayNameVertical}>{dayNames[index]}</Text>
+                        <Text style={styles.dayDateVertical}>{date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}</Text>
+                      </View>
+                      <View style={styles.dayStatus}>
+                        <View style={[styles.statusDotVertical, { backgroundColor: getStatusColor(attendance?.status || 'absent') }]} />
+                        <Text style={[styles.statusTextVertical, { color: getStatusColor(attendance?.status || 'absent') }]}>
+                          {attendance?.status === 'present' ? 'Present' : attendance?.status === 'half' ? 'Half Day' : attendance?.status === 'holiday' ? 'Holiday' : 'Absent'}
+                        </Text>
+                      </View>
                     </TouchableOpacity>
                   );
                 })}
