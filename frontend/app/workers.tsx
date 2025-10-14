@@ -242,7 +242,7 @@ export default function WorkersPage() {
                   <Text style={styles.advanceButtonText}>Advance</Text>
                 </TouchableOpacity>
               </View>
-            </View>
+            </TouchableOpacity>
           ))}
 
           {/* Bottom spacing */}
