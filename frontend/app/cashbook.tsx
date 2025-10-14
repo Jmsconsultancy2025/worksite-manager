@@ -567,12 +567,17 @@ export default function CashbookPage() {
               
               <View style={styles.formGroup}>
                 <Text style={styles.formLabel}>Date</Text>
-                <TextInput
+                <TouchableOpacity 
                   style={styles.formInput}
-                  value={formDate}
-                  onChangeText={setFormDate}
-                  placeholder="YYYY-MM-DD"
-                />
+                  onPress={() => openDatePicker('entry')}
+                >
+                  <View style={styles.dateInputRow}>
+                    <MaterialIcons name="calendar-today" size={16} color="#6B7280" />
+                    <Text style={styles.dateInputText}>
+                      {formDate || 'Select date'}
+                    </Text>
+                  </View>
+                </TouchableOpacity>
               </View>
 
               <View style={styles.formGroup}>
