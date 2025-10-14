@@ -104,10 +104,23 @@ export default function CashbookPage() {
   const [toDate, setToDate] = useState('');
   const [modalVisible, setModalVisible] = useState(false);
   const [editingEntry, setEditingEntry] = useState<CashbookEntry | null>(null);
+  const [toastMessage, setToastMessage] = useState('');
+  const [showToast, setShowToast] = useState(false);
+  
+  // Form state
+  const [formDate, setFormDate] = useState('');
+  const [formDescription, setFormDescription] = useState('');
+  const [formCategory, setFormCategory] = useState('');
+  const [formType, setFormType] = useState<'income' | 'expense'>('expense');
+  const [formPaymentMode, setFormPaymentMode] = useState<'cash' | 'upi' | 'bank'>('cash');
+  const [formAmount, setFormAmount] = useState('');
+  const [formHasGST, setFormHasGST] = useState(false);
+  const [formGSTAmount, setFormGSTAmount] = useState('');
   
   // Animated values
   const fabScale = useRef(new Animated.Value(0)).current;
   const fabRotation = useRef(new Animated.Value(0)).current;
+  const toastOpacity = useRef(new Animated.Value(0)).current;
   
   // Load animations
   useEffect(() => {
