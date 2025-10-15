@@ -19,6 +19,16 @@ import { MaterialIcons } from '@expo/vector-icons';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { getWorkerById, Worker, AttendanceRecord } from '../../data/workers';
 
+// Date formatting helper - DD-MM-YYYY format
+function formatDDMMYYYY(dateStr: string) {
+  if (!dateStr) return '';
+  const d = new Date(dateStr);
+  const dd = String(d.getDate()).padStart(2, '0');
+  const mm = String(d.getMonth() + 1).padStart(2, '0');
+  const yyyy = d.getFullYear();
+  return `${dd}-${mm}-${yyyy}`;
+}
+
 // Toast notification component
 const Toast = ({ message, visible, onHide }: { message: string; visible: boolean; onHide: () => void }) => {
   const [fadeAnim] = useState(new Animated.Value(0));
