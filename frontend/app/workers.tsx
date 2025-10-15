@@ -384,7 +384,7 @@ export default function WorkersPage() {
             <MaterialIcons name="account-balance-wallet" size={24} color="#9E9E9E" />
             <Text style={styles.navLabel}>Cashbook</Text>
           </TouchableOpacity>
-          <TouchableOpacity style={styles.navItem}>
+          <TouchableOpacity style={styles.navItem} onPress={() => router.push('/notes')}>
             <MaterialIcons name="note" size={24} color="#9E9E9E" />
             <Text style={styles.navLabel}>Notes</Text>
           </TouchableOpacity>
