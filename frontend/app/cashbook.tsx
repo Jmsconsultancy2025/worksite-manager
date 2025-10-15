@@ -375,7 +375,7 @@ export default function CashbookPage() {
             >
               <MaterialIcons name="calendar-today" size={16} color={fromDate ? "#16A34A" : "#6B7280"} />
               <Text style={[styles.dateButtonText, fromDate && styles.dateButtonTextActive]}>
-                {fromDate || 'From Date'}
+                {fromDate ? formatDDMMYYYY(fromDate) : 'From Date'}
               </Text>
             </TouchableOpacity>
             
@@ -387,7 +387,7 @@ export default function CashbookPage() {
             >
               <MaterialIcons name="calendar-today" size={16} color={toDate ? "#16A34A" : "#6B7280"} />
               <Text style={[styles.dateButtonText, toDate && styles.dateButtonTextActive]}>
-                {toDate || 'To Date'}
+                {toDate ? formatDDMMYYYY(toDate) : 'To Date'}
               </Text>
             </TouchableOpacity>
 
