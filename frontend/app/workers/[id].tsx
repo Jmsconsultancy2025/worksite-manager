@@ -312,14 +312,19 @@ export default function WorkerProfilePage() {
     setPaymentAmount('');
   };
 
-  // Get status color
-  const getStatusColor = (status: string) => {
+  // Get status color - considers if attendance is expired (>24 hours)
+  const getStatusColor = (status: string, timestamp?: number) => {
+    // If attendance is expired (>24 hours old), return gray
+    if (timestamp && isAttendanceExpired(timestamp)) {
+      return '#9E9E9E'; // Gray for expired
+    }
+    
     switch (status) {
-      case 'present': return '#4CAF50';
-      case 'half': return '#FFC107';
-      case 'absent': return '#F44336';
-      case 'holiday': return '#9E9E9E';
-      default: return '#E0E0E0';
+      case 'present': return '#4CAF50'; // Green
+      case 'half': return '#FFC107'; // Yellow
+      case 'absent': return '#F44336'; // Red
+      case 'holiday': return '#9E9E9E'; // Gray
+      default: return '#E0E0E0'; // Light gray
     }
   };
 
