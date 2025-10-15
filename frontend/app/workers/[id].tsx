@@ -408,16 +408,17 @@ export default function WorkerProfilePage() {
                 {weekDates.map((date, index) => {
                   const attendance = getAttendanceForDate(date);
                   const dayNames = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+                  const statusColor = getStatusColor(attendance?.status || 'absent', attendance?.timestamp);
                   
                   return (
                     <TouchableOpacity key={index} style={styles.dayRowVertical} onPress={() => handleDateClick(date)}>
                       <View style={styles.dayInfo}>
                         <Text style={styles.dayNameVertical}>{dayNames[index]}</Text>
-                        <Text style={styles.dayDateVertical}>{date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}</Text>
+                        <Text style={styles.dayDateVertical}>{formatDDMMYYYY(date.toISOString().split('T')[0])}</Text>
                       </View>
                       <View style={styles.dayStatus}>
-                        <View style={[styles.statusDotVertical, { backgroundColor: getStatusColor(attendance?.status || 'absent') }]} />
-                        <Text style={[styles.statusTextVertical, { color: getStatusColor(attendance?.status || 'absent') }]}>
+                        <View style={[styles.statusDotVertical, { backgroundColor: statusColor }]} />
+                        <Text style={[styles.statusTextVertical, { color: statusColor }]}>
                           {attendance?.status === 'present' ? 'Present' : attendance?.status === 'half' ? 'Half Day' : attendance?.status === 'holiday' ? 'Holiday' : 'Absent'}
                         </Text>
                       </View>
