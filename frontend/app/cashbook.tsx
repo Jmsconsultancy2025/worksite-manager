@@ -584,7 +584,7 @@ export default function CashbookPage() {
                   <View style={styles.dateInputRow}>
                     <MaterialIcons name="calendar-today" size={16} color="#6B7280" />
                     <Text style={styles.dateInputText}>
-                      {formDate || 'Select date'}
+                      {formDate ? formatDDMMYYYY(formDate) : 'DD-MM-YYYY'}
                     </Text>
                   </View>
                 </TouchableOpacity>
