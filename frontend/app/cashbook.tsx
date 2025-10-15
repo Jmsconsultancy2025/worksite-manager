@@ -712,27 +712,13 @@ export default function CashbookPage() {
         <Pressable style={styles.modalOverlay} onPress={() => setDatePickerVisible(false)}>
           <Pressable style={styles.datePickerModal} onPress={(e) => e.stopPropagation()}>
             <Text style={styles.datePickerTitle}>Select Date</Text>
-            <View style={styles.dateInputContainer}>
-              <TextInput
-                style={styles.datePickerInput}
-                placeholder="YYYY-MM-DD"
-                placeholderTextColor="#9CA3AF"
-                onChangeText={(text) => {
-                  if (text.length === 10) {
-                    handleDateSelect(text);
-                  }
-                }}
-              />
-            </View>
+            <Text style={styles.datePickerSubtitle}>Quick pick: Yesterday · Today · Custom</Text>
+            
+            {/* Quick Date Buttons - Reordered: Yesterday | Today | Custom */}
             <View style={styles.quickDateButtons}>
               <TouchableOpacity 
                 style={styles.quickDateButton}
-                onPress={() => handleDateSelect(new Date().toISOString().split('T')[0])}
-              >
-                <Text style={styles.quickDateText}>Today</Text>
-              </TouchableOpacity>
-              <TouchableOpacity 
-                style={styles.quickDateButton}
+                accessibilityLabel="Select yesterday"
                 onPress={() => {
                   const yesterday = new Date();
                   yesterday.setDate(yesterday.getDate() - 1);
@@ -741,17 +727,57 @@ export default function CashbookPage() {
               >
                 <Text style={styles.quickDateText}>Yesterday</Text>
               </TouchableOpacity>
+              
               <TouchableOpacity 
                 style={styles.quickDateButton}
+                accessibilityLabel="Select today"
                 onPress={() => {
-                  const weekAgo = new Date();
-                  weekAgo.setDate(weekAgo.getDate() - 7);
-                  handleDateSelect(weekAgo.toISOString().split('T')[0]);
+                  const today = new Date();
+                  handleDateSelect(today.toISOString().split('T')[0]);
                 }}
               >
-                <Text style={styles.quickDateText}>1 Week Ago</Text>
+                <Text style={styles.quickDateText}>Today</Text>
+              </TouchableOpacity>
+              
+              <TouchableOpacity 
+                style={[styles.quickDateButton, styles.customButton]}
+                accessibilityLabel="Select custom date"
+                onPress={() => {
+                  // Show custom date input
+                  setDatePickerVisible(false);
+                  // Re-open with custom input focus
+                  setTimeout(() => setDatePickerVisible(true), 100);
+                }}
+              >
+                <Text style={[styles.quickDateText, styles.customButtonText]}>Custom</Text>
               </TouchableOpacity>
             </View>
+            
+            {/* Custom Date Input */}
+            <View style={styles.dateInputContainer}>
+              <Text style={styles.customInputLabel}>Or enter custom date:</Text>
+              <TextInput
+                style={styles.datePickerInput}
+                placeholder="DD-MM-YYYY"
+                placeholderTextColor="#9CA3AF"
+                onChangeText={(text) => {
+                  // Parse DD-MM-YYYY format and convert to ISO
+                  if (text.length === 10 && text.includes('-')) {
+                    const parts = text.split('-');
+                    if (parts.length === 3) {
+                      const [dd, mm, yyyy] = parts;
+                      const isoDate = `${yyyy}-${mm}-${dd}`;
+                      // Validate date
+                      const date = new Date(isoDate);
+                      if (!isNaN(date.getTime())) {
+                        handleDateSelect(isoDate);
+                      }
+                    }
+                  }
+                }}
+              />
+            </View>
+            
             <TouchableOpacity 
               style={styles.datePickerClose}
               onPress={() => setDatePickerVisible(false)}
