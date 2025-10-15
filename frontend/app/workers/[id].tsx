@@ -474,17 +474,18 @@ export default function WorkerProfilePage() {
               <View style={styles.calendarGrid}>
                 {monthDates.map((date, index) => {
                   const attendance = getAttendanceForDate(date);
+                  const statusColor = getStatusColor(attendance?.status || 'absent', attendance?.timestamp);
                   return (
                     <TouchableOpacity
                       key={index}
                       style={[
                         styles.calendarCell,
-                        { backgroundColor: getStatusColor(attendance?.status || 'absent') + '20' }
+                        { backgroundColor: statusColor + '20' }
                       ]}
                       onPress={() => handleDateClick(date)}
                     >
                       <Text style={styles.calendarDate}>{date.getDate()}</Text>
-                      <View style={[styles.calendarDot, { backgroundColor: getStatusColor(attendance?.status || 'absent') }]} />
+                      <View style={[styles.calendarDot, { backgroundColor: statusColor }]} />
                     </TouchableOpacity>
                   );
                 })}
