@@ -1454,11 +1454,23 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: 'bold',
     color: '#111827',
-    marginBottom: 16,
+    marginBottom: 8,
     textAlign: 'center',
+  },
+  datePickerSubtitle: {
+    fontSize: 12,
+    color: '#6B7280',
+    textAlign: 'center',
+    marginBottom: 16,
   },
   dateInputContainer: {
     marginBottom: 16,
+  },
+  customInputLabel: {
+    fontSize: 12,
+    color: '#6B7280',
+    marginBottom: 8,
+    textAlign: 'center',
   },
   datePickerInput: {
     backgroundColor: '#F9FAFB',
@@ -1482,10 +1494,16 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     alignItems: 'center',
   },
+  customButton: {
+    backgroundColor: '#16A34A',
+  },
   quickDateText: {
     fontSize: 12,
     color: '#374151',
     fontWeight: '600',
+  },
+  customButtonText: {
+    color: '#FFFFFF',
   },
   datePickerClose: {
     backgroundColor: '#16A34A',
