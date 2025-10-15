@@ -513,18 +513,38 @@ export default function WorkerProfilePage() {
               <Text style={styles.dateLabel}>From</Text>
               <TextInput
                 style={styles.dateField}
-                value={dateFrom}
-                onChangeText={setDateFrom}
-                placeholder="YYYY-MM-DD"
+                value={formatDDMMYYYY(dateFrom)}
+                onChangeText={(text) => {
+                  // Parse DD-MM-YYYY format and convert to ISO
+                  if (text.length === 10 && text.includes('-')) {
+                    const parts = text.split('-');
+                    if (parts.length === 3) {
+                      const [dd, mm, yyyy] = parts;
+                      const isoDate = `${yyyy}-${mm}-${dd}`;
+                      setDateFrom(isoDate);
+                    }
+                  }
+                }}
+                placeholder="DD-MM-YYYY"
               />
             </View>
             <View style={styles.dateInput}>
               <Text style={styles.dateLabel}>To</Text>
               <TextInput
                 style={styles.dateField}
-                value={dateTo}
-                onChangeText={setDateTo}
-                placeholder="YYYY-MM-DD"
+                value={formatDDMMYYYY(dateTo)}
+                onChangeText={(text) => {
+                  // Parse DD-MM-YYYY format and convert to ISO
+                  if (text.length === 10 && text.includes('-')) {
+                    const parts = text.split('-');
+                    if (parts.length === 3) {
+                      const [dd, mm, yyyy] = parts;
+                      const isoDate = `${yyyy}-${mm}-${dd}`;
+                      setDateTo(isoDate);
+                    }
+                  }
+                }}
+                placeholder="DD-MM-YYYY"
               />
             </View>
           </View>
