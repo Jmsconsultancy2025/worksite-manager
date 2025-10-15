@@ -118,6 +118,14 @@ export default function WorkerProfilePage() {
     setToastVisible(true);
   };
 
+  // Check if attendance is older than 24 hours
+  const isAttendanceExpired = (timestamp: number | undefined): boolean => {
+    if (!timestamp) return false;
+    const now = Date.now();
+    const hoursPassed = (now - timestamp) / (1000 * 60 * 60);
+    return hoursPassed >= 24;
+  };
+
   // Update attendance for a specific date
   const updateAttendance = (date: string, status: 'present' | 'half' | 'absent' | 'holiday') => {
     if (!workerData) return;
@@ -125,10 +133,16 @@ export default function WorkerProfilePage() {
     const updatedAttendance = [...workerData.attendance];
     const existingIndex = updatedAttendance.findIndex(a => a.date === date);
 
+    const newRecord: AttendanceRecord = {
+      date,
+      status,
+      timestamp: Date.now(), // Record when attendance was marked
+    };
+
     if (existingIndex >= 0) {
-      updatedAttendance[existingIndex] = { date, status };
+      updatedAttendance[existingIndex] = newRecord;
     } else {
-      updatedAttendance.push({ date, status });
+      updatedAttendance.push(newRecord);
     }
 
     setWorkerData({
@@ -142,7 +156,7 @@ export default function WorkerProfilePage() {
       absent: 'Absent',
       holiday: 'Holiday',
     };
-    showToast(`Attendance updated: ${statusLabels[status]} for ${new Date(date).toLocaleDateString()}`);
+    showToast(`Attendance updated: ${statusLabels[status]} for ${formatDDMMYYYY(date)}`);
     setAttendanceModalVisible(false);
   };
 
