@@ -17,6 +17,16 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { MaterialIcons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 
+// Date formatting helper (presentation only)
+function formatDDMMYYYY(dateStr: string) {
+  if (!dateStr) return '';
+  const d = new Date(dateStr);
+  const dd = String(d.getDate()).padStart(2, '0');
+  const mm = String(d.getMonth() + 1).padStart(2, '0');
+  const yyyy = d.getFullYear();
+  return `${dd}-${mm}-${yyyy}`;
+}
+
 // Types
 interface CashbookEntry {
   id: string;
