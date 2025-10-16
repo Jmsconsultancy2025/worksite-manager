@@ -298,11 +298,11 @@ export default function WorkerProfilePage() {
     setPaymentAmount('');
   };
 
-  // Get status color - considers if attendance is expired (>24 hours)
-  const getStatusColor = (status: string, timestamp?: number) => {
-    // If attendance is expired (>24 hours old), return gray
-    if (timestamp && isAttendanceExpired(timestamp)) {
-      return '#9E9E9E'; // Gray for expired
+  // Get status color - considers expiry (>24h)
+  const getStatusColor = (status: string, markedAt?: number) => {
+    // If expired, show gray
+    if (markedAt && isExpired(markedAt)) {
+      return '#9E9E9E'; // Gray
     }
     
     switch (status) {
