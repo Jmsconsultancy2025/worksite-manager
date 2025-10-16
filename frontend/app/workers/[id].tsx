@@ -394,7 +394,7 @@ export default function WorkerProfilePage() {
                 {weekDates.map((date, index) => {
                   const attendance = getAttendanceForDate(date);
                   const dayNames = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
-                  const statusColor = getStatusColor(attendance?.status || 'absent', attendance?.timestamp);
+                  const statusColor = getStatusColor(attendance?.status || 'absent', attendance?.markedAt);
                   
                   return (
                     <TouchableOpacity key={index} style={styles.dayRowVertical} onPress={() => handleDateClick(date)}>
