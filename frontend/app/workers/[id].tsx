@@ -82,6 +82,8 @@ export default function WorkerProfilePage() {
   const [toastMessage, setToastMessage] = useState('');
   const [toastVisible, setToastVisible] = useState(false);
   const [advanceHistoryVisible, setAdvanceHistoryVisible] = useState(false);
+  const [datePickerVisible, setDatePickerVisible] = useState(false);
+  const [datePickerMode, setDatePickerMode] = useState<'from' | 'to'>('from');
 
   const worker = workerData;
 
