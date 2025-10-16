@@ -2,7 +2,7 @@
 export interface AttendanceRecord {
   date: string;
   status: 'present' | 'half' | 'absent' | 'holiday';
-  timestamp?: number; // Unix timestamp when attendance was marked
+  markedAt?: number; // Unix timestamp when attendance was marked
 }
 
 export interface Payment {
