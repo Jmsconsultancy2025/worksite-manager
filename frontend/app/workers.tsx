@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Text,
   View,
@@ -15,6 +15,7 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { MaterialIcons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
+import { updateAttendance, loadWorkers } from '../lib/storage';
 
 // Types
 type AttendanceStatus = 'present' | 'absent' | 'halfday' | null;
@@ -82,6 +83,23 @@ export default function WorkersPage() {
   const router = useRouter();
   const [searchQuery, setSearchQuery] = useState('');
   const [workers, setWorkers] = useState<Worker[]>(initialWorkers);
+
+  // Load attendance data from localStorage on mount
+  useEffect(() => {
+    const storedWorkers = loadWorkers();
+    const updatedWorkers = initialWorkers.map(worker => {
+      const storedWorker = storedWorkers[worker.id];
+      if (storedWorker && storedWorker.attendance) {
+        return {
+          ...worker,
+          attendanceStatus: storedWorker.attendance.length > 0 ?
+            storedWorker.attendance[storedWorker.attendance.length - 1].status : null
+        };
+      }
+      return worker;
+    });
+    setWorkers(updatedWorkers);
+  }, []);
   
   // Modal states
   const [optionsModalVisible, setOptionsModalVisible] = useState(false);
@@ -110,6 +128,13 @@ export default function WorkersPage() {
 
   // Handle attendance status change
   const updateAttendanceStatus = (workerId: string, status: AttendanceStatus) => {
+    const today = new Date().toISOString().split('T')[0];
+    const attendanceStatus = status === 'present' ? 'present' : status === 'halfday' ? 'half' : status === 'absent' ? 'absent' : 'holiday';
+
+    // Save to localStorage using the storage helper
+    updateAttendance(workerId, today, attendanceStatus);
+
+    // Update local state
     setWorkers(prevWorkers =>
       prevWorkers.map(worker =>
         worker.id === workerId
@@ -122,7 +147,8 @@ export default function WorkersPage() {
 
   // Handle badge click
   const handleBadgeClick = (worker: Worker, status: AttendanceStatus) => {
-    updateAttendanceStatus(worker.id, worker.attendanceStatus === status ? null : status);
+    const newStatus = worker.attendanceStatus === status ? null : status;
+    updateAttendanceStatus(worker.id, newStatus);
   };
 
   // Open options menu
@@ -261,13 +287,29 @@ export default function WorkersPage() {
   const getBadgeStyle = (worker: Worker, badgeType: 'P' | 'H' | 'A') => {
     const statusMap = { P: 'present', H: 'halfday', A: 'absent' };
     const isActive = worker.attendanceStatus === statusMap[badgeType];
-    
+
     if (isActive) {
       if (badgeType === 'P') return { backgroundColor: '#4CAF50', color: '#FFFFFF' };
       if (badgeType === 'H') return { backgroundColor: '#FFC107', color: '#FFFFFF' };
       if (badgeType === 'A') return { backgroundColor: '#F44336', color: '#FFFFFF' };
     }
     return { backgroundColor: '#E0E0E0', color: '#757575' };
+  };
+
+  // Get today's attendance status for a worker
+  const getTodayAttendanceStatus = (workerId: string): AttendanceStatus => {
+    const storedWorkers = loadWorkers();
+    const workerData = storedWorkers[workerId];
+    if (workerData && workerData.attendance) {
+      const today = new Date().toISOString().split('T')[0];
+      const todayRecord = workerData.attendance.find(a => a.date === today);
+      if (todayRecord) {
+        return todayRecord.status === 'present' ? 'present' :
+               todayRecord.status === 'half' ? 'halfday' :
+               todayRecord.status === 'absent' ? 'absent' : null;
+      }
+    }
+    return null;
   };
 
   return (
@@ -303,50 +345,54 @@ export default function WorkersPage() {
           contentContainerStyle={styles.workersListContent}
           showsVerticalScrollIndicator={false}
         >
-          {filteredWorkers.map((worker) => (
-            <TouchableOpacity
-              key={worker.id}
-              style={styles.workerCard}
-              onPress={() => router.push(`/workers/${worker.id}`)}
-            >
-              {/* Left Column: Worker Info */}
-              <View style={styles.leftColumn}>
-                <View style={styles.workerBasicInfo}>
-                  <Text style={styles.workerName}>{worker.name}</Text>
-                  <Text style={styles.workerPhone}>{worker.phone}</Text>
-                  <Text style={styles.workerRole}>{worker.role}</Text>
-                </View>
-              </View>
+          {filteredWorkers.map((worker) => {
+            const todayStatus = getTodayAttendanceStatus(worker.id);
+            const displayWorker = { ...worker, attendanceStatus: todayStatus };
 
-              {/* Middle Column: Status Badges */}
-              <View style={styles.middleColumn}>
-                <View style={styles.statusRow}>
-                  <TouchableOpacity
-                    style={[styles.badge, { backgroundColor: getBadgeStyle(worker, 'P').backgroundColor }]}
-                    onPress={() => handleBadgeClick(worker, 'present')}
-                  >
-                    <Text style={[styles.badgeText, { color: getBadgeStyle(worker, 'P').color }]}>P</Text>
-                  </TouchableOpacity>
-                  <TouchableOpacity
-                    style={[styles.badge, { backgroundColor: getBadgeStyle(worker, 'H').backgroundColor }]}
-                    onPress={() => handleBadgeClick(worker, 'halfday')}
-                  >
-                    <Text style={[styles.badgeText, { color: getBadgeStyle(worker, 'H').color }]}>H</Text>
-                  </TouchableOpacity>
-                  <TouchableOpacity
-                    style={[styles.badge, { backgroundColor: getBadgeStyle(worker, 'A').backgroundColor }]}
-                    onPress={() => handleBadgeClick(worker, 'absent')}
-                  >
-                    <Text style={[styles.badgeText, { color: getBadgeStyle(worker, 'A').color }]}>A</Text>
-                  </TouchableOpacity>
-                  <TouchableOpacity
-                    style={styles.moreButton}
-                    onPress={() => openOptionsMenu(worker)}
-                  >
-                    <MaterialIcons name="more-vert" size={18} color="#757575" />
-                  </TouchableOpacity>
+            return (
+              <TouchableOpacity
+                key={worker.id}
+                style={styles.workerCard}
+                onPress={() => router.push(`/workers/${worker.id}`)}
+              >
+                {/* Left Column: Worker Info */}
+                <View style={styles.leftColumn}>
+                  <View style={styles.workerBasicInfo}>
+                    <Text style={styles.workerName}>{worker.name}</Text>
+                    <Text style={styles.workerPhone}>{worker.phone}</Text>
+                    <Text style={styles.workerRole}>{worker.role}</Text>
+                  </View>
                 </View>
-              </View>
+
+                {/* Middle Column: Status Badges */}
+                <View style={styles.middleColumn}>
+                  <View style={styles.statusRow}>
+                    <TouchableOpacity
+                      style={[styles.badge, { backgroundColor: getBadgeStyle(displayWorker, 'P').backgroundColor }]}
+                      onPress={() => handleBadgeClick(displayWorker, 'present')}
+                    >
+                      <Text style={[styles.badgeText, { color: getBadgeStyle(displayWorker, 'P').color }]}>P</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity
+                      style={[styles.badge, { backgroundColor: getBadgeStyle(displayWorker, 'H').backgroundColor }]}
+                      onPress={() => handleBadgeClick(displayWorker, 'halfday')}
+                    >
+                      <Text style={[styles.badgeText, { color: getBadgeStyle(displayWorker, 'H').color }]}>H</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity
+                      style={[styles.badge, { backgroundColor: getBadgeStyle(displayWorker, 'A').backgroundColor }]}
+                      onPress={() => handleBadgeClick(displayWorker, 'absent')}
+                    >
+                      <Text style={[styles.badgeText, { color: getBadgeStyle(displayWorker, 'A').color }]}>A</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity
+                      style={styles.moreButton}
+                      onPress={() => openOptionsMenu(displayWorker)}
+                    >
+                      <MaterialIcons name="more-vert" size={18} color="#757575" />
+                    </TouchableOpacity>
+                  </View>
+                </View>
 
               {/* Right Column: Advance Button */}
               <View style={styles.rightColumn}>
@@ -359,7 +405,8 @@ export default function WorkersPage() {
                 </TouchableOpacity>
               </View>
             </TouchableOpacity>
-          ))}
+            );
+          })}
 
           {/* Bottom spacing */}
           <View style={{ height: 100 }} />
