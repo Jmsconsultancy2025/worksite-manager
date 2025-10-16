@@ -513,41 +513,33 @@ export default function WorkerProfilePage() {
           <View style={styles.dateRangeContainer}>
             <View style={styles.dateInput}>
               <Text style={styles.dateLabel}>From</Text>
-              <TextInput
-                style={styles.dateField}
-                value={formatDDMMYYYY(dateFrom)}
-                onChangeText={(text) => {
-                  // Parse DD-MM-YYYY format and convert to ISO
-                  if (text.length === 10 && text.includes('-')) {
-                    const parts = text.split('-');
-                    if (parts.length === 3) {
-                      const [dd, mm, yyyy] = parts;
-                      const isoDate = `${yyyy}-${mm}-${dd}`;
-                      setDateFrom(isoDate);
-                    }
-                  }
+              <TouchableOpacity 
+                style={styles.datePickerButton}
+                onPress={() => {
+                  setDatePickerMode('from');
+                  setDatePickerVisible(true);
                 }}
-                placeholder="DD-MM-YYYY"
-              />
+              >
+                <MaterialIcons name="calendar-today" size={18} color="#4CAF50" />
+                <Text style={styles.datePickerButtonText}>
+                  {formatDDMMYYYY(dateFrom)}
+                </Text>
+              </TouchableOpacity>
             </View>
             <View style={styles.dateInput}>
               <Text style={styles.dateLabel}>To</Text>
-              <TextInput
-                style={styles.dateField}
-                value={formatDDMMYYYY(dateTo)}
-                onChangeText={(text) => {
-                  // Parse DD-MM-YYYY format and convert to ISO
-                  if (text.length === 10 && text.includes('-')) {
-                    const parts = text.split('-');
-                    if (parts.length === 3) {
-                      const [dd, mm, yyyy] = parts;
-                      const isoDate = `${yyyy}-${mm}-${dd}`;
-                      setDateTo(isoDate);
-                    }
-                  }
+              <TouchableOpacity 
+                style={styles.datePickerButton}
+                onPress={() => {
+                  setDatePickerMode('to');
+                  setDatePickerVisible(true);
                 }}
-                placeholder="DD-MM-YYYY"
-              />
+              >
+                <MaterialIcons name="calendar-today" size={18} color="#4CAF50" />
+                <Text style={styles.datePickerButtonText}>
+                  {formatDDMMYYYY(dateTo)}
+                </Text>
+              </TouchableOpacity>
             </View>
           </View>
 
