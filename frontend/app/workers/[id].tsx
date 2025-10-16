@@ -18,6 +18,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { MaterialIcons } from '@expo/vector-icons';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { getWorkerById, Worker, AttendanceRecord } from '../../data/workers';
+import { updateAttendance as updateAttendanceStorage, loadWorkers, isExpired } from '../../lib/storage';
 
 // Date formatting helper - DD-MM-YYYY format
 function formatDDMMYYYY(dateStr: string) {
