@@ -121,36 +121,19 @@ export default function WorkerProfilePage() {
     setToastVisible(true);
   };
 
-  // Check if attendance is older than 24 hours
-  const isAttendanceExpired = (timestamp: number | undefined): boolean => {
-    if (!timestamp) return false;
-    const now = Date.now();
-    const hoursPassed = (now - timestamp) / (1000 * 60 * 60);
-    return hoursPassed >= 24;
-  };
-
-  // Update attendance for a specific date
+  // Update attendance using unified storage function
   const updateAttendance = (date: string, status: 'present' | 'half' | 'absent' | 'holiday') => {
     if (!workerData) return;
 
-    const updatedAttendance = [...workerData.attendance];
-    const existingIndex = updatedAttendance.findIndex(a => a.date === date);
-
-    const newRecord: AttendanceRecord = {
-      date,
-      status,
-      timestamp: Date.now(), // Record when attendance was marked
-    };
-
-    if (existingIndex >= 0) {
-      updatedAttendance[existingIndex] = newRecord;
-    } else {
-      updatedAttendance.push(newRecord);
-    }
-
+    const dateISO = date.toISOString ? date.toISOString().split('T')[0] : date;
+    
+    // Update via storage helper (saves to localStorage with timestamp)
+    const updatedWorkerData = updateAttendanceStorage(id as string, dateISO, status);
+    
+    // Optimistic update: immediately refresh local state
     setWorkerData({
       ...workerData,
-      attendance: updatedAttendance,
+      attendance: updatedWorkerData.attendance || []
     });
 
     const statusLabels = {
@@ -159,7 +142,7 @@ export default function WorkerProfilePage() {
       absent: 'Absent',
       holiday: 'Holiday',
     };
-    showToast(`Attendance updated: ${statusLabels[status]} for ${formatDDMMYYYY(date)}`);
+    showToast(`Attendance updated for ${formatDDMMYYYY(dateISO)}: ${statusLabels[status]}`);
     setAttendanceModalVisible(false);
   };
 
