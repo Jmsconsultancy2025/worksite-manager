@@ -716,11 +716,7 @@ export default function WorkerProfilePage() {
                       <View style={styles.advanceHistoryDetails}>
                         <Text style={styles.advanceHistoryAmount}>₹{advance.amount}</Text>
                         <Text style={styles.advanceHistoryDate}>
-                          {new Date(advance.date).toLocaleDateString('en-US', {
-                            month: 'short',
-                            day: 'numeric',
-                            year: 'numeric',
-                          })}
+                          {formatDDMMYYYY(advance.date)}
                         </Text>
                       </View>
                     </View>
@@ -739,6 +735,110 @@ export default function WorkerProfilePage() {
               onPress={() => setAdvanceHistoryVisible(false)}
             >
               <Text style={styles.closeButtonText}>Close</Text>
+            </TouchableOpacity>
+          </Pressable>
+        </Pressable>
+      </Modal>
+
+      {/* Date Picker Modal */}
+      <Modal
+        animationType="fade"
+        transparent={true}
+        visible={datePickerVisible}
+        onRequestClose={() => setDatePickerVisible(false)}
+      >
+        <Pressable
+          style={styles.modalOverlay}
+          onPress={() => setDatePickerVisible(false)}
+        >
+          <Pressable style={styles.datePickerModalContent} onPress={(e) => e.stopPropagation()}>
+            <Text style={styles.datePickerModalTitle}>Select Date</Text>
+            
+            {/* Quick Date Selection */}
+            <View style={styles.quickDateRow}>
+              <TouchableOpacity
+                style={styles.quickDateButton}
+                onPress={() => {
+                  const today = new Date().toISOString().split('T')[0];
+                  if (datePickerMode === 'from') {
+                    setDateFrom(today);
+                  } else {
+                    setDateTo(today);
+                  }
+                  setDatePickerVisible(false);
+                }}
+              >
+                <Text style={styles.quickDateText}>Today</Text>
+              </TouchableOpacity>
+              
+              <TouchableOpacity
+                style={styles.quickDateButton}
+                onPress={() => {
+                  const lastWeek = new Date();
+                  lastWeek.setDate(lastWeek.getDate() - 7);
+                  const dateStr = lastWeek.toISOString().split('T')[0];
+                  if (datePickerMode === 'from') {
+                    setDateFrom(dateStr);
+                  } else {
+                    setDateTo(dateStr);
+                  }
+                  setDatePickerVisible(false);
+                }}
+              >
+                <Text style={styles.quickDateText}>Last Week</Text>
+              </TouchableOpacity>
+              
+              <TouchableOpacity
+                style={styles.quickDateButton}
+                onPress={() => {
+                  const lastMonth = new Date();
+                  lastMonth.setMonth(lastMonth.getMonth() - 1);
+                  const dateStr = lastMonth.toISOString().split('T')[0];
+                  if (datePickerMode === 'from') {
+                    setDateFrom(dateStr);
+                  } else {
+                    setDateTo(dateStr);
+                  }
+                  setDatePickerVisible(false);
+                }}
+              >
+                <Text style={styles.quickDateText}>Last Month</Text>
+              </TouchableOpacity>
+            </View>
+
+            {/* Manual Date Input */}
+            <View style={styles.manualDateInput}>
+              <Text style={styles.manualDateLabel}>Or enter date (DD-MM-YYYY):</Text>
+              <TextInput
+                style={styles.manualDateField}
+                placeholder="DD-MM-YYYY"
+                placeholderTextColor="#9E9E9E"
+                onChangeText={(text) => {
+                  if (text.length === 10 && text.includes('-')) {
+                    const parts = text.split('-');
+                    if (parts.length === 3) {
+                      const [dd, mm, yyyy] = parts;
+                      const isoDate = `${yyyy}-${mm}-${dd}`;
+                      const date = new Date(isoDate);
+                      if (!isNaN(date.getTime())) {
+                        if (datePickerMode === 'from') {
+                          setDateFrom(isoDate);
+                        } else {
+                          setDateTo(isoDate);
+                        }
+                        setDatePickerVisible(false);
+                      }
+                    }
+                  }
+                }}
+              />
+            </View>
+
+            <TouchableOpacity
+              style={styles.datePickerCloseButton}
+              onPress={() => setDatePickerVisible(false)}
+            >
+              <Text style={styles.datePickerCloseButtonText}>Cancel</Text>
             </TouchableOpacity>
           </Pressable>
         </Pressable>
