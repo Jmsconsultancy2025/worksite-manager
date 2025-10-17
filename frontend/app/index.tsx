@@ -122,24 +122,20 @@ export default function Index() {
       {/* Bottom Navigation Bar */}
       <View style={styles.bottomNav}>
         <TouchableOpacity style={styles.navItem}>
-          <MaterialIcons name="home" size={24} color="#4CAF50" />
-          <Text style={[styles.navLabel, styles.navLabelActive]}>Home</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.navItem} onPress={() => router.push('/workers')}>
-          <MaterialIcons name="people" size={24} color="#9E9E9E" />
-          <Text style={styles.navLabel}>Workers</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.navItem} onPress={() => router.push('/cashbook')}>
-          <MaterialIcons name="account-balance-wallet" size={24} color="#9E9E9E" />
-          <Text style={styles.navLabel}>Cashbook</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.navItem} onPress={() => router.push('/notes')}>
-          <MaterialIcons name="note" size={24} color="#9E9E9E" />
-          <Text style={styles.navLabel}>Notes</Text>
+          <MaterialIcons name="insert-chart" size={24} color="#4CAF50" />
+          <Text style={[styles.navLabel, styles.navLabelActive]}>Reports</Text>
         </TouchableOpacity>
         <TouchableOpacity style={styles.navItem}>
-          <MaterialIcons name="bar-chart" size={24} color="#9E9E9E" />
-          <Text style={styles.navLabel}>Reports</Text>
+          <MaterialIcons name="feedback" size={24} color="#9E9E9E" />
+          <Text style={styles.navLabel}>Feedback</Text>
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.navItem}>
+          <MaterialIcons name="info" size={24} color="#9E9E9E" />
+          <Text style={styles.navLabel}>About Us</Text>
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.navItem}>
+          <MaterialIcons name="star" size={24} color="#9E9E9E" />
+          <Text style={styles.navLabel}>Plans</Text>
         </TouchableOpacity>
       </View>
     </SafeAreaView>
