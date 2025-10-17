@@ -747,8 +747,10 @@ const styles = StyleSheet.create({
     }),
   },
   backButton: {
-    padding: 4,
+    padding: 8,
     marginRight: 12,
+    borderRadius: 20,
+    backgroundColor: 'rgba(26, 35, 126, 0.1)',
   },
   headerTextContainer: {
     flex: 1,

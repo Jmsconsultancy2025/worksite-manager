@@ -20,14 +20,11 @@ import {
   MapPin,
   ExternalLink,
 } from 'lucide-react';
+import { useRouter } from 'expo-router';
 import { Button } from '../ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
 import { Badge } from '../ui/badge';
 import { ImageWithFallback } from '../figma/ImageWithFallback';
-
-interface AboutPageProps {
-  onBack: () => void;
-}
 
 const features = [
   { icon: Users, title: "Worker Management", description: "Comprehensive workforce tracking and management" },
@@ -45,7 +42,9 @@ const teamMembers = [
 
 const miztechLogo = require('../assets/images/react-logo.png'); // Placeholder for MizTech logo
 
-export default function AboutPage({ onBack }: AboutPageProps) {
+export default function AboutPage() {
+  const router = useRouter();
+
   return (
     <SafeAreaView style={styles.safeArea}>
       <StatusBar barStyle="dark-content" backgroundColor="#2E7D32" />
@@ -59,7 +58,7 @@ export default function AboutPage({ onBack }: AboutPageProps) {
         <View style={styles.header}>
           <TouchableOpacity
             style={styles.backButton}
-            onPress={onBack}
+            onPress={() => router.back()}
           >
             <ArrowLeft size={20} color="#FFFFFF" />
           </TouchableOpacity>
@@ -263,7 +262,7 @@ const styles = StyleSheet.create({
     width: 40,
     height: 40,
     borderRadius: 20,
-    backgroundColor: 'rgba(255, 255, 255, 0.1)',
+    backgroundColor: 'rgba(255, 255, 255, 0.2)',
     alignItems: 'center',
     justifyContent: 'center',
     marginRight: 12,

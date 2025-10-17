@@ -129,7 +129,7 @@ export default function Index() {
           <MaterialIcons name="feedback" size={24} color="#9E9E9E" />
           <Text style={styles.navLabel}>Feedback</Text>
         </TouchableOpacity>
-        <TouchableOpacity style={styles.navItem}>
+        <TouchableOpacity style={styles.navItem} onPress={() => router.push('/about')}>
           <MaterialIcons name="info" size={24} color="#9E9E9E" />
           <Text style={styles.navLabel}>About Us</Text>
         </TouchableOpacity>
