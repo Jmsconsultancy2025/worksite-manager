@@ -58,7 +58,7 @@ export default function AboutPage() {
         <View style={styles.header}>
           <TouchableOpacity
             style={styles.backButton}
-            onPress={() => router.back()}
+            onPress={() => router.push('/')}
           >
             <ArrowLeft size={20} color="#FFFFFF" />
           </TouchableOpacity>
