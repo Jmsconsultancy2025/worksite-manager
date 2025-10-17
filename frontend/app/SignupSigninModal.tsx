@@ -34,8 +34,7 @@ export function SignupSigninModal({ isOpen, onClose }: SignupSigninModalProps) {
     }));
   };
 
-  const handleSubmit = async (e: any) => {
-    e.preventDefault();
+  const handleSubmit = async () => {
     setIsLoading(true);
 
     // Validation checks
