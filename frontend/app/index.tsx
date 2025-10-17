@@ -13,6 +13,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { MaterialIcons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import { ReferralModal } from './ReferralModal';
+import { SignupSigninModal } from './SignupSigninModal';
 import Toast from 'react-native-toast-message';
 
 // Mock site data
@@ -43,6 +44,7 @@ const mockSites = [
 export default function Index() {
   const router = useRouter();
   const [isReferralModalOpen, setIsReferralModalOpen] = useState(false);
+  const [isSignupSigninModalOpen, setIsSignupSigninModalOpen] = useState(false);
 
   return (
     <SafeAreaView style={styles.safeArea}>
@@ -56,7 +58,7 @@ export default function Index() {
         <View style={styles.topBar}>
           <Text style={styles.brandTitle}>Worksite</Text>
           <View style={styles.topBarRight}>
-            <TouchableOpacity style={styles.signInButton}>
+            <TouchableOpacity style={styles.signInButton} onPress={() => setIsSignupSigninModalOpen(true)}>
               <MaterialIcons name="person-add" size={16} color="#4CAF50" />
               <Text style={styles.signInText}>Sign In</Text>
             </TouchableOpacity>
@@ -126,6 +128,12 @@ export default function Index() {
       <ReferralModal
         isOpen={isReferralModalOpen}
         onClose={() => setIsReferralModalOpen(false)}
+      />
+
+      {/* Signup/Signin Modal */}
+      <SignupSigninModal
+        isOpen={isSignupSigninModalOpen}
+        onClose={() => setIsSignupSigninModalOpen(false)}
       />
 
       {/* Toast */}
