@@ -161,7 +161,7 @@ export default function Index() {
           <MaterialIcons name="insert-chart" size={24} color="#4CAF50" />
           <Text style={[styles.navLabel, styles.navLabelActive]}>Reports</Text>
         </TouchableOpacity>
-        <TouchableOpacity style={styles.navItem}>
+        <TouchableOpacity style={styles.navItem} onPress={() => router.push('/feedback')}>
           <MaterialIcons name="feedback" size={24} color="#9E9E9E" />
           <Text style={styles.navLabel}>Feedback</Text>
         </TouchableOpacity>
