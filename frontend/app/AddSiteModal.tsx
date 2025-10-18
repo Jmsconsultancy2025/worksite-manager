@@ -34,7 +34,7 @@ export function AddSiteModal({ isOpen, onClose, onAddSite }: AddSiteModalProps) 
   const [formData, setFormData] = useState<NewSiteData>({
     name: '',
     location: '',
-    manager: '',
+    manager: undefined,
     numberOfWorkers: 0,
     startDate: '',
   });
@@ -93,7 +93,7 @@ export function AddSiteModal({ isOpen, onClose, onAddSite }: AddSiteModalProps) 
     setFormData({
       name: '',
       location: '',
-      manager: '',
+      manager: undefined,
       numberOfWorkers: 0,
       startDate: '',
     });
@@ -107,13 +107,13 @@ export function AddSiteModal({ isOpen, onClose, onAddSite }: AddSiteModalProps) 
           <View style={styles.titleRow}>
             <View style={styles.titleContainer}>
               <Plus size={20} color="#2E7D32" style={styles.plusIcon} />
-              <DialogTitle style={styles.title}>Add New Site</DialogTitle>
+              <DialogTitle>Add New Site</DialogTitle>
             </View>
             <TouchableOpacity onPress={handleCancel} style={styles.closeButton}>
               <X size={24} color="#6B7280" />
             </TouchableOpacity>
           </View>
-          <DialogDescription style={styles.description}>
+          <DialogDescription>
             Fill in the details below to create a new construction site.
           </DialogDescription>
         </DialogHeader>
@@ -129,7 +129,7 @@ export function AddSiteModal({ isOpen, onClose, onAddSite }: AddSiteModalProps) 
               placeholder="Enter site name"
               value={formData.name}
               onChangeText={(value) => handleInputChange('name', value)}
-              style={[styles.input, errors.name && styles.inputError]}
+              style={errors.name ? [styles.input, styles.inputError] : styles.input}
             />
             {errors.name && <Text style={styles.errorText}>{errors.name}</Text>}
           </View>
@@ -144,7 +144,7 @@ export function AddSiteModal({ isOpen, onClose, onAddSite }: AddSiteModalProps) 
               placeholder="Enter location or address"
               value={formData.location}
               onChangeText={(value) => handleInputChange('location', value)}
-              style={[styles.input, errors.location && styles.inputError]}
+              style={errors.location ? [styles.input, styles.inputError] : styles.input}
             />
             {errors.location && <Text style={styles.errorText}>{errors.location}</Text>}
           </View>
@@ -156,7 +156,7 @@ export function AddSiteModal({ isOpen, onClose, onAddSite }: AddSiteModalProps) 
               <Label style={styles.label}>Manager (Optional)</Label>
             </View>
             <Select
-              value={formData.manager}
+              value={formData.manager || ''}
               onValueChange={(value) => handleInputChange('manager', value)}
               items={managerOptions}
               placeholder="Select a manager"
@@ -178,7 +178,7 @@ export function AddSiteModal({ isOpen, onClose, onAddSite }: AddSiteModalProps) 
                 handleInputChange('numberOfWorkers', num);
               }}
               keyboardType="numeric"
-              style={[styles.input, errors.numberOfWorkers && styles.inputError]}
+              style={errors.numberOfWorkers ? [styles.input, styles.inputError] : styles.input}
             />
             {errors.numberOfWorkers && <Text style={styles.errorText}>{errors.numberOfWorkers}</Text>}
           </View>
@@ -193,7 +193,7 @@ export function AddSiteModal({ isOpen, onClose, onAddSite }: AddSiteModalProps) 
               placeholder="YYYY-MM-DD"
               value={formData.startDate}
               onChangeText={(value) => handleInputChange('startDate', value)}
-              style={[styles.input, errors.startDate && styles.inputError]}
+              style={errors.startDate ? [styles.input, styles.inputError] : styles.input}
             />
             {errors.startDate && <Text style={styles.errorText}>{errors.startDate}</Text>}
           </View>

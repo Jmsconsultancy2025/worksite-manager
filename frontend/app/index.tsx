@@ -185,21 +185,23 @@ export default function Index() {
         </TouchableOpacity>
       </View>
     </SafeAreaView>
-  // Handler to add new site
-  const handleAddSite = (newSiteData: NewSiteData) => {
-    const newSite = {
-      id: Math.max(...siteData.map(s => s.id)) + 1,
-      name: newSiteData.name,
-      location: newSiteData.location,
-      totalWorkers: newSiteData.numberOfWorkers,
-      presentWorkers: 0, // Start with 0 present workers
-      manager: newSiteData.manager,
-      startDate: newSiteData.startDate
-    };
-
-    setSiteData(prev => [...prev, newSite]);
-  };
+  );
 }
+
+// Handler to add new site
+const handleAddSite = (newSiteData: NewSiteData) => {
+  const newSite = {
+    id: Math.max(...siteData.map((s: any) => s.id)) + 1,
+    name: newSiteData.name,
+    location: newSiteData.location,
+    totalWorkers: newSiteData.numberOfWorkers,
+    presentWorkers: 0, // Start with 0 present workers
+    manager: newSiteData.manager,
+    startDate: newSiteData.startDate
+  };
+
+  setSiteData((prev: any) => [...prev, newSite]);
+};
 
 const styles = StyleSheet.create({
   safeArea: {
