@@ -14,6 +14,7 @@ import { MaterialIcons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import { ReferralModal } from './ReferralModal';
 import { SignupSigninModal } from './SignupSigninModal';
+import { SettingsModal } from './SettingsModal';
 import Toast from 'react-native-toast-message';
 
 // Mock site data
@@ -42,9 +43,10 @@ const mockSites = [
 ];
 
 export default function Index() {
-  const router = useRouter();
-  const [isReferralModalOpen, setIsReferralModalOpen] = useState(false);
-  const [isSignupSigninModalOpen, setIsSignupSigninModalOpen] = useState(false);
+   const router = useRouter();
+   const [isReferralModalOpen, setIsReferralModalOpen] = useState(false);
+   const [isSignupSigninModalOpen, setIsSignupSigninModalOpen] = useState(false);
+   const [isSettingsModalOpen, setIsSettingsModalOpen] = useState(false);
 
   return (
     <SafeAreaView style={styles.safeArea}>
@@ -66,7 +68,7 @@ export default function Index() {
               <MaterialIcons name="card-giftcard" size={16} color="#4CAF50" />
               <Text style={styles.referText}>Refer a Friend</Text>
             </TouchableOpacity>
-            <TouchableOpacity style={styles.settingsIcon}>
+            <TouchableOpacity style={styles.settingsIcon} onPress={() => setIsSettingsModalOpen(true)}>
               <MaterialIcons name="settings" size={24} color="#757575" />
             </TouchableOpacity>
           </View>
@@ -134,6 +136,12 @@ export default function Index() {
       <SignupSigninModal
         isOpen={isSignupSigninModalOpen}
         onClose={() => setIsSignupSigninModalOpen(false)}
+      />
+
+      {/* Settings Modal */}
+      <SettingsModal
+        isOpen={isSettingsModalOpen}
+        onClose={() => setIsSettingsModalOpen(false)}
       />
 
       {/* Toast */}
