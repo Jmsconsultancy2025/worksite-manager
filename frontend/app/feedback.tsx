@@ -1,15 +1,5 @@
 import React, { useState } from 'react';
 import {
-  Text,
-  View,
-  StyleSheet,
-  ScrollView,
-  TouchableOpacity,
-  Platform,
-  StatusBar,
-} from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
-import {
   ArrowLeft,
   Send,
   Star,
@@ -17,14 +7,13 @@ import {
   Mail,
   Phone,
   User,
-} from 'lucide-react-native';
-import { useRouter } from 'expo-router';
-import { Button } from '../ui/button';
-import { Input } from '../ui/input';
-import { Label } from '../ui/label';
-import { Textarea } from '../ui/textarea';
-import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
-import Toast from 'react-native-toast-message';
+} from 'lucide-react';
+import { Button } from './ui/button';
+import { Input } from './ui/input';
+import { Label } from './ui/label';
+import { Textarea } from './ui/textarea';
+import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
+import { toast } from 'sonner';
 
 interface FeedbackPageProps {
   onBack: () => void;
@@ -52,7 +41,6 @@ const getRatingLabel = (rating: number): string => {
 };
 
 export default function FeedbackPage({ onBack }: FeedbackPageProps) {
-  const router = useRouter();
   const [rating, setRating] = useState(0);
   const [feedback, setFeedback] = useState('');
   const [name, setName] = useState('');
@@ -66,20 +54,12 @@ export default function FeedbackPage({ onBack }: FeedbackPageProps) {
   const handleSubmit = () => {
     // Validation
     if (!name.trim() || !feedback.trim() || rating === 0) {
-      Toast.show({
-        type: 'error',
-        text1: 'Validation Error',
-        text2: 'Please fill in all required fields and provide a rating',
-      });
+      toast.error('Please fill in all required fields and provide a rating');
       return;
     }
 
     // Simulate feedback submission
-    Toast.show({
-      type: 'success',
-      text1: 'Thank you!',
-      text2: 'Thank you for your feedback! We appreciate your input.',
-    });
+    toast.success('Thank you for your feedback! We appreciate your input.');
 
     // Reset form
     setRating(0);
@@ -90,351 +70,146 @@ export default function FeedbackPage({ onBack }: FeedbackPageProps) {
   };
 
   return (
-    <SafeAreaView style={styles.safeArea}>
-      <StatusBar barStyle="light-content" backgroundColor="#2E7D32" />
-
-      <ScrollView
-        style={styles.container}
-        contentContainerStyle={styles.contentContainer}
-        showsVerticalScrollIndicator={false}
-      >
-        {/* Header Section */}
-        <View style={styles.header}>
-          <TouchableOpacity
-            style={styles.backButton}
-            onPress={onBack}
+    <div className="min-h-screen bg-gray-50">
+      <div className="max-w-md mx-auto bg-white min-h-screen">
+        {/* Header */}
+        <div className="bg-[#2E7D32] px-4 py-4 flex items-center">
+          <button
+            onClick={onBack}
+            className="w-10 h-10 bg-white/20 rounded-full flex items-center justify-center mr-3"
           >
-            <ArrowLeft size={20} color="#FFFFFF" />
-          </TouchableOpacity>
-          <View style={styles.headerTitleContainer}>
-            <MessageSquare size={24} color="#FFFFFF" />
-            <Text style={styles.headerTitle}>Feedback</Text>
-          </View>
-        </View>
+            <ArrowLeft className="h-5 w-5 text-white" />
+          </button>
+          <div className="flex items-center gap-2">
+            <MessageSquare className="h-6 w-6 text-white" />
+            <h1 className="text-xl font-bold text-white">Feedback</h1>
+          </div>
+        </div>
 
-        {/* Content Section */}
-        <View style={styles.contentSection}>
+        {/* Content */}
+        <div className="p-4 space-y-6">
           {/* Feedback Form Card */}
-          <Card style={styles.formCard}>
+          <Card className="shadow-lg">
             <CardHeader>
-              <CardTitle style={styles.cardTitle}>
-                <MessageSquare size={20} color="#2E7D32" />
-                <Text style={styles.cardTitleText}>Share Your Experience</Text>
+              <CardTitle className="flex items-center gap-2 text-[#2E7D32]">
+                <MessageSquare className="h-5 w-5" />
+                Share Your Experience
               </CardTitle>
             </CardHeader>
-            <CardContent style={styles.formContent}>
+            <CardContent className="space-y-4">
               {/* Name Field */}
-              <View style={styles.fieldContainer}>
-                <Label style={styles.label}>
-                  <User size={16} color="#2E7D32" />
-                  <Text style={styles.labelText}>Name *</Text>
+              <div className="space-y-2">
+                <Label className="flex items-center gap-2">
+                  <User className="h-4 w-4" />
+                  Name *
                 </Label>
                 <Input
                   placeholder="Your full name"
                   value={name}
-                  onChangeText={setName}
+                  onChange={(e) => setName(e.target.value)}
+                  required
                 />
-              </View>
+              </div>
 
               {/* Email Field */}
-              <View style={styles.fieldContainer}>
-                <Label style={styles.label}>
-                  <Mail size={16} color="#2E7D32" />
-                  <Text style={styles.labelText}>Email (Optional)</Text>
+              <div className="space-y-2">
+                <Label className="flex items-center gap-2">
+                  <Mail className="h-4 w-4" />
+                  Email (Optional)
                 </Label>
                 <Input
+                  type="email"
                   placeholder="your.email@example.com"
                   value={email}
-                  onChangeText={setEmail}
-                  keyboardType="email-address"
-                  autoCapitalize="none"
+                  onChange={(e) => setEmail(e.target.value)}
                 />
-              </View>
+              </div>
 
               {/* Star Rating */}
-              <View style={styles.fieldContainer}>
-                <Label style={styles.label}>
-                  <Text style={styles.labelText}>Rate Your Experience *</Text>
-                </Label>
-                <View style={styles.ratingContainer}>
+              <div className="space-y-2">
+                <Label>Rate Your Experience *</Label>
+                <div className="flex items-center space-x-1">
                   {[1, 2, 3, 4, 5].map((star) => (
-                    <TouchableOpacity
+                    <button
                       key={star}
-                      style={styles.starButton}
-                      onPress={() => handleStarClick(star)}
+                      className="p-1 transition-colors"
+                      onClick={() => handleStarClick(star)}
                     >
                       <Star
-                        size={32}
-                        color={star <= rating ? '#FBBF24' : '#D1D5DB'}
-                        fill={star <= rating ? '#FBBF24' : 'none'}
+                        className={`h-8 w-8 ${
+                          star <= rating ? 'text-yellow-400 fill-current' : 'text-gray-300'
+                        }`}
                       />
-                    </TouchableOpacity>
+                    </button>
                   ))}
                   {rating > 0 && (
-                    <Text style={styles.ratingLabel}>{getRatingLabel(rating)}</Text>
+                    <span className="ml-2 text-sm text-gray-500">
+                      {getRatingLabel(rating)}
+                    </span>
                   )}
-                </View>
-              </View>
+                </div>
+              </div>
 
               {/* Category Dropdown */}
-              <View style={styles.fieldContainer}>
-                <Label style={styles.label}>
-                  <Text style={styles.labelText}>Feedback Category</Text>
-                </Label>
-                <View style={styles.selectContainer}>
-                  <select
-                    style={styles.select}
-                    value={category}
-                    onChange={(e) => setCategory(e.target.value)}
-                  >
-                    {categoryOptions.map((option) => (
-                      <option key={option.value} value={option.value}>
-                        {option.label}
-                      </option>
-                    ))}
-                  </select>
-                </View>
-              </View>
+              <div className="space-y-2">
+                <Label htmlFor="category">Feedback Category</Label>
+                <select
+                  id="category"
+                  className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-[#2E7D32] focus:border-transparent"
+                  value={category}
+                  onChange={(e) => setCategory(e.target.value)}
+                >
+                  {categoryOptions.map((option) => (
+                    <option key={option.value} value={option.value}>
+                      {option.label}
+                    </option>
+                  ))}
+                </select>
+              </div>
 
               {/* Feedback Text */}
-              <View style={styles.fieldContainer}>
-                <Label style={styles.label}>
-                  <Text style={styles.labelText}>Your Feedback *</Text>
-                </Label>
+              <div className="space-y-2">
+                <Label htmlFor="feedback">Your Feedback *</Label>
                 <Textarea
+                  id="feedback"
                   placeholder="Please share your thoughts, suggestions, or report any issues you've encountered..."
                   value={feedback}
-                  onChangeText={setFeedback}
-                  numberOfLines={5}
-                  multiline
-                  style={styles.textarea}
+                  onChange={(e) => setFeedback(e.target.value)}
+                  rows={5}
+                  className="resize-none"
+                  required
                 />
-              </View>
+              </div>
 
               {/* Submit Button */}
-              <View style={styles.submitButtonContainer}>
-                <Button
-                  style={styles.submitButton}
-                  onPress={handleSubmit}
-                >
-                  <Send size={16} color="#FFFFFF" />
-                  <Text style={styles.submitButtonText}>Submit Feedback</Text>
-                </Button>
-              </View>
+              <Button
+                className="w-full bg-[#16A34A] hover:bg-[#15803D] text-white"
+                onClick={handleSubmit}
+              >
+                <Send className="h-4 w-4 mr-2" />
+                Submit Feedback
+              </Button>
             </CardContent>
           </Card>
 
           {/* Contact Information Card */}
-          <Card style={styles.contactCard}>
-            <CardContent style={styles.contactContent}>
-              <Text style={styles.contactTitle}>Need Direct Support?</Text>
-              <View style={styles.contactContainer}>
-                <View style={styles.contactItem}>
-                  <Mail size={20} color="#6B7280" />
-                  <View style={styles.contactTextContainer}>
-                    <Text style={styles.contactValue}>support@worksite.com</Text>
-                  </View>
-                </View>
-                <View style={styles.contactItem}>
-                  <Phone size={20} color="#6B7280" />
-                  <View style={styles.contactTextContainer}>
-                    <Text style={styles.contactValue}>+91 98765 43210</Text>
-                  </View>
-                </View>
-              </View>
+          <Card className="shadow-sm">
+            <CardContent className="p-4">
+              <h3 className="font-semibold text-gray-800 mb-3">Need Direct Support?</h3>
+              <div className="space-y-2 text-sm">
+                <div className="flex items-center gap-2 text-gray-600">
+                  <Mail className="h-4 w-4" />
+                  support@worksite.com
+                </div>
+                <div className="flex items-center gap-2 text-gray-600">
+                  <Phone className="h-4 w-4" />
+                  +91 98765 43210
+                </div>
+              </div>
             </CardContent>
           </Card>
-        </View>
-      </ScrollView>
-
-      {/* Toast */}
-      <Toast />
-    </SafeAreaView>
+        </div>
+      </div>
+    </div>
   );
 }
-
-const styles = StyleSheet.create({
-  safeArea: {
-    flex: 1,
-    backgroundColor: '#F9FAFB',
-    maxWidth: 393,
-    alignSelf: 'center',
-    width: '100%',
-  },
-  container: {
-    flex: 1,
-    backgroundColor: '#F9FAFB',
-  },
-  contentContainer: {
-    flexGrow: 1,
-  },
-  // Header
-  header: {
-    backgroundColor: '#2E7D32',
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingHorizontal: 16,
-    paddingVertical: 16,
-    ...Platform.select({
-      ios: {
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.1,
-        shadowRadius: 4,
-      },
-      android: {
-        elevation: 4,
-      },
-    }),
-  },
-  backButton: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    backgroundColor: 'rgba(255, 255, 255, 0.2)',
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginRight: 12,
-  },
-  headerTitleContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-  },
-  headerTitle: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    color: '#FFFFFF',
-  },
-  // Content
-  contentSection: {
-    paddingHorizontal: 16,
-    paddingTop: 16,
-    paddingBottom: 24,
-    gap: 24,
-    maxWidth: 393,
-    alignSelf: 'center',
-    width: '100%',
-  },
-  formCard: {
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
-  },
-  cardTitle: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-  },
-  cardTitleText: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    color: '#2E7D32',
-  },
-  formContent: {
-    gap: 16,
-    paddingBottom: 16,
-  },
-  fieldContainer: {
-    gap: 8,
-  },
-  label: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-  },
-  labelText: {
-    fontSize: 14,
-    fontWeight: '600',
-    color: '#374151',
-  },
-  // Rating
-  ratingContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 4,
-  },
-  starButton: {
-    padding: 4,
-  },
-  ratingLabel: {
-    marginLeft: 8,
-    fontSize: 14,
-    color: '#6B7280',
-  },
-  // Select
-  selectContainer: {
-    width: '100%',
-  },
-  select: {
-    width: '100%',
-    paddingHorizontal: 12,
-    paddingVertical: 10,
-    borderWidth: 1,
-    borderColor: '#D1D5DB',
-    borderRadius: 8,
-    backgroundColor: '#FFFFFF',
-    fontSize: 14,
-  },
-  selectFocus: {
-    borderColor: '#2E7D32',
-    borderWidth: 2,
-  },
-  // Textarea
-  textarea: {
-    resize: 'none',
-  },
-  // Submit Button
-  submitButtonContainer: {
-    width: '100%',
-    marginTop: 8,
-  },
-  submitButton: {
-    backgroundColor: '#16A34A',
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: 8,
-    width: '100%',
-  },
-  submitButtonText: {
-    color: '#FFFFFF',
-    fontSize: 16,
-    fontWeight: '600',
-  },
-  // Contact Card
-  contactCard: {
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.05,
-    shadowRadius: 2,
-    elevation: 1,
-  },
-  contactContent: {
-    paddingHorizontal: 16,
-    paddingVertical: 16,
-  },
-  contactTitle: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: '#111827',
-    marginBottom: 12,
-  },
-  contactContainer: {
-    gap: 12,
-  },
-  contactItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 12,
-  },
-  contactTextContainer: {
-    flex: 1,
-  },
-  contactValue: {
-    fontSize: 14,
-    color: '#6B7280',
-  },
-});
