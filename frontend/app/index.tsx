@@ -15,6 +15,7 @@ import { useRouter } from 'expo-router';
 import { ReferralModal } from './ReferralModal';
 import { SignupSigninModal } from './SignupSigninModal';
 import { SettingsModal } from './SettingsModal';
+import { AddSiteModal, NewSiteData } from './AddSiteModal';
 import Toast from 'react-native-toast-message';
 
 // Mock site data
@@ -43,10 +44,12 @@ const mockSites = [
 ];
 
 export default function Index() {
-   const router = useRouter();
-   const [isReferralModalOpen, setIsReferralModalOpen] = useState(false);
-   const [isSignupSigninModalOpen, setIsSignupSigninModalOpen] = useState(false);
-   const [isSettingsModalOpen, setIsSettingsModalOpen] = useState(false);
+    const router = useRouter();
+    const [isReferralModalOpen, setIsReferralModalOpen] = useState(false);
+    const [isSignupSigninModalOpen, setIsSignupSigninModalOpen] = useState(false);
+    const [isSettingsModalOpen, setIsSettingsModalOpen] = useState(false);
+    const [isAddSiteModalOpen, setIsAddSiteModalOpen] = useState(false);
+    const [siteData, setSiteData] = useState(mockSites);
 
   return (
     <SafeAreaView style={styles.safeArea}>
@@ -93,7 +96,7 @@ export default function Index() {
         </View>
 
         {/* Site Cards */}
-        {mockSites.map((site) => (
+        {siteData.map((site) => (
           <TouchableOpacity 
             key={site.id} 
             style={styles.siteCard}
@@ -114,7 +117,7 @@ export default function Index() {
         ))}
 
         {/* Add New Site Card */}
-        <TouchableOpacity style={styles.addSiteCard}>
+        <TouchableOpacity style={styles.addSiteCard} onPress={() => setIsAddSiteModalOpen(true)}>
           <View style={styles.addIconCircle}>
             <MaterialIcons name="add" size={32} color="#9E9E9E" />
           </View>
@@ -152,6 +155,13 @@ export default function Index() {
         onClose={() => setIsSettingsModalOpen(false)}
       />
 
+      {/* Add Site Modal */}
+      <AddSiteModal
+        isOpen={isAddSiteModalOpen}
+        onClose={() => setIsAddSiteModalOpen(false)}
+        onAddSite={handleAddSite}
+      />
+
       {/* Toast */}
       <Toast />
 
@@ -175,7 +185,20 @@ export default function Index() {
         </TouchableOpacity>
       </View>
     </SafeAreaView>
-  );
+  // Handler to add new site
+  const handleAddSite = (newSiteData: NewSiteData) => {
+    const newSite = {
+      id: Math.max(...siteData.map(s => s.id)) + 1,
+      name: newSiteData.name,
+      location: newSiteData.location,
+      totalWorkers: newSiteData.numberOfWorkers,
+      presentWorkers: 0, // Start with 0 present workers
+      manager: newSiteData.manager,
+      startDate: newSiteData.startDate
+    };
+
+    setSiteData(prev => [...prev, newSite]);
+  };
 }
 
 const styles = StyleSheet.create({
