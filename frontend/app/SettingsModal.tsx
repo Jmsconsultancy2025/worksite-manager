@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { View, Text, ScrollView, StyleSheet } from 'react-native';
-import { User, Bell, Clock, DollarSign, BookOpen, Info, LogOut, ChevronRight, ArrowLeft } from 'lucide-react-native';
+import { MaterialIcons } from '@expo/vector-icons';
 import Toast from 'react-native-toast-message';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '../ui/dialog';
 import { Button } from '../ui/button';
@@ -21,42 +21,42 @@ interface SettingsModalProps {
 const settingsItems = [
   {
     id: 'profile',
-    icon: User,
+    icon: 'person',
     title: 'Profile & Account',
     description: 'Manage your personal information',
     view: 'profile' as SettingsView
   },
   {
     id: 'preferences',
-    icon: Bell,
+    icon: 'notifications',
     title: 'App Preferences',
     description: 'Notifications and display settings',
     view: 'preferences' as SettingsView
   },
   {
     id: 'attendance',
-    icon: Clock,
+    icon: 'schedule',
     title: 'Attendance Settings',
     description: 'Configure attendance rules',
     view: 'attendance' as SettingsView
   },
   {
     id: 'salary',
-    icon: DollarSign,
+    icon: 'attach-money',
     title: 'Salary Settings',
     description: 'Payroll and working hours',
     view: 'salary' as SettingsView
   },
   {
     id: 'cashbook',
-    icon: BookOpen,
+    icon: 'book',
     title: 'Cashbook Settings',
     description: 'Default categories and preferences',
     view: 'cashbook' as SettingsView
   },
   {
     id: 'about',
-    icon: Info,
+    icon: 'info',
     title: 'About',
     description: 'App version and support',
     view: 'about' as SettingsView
@@ -134,7 +134,6 @@ export function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
 
       <View style={styles.menuContainer}>
         {settingsItems.map((item) => {
-          const IconComponent = item.icon;
           return (
             <Button
               key={item.id}
@@ -143,12 +142,12 @@ export function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
               onPress={() => setCurrentView(item.view)}
             >
               <View style={styles.menuItemContent}>
-                <IconComponent size={20} color="#6B7280" />
+                <MaterialIcons name={item.icon} size={20} color="#6B7280" />
                 <View style={styles.menuItemText}>
                   <Text style={styles.menuItemTitle}>{item.title}</Text>
                   <Text style={styles.menuItemDescription}>{item.description}</Text>
                 </View>
-                <ChevronRight size={16} color="#9CA3AF" />
+                <MaterialIcons name="chevron-right" size={16} color="#9CA3AF" />
               </View>
             </Button>
           );
@@ -163,7 +162,7 @@ export function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
         onPress={handleLogout}
       >
         <View style={styles.logoutContent}>
-          <LogOut size={20} color="#EF4444" />
+          <MaterialIcons name="logout" size={20} color="#EF4444" />
           <Text style={styles.logoutText}>Logout</Text>
         </View>
       </Button>
@@ -174,7 +173,7 @@ export function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
     <View style={styles.viewContainer}>
       <Button variant="ghost" style={styles.backButton} onPress={handleBack}>
         <View style={styles.backContent}>
-          <ArrowLeft size={16} color="#6B7280" />
+          <MaterialIcons name="arrow-back" size={16} color="#6B7280" />
           <Text style={styles.backText}>Back</Text>
         </View>
       </Button>
@@ -216,7 +215,7 @@ export function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
     <View style={styles.viewContainer}>
       <Button variant="ghost" style={styles.backButton} onPress={handleBack}>
         <View style={styles.backContent}>
-          <ArrowLeft size={16} color="#6B7280" />
+          <MaterialIcons name="arrow-back" size={16} color="#6B7280" />
           <Text style={styles.backText}>Back</Text>
         </View>
       </Button>
@@ -254,7 +253,7 @@ export function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
     <View style={styles.viewContainer}>
       <Button variant="ghost" style={styles.backButton} onPress={handleBack}>
         <View style={styles.backContent}>
-          <ArrowLeft size={16} color="#6B7280" />
+          <MaterialIcons name="arrow-back" size={16} color="#6B7280" />
           <Text style={styles.backText}>Back</Text>
         </View>
       </Button>
@@ -295,7 +294,7 @@ export function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
     <View style={styles.viewContainer}>
       <Button variant="ghost" style={styles.backButton} onPress={handleBack}>
         <View style={styles.backContent}>
-          <ArrowLeft size={16} color="#6B7280" />
+          <MaterialIcons name="arrow-back" size={16} color="#6B7280" />
           <Text style={styles.backText}>Back</Text>
         </View>
       </Button>
@@ -338,7 +337,7 @@ export function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
     <View style={styles.viewContainer}>
       <Button variant="ghost" style={styles.backButton} onPress={handleBack}>
         <View style={styles.backContent}>
-          <ArrowLeft size={16} color="#6B7280" />
+          <MaterialIcons name="arrow-back" size={16} color="#6B7280" />
           <Text style={styles.backText}>Back</Text>
         </View>
       </Button>
@@ -374,7 +373,7 @@ export function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
     <View style={styles.viewContainer}>
       <Button variant="ghost" style={styles.backButton} onPress={handleBack}>
         <View style={styles.backContent}>
-          <ArrowLeft size={16} color="#6B7280" />
+          <MaterialIcons name="arrow-back" size={16} color="#6B7280" />
           <Text style={styles.backText}>Back</Text>
         </View>
       </Button>

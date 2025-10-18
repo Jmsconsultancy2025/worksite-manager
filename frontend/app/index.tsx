@@ -52,11 +52,6 @@ export default function Index() {
     <SafeAreaView style={styles.safeArea}>
       <StatusBar barStyle="dark-content" backgroundColor="#FFFFFF" />
 
-      {/* Debug Text */}
-      <Text style={{ position: 'absolute', top: 50, right: 10, zIndex: 9999, backgroundColor: 'red', color: 'white', padding: 5 }}>
-        Settings: {isSettingsModalOpen ? 'OPEN' : 'CLOSED'}
-      </Text>
-
       {/* Top Navigation Bar */}
       <View style={styles.topBar}>
         <Text style={styles.brandTitle}>Worksite</Text>
