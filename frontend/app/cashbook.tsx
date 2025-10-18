@@ -997,7 +997,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#10B981',
   },
   redCircle: {
-    backgroundColor: '#EF4444',
+    backgroundColor: '#6B7280',
   },
   blueCircle: {
     backgroundColor: '#3B82F6',
@@ -1082,7 +1082,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#10B981',
   },
   redAccent: {
-    backgroundColor: '#EF4444',
+    backgroundColor: '#6B7280',
   },
   cardContent: {
     flex: 1,
@@ -1113,7 +1113,7 @@ const styles = StyleSheet.create({
     color: '#10B981',
   },
   amountExpense: {
-    color: '#EF4444',
+    color: '#6B7280',
   },
   description: {
     fontSize: 16,
