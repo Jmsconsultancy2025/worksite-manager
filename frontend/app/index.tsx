@@ -51,28 +51,30 @@ export default function Index() {
   return (
     <SafeAreaView style={styles.safeArea}>
       <StatusBar barStyle="dark-content" backgroundColor="#FFFFFF" />
+
+      {/* Top Navigation Bar */}
+      <View style={styles.topBar}>
+        <Text style={styles.brandTitle}>Worksite</Text>
+        <View style={styles.topBarRight}>
+          <TouchableOpacity style={styles.signInButton} onPress={() => setIsSignupSigninModalOpen(true)}>
+            <MaterialIcons name="person-add" size={16} color="#4CAF50" />
+            <Text style={styles.signInText}>Sign In</Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.referButton} onPress={() => setIsReferralModalOpen(true)}>
+            <MaterialIcons name="card-giftcard" size={16} color="#4CAF50" />
+            <Text style={styles.referText}>Refer a Friend</Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.settingsIcon} onPress={() => setIsSettingsModalOpen(true)}>
+            <MaterialIcons name="settings" size={24} color="#757575" />
+          </TouchableOpacity>
+        </View>
+      </View>
+
       <ScrollView
         style={styles.container}
         contentContainerStyle={styles.contentContainer}
         showsVerticalScrollIndicator={false}
       >
-        {/* Top Navigation Bar */}
-        <View style={styles.topBar}>
-          <Text style={styles.brandTitle}>Worksite</Text>
-          <View style={styles.topBarRight}>
-            <TouchableOpacity style={styles.signInButton} onPress={() => setIsSignupSigninModalOpen(true)}>
-              <MaterialIcons name="person-add" size={16} color="#4CAF50" />
-              <Text style={styles.signInText}>Sign In</Text>
-            </TouchableOpacity>
-            <TouchableOpacity style={styles.referButton} onPress={() => setIsReferralModalOpen(true)}>
-              <MaterialIcons name="card-giftcard" size={16} color="#4CAF50" />
-              <Text style={styles.referText}>Refer a Friend</Text>
-            </TouchableOpacity>
-            <TouchableOpacity style={styles.settingsIcon} onPress={() => setIsSettingsModalOpen(true)}>
-              <MaterialIcons name="settings" size={24} color="#757575" />
-            </TouchableOpacity>
-          </View>
-        </View>
 
         {/* Search Bar */}
         <View style={styles.searchContainer}>
