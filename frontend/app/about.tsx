@@ -72,11 +72,11 @@ export default function AboutPage() {
         <View style={styles.heroSection}>
           <ImageWithFallback
             source={{ uri: 'https://images.unsplash.com/photo-1627780538498-473424a9c46c?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxhYm91dCUyMHVzJTIwY29tcGFueSUyMGluZm98ZW58MXx8fHwxNzU4NzgwNTA3fDA&ixlib=rb-4.1.0&q=80&w=1080' }}
-            alt="About Worksite"
+            alt="About Us"
             style={styles.heroImage}
           />
           <View style={styles.heroOverlay}>
-            <Text style={styles.heroTitle}>Worksite</Text>
+            <Text style={styles.heroTitle}>Worksite Manager App</Text>
             <Text style={styles.heroSubtitle}>Revolutionizing Construction Site Management</Text>
           </View>
         </View>
@@ -93,7 +93,7 @@ export default function AboutPage() {
             </CardHeader>
             <CardContent>
               <Text style={styles.description}>
-                Worksite is a comprehensive construction site management application designed to streamline workforce management, attendance tracking, and payroll operations for construction companies and project managers.
+                Worksite Manager App is a comprehensive construction site management application designed to streamline workforce management, attendance tracking, and payroll operations for construction companies and project managers.
               </Text>
               <View style={styles.badgesContainer}>
                 <Badge variant="green">Version 1.0</Badge>
@@ -191,14 +191,14 @@ export default function AboutPage() {
                   <Mail size={20} color="#2E7D32" />
                   <View style={styles.contactTextContainer}>
                     <Text style={styles.contactLabel}>Email</Text>
-                    <Text style={styles.contactValue}>support@worksite.com</Text>
+                    <Text style={styles.contactValue}>contact@miztech.in</Text>
                   </View>
                 </View>
                 <View style={styles.contactItem}>
                   <Phone size={20} color="#2E7D32" />
                   <View style={styles.contactTextContainer}>
                     <Text style={styles.contactLabel}>Phone</Text>
-                    <Text style={styles.contactValue}>+91 98765 43210</Text>
+                    <Text style={styles.contactValue}>+91 76288 35586</Text>
                   </View>
                 </View>
                 <View style={styles.contactItem}>
