@@ -52,6 +52,11 @@ export default function Index() {
     <SafeAreaView style={styles.safeArea}>
       <StatusBar barStyle="dark-content" backgroundColor="#FFFFFF" />
 
+      {/* Debug Text */}
+      <Text style={{ position: 'absolute', top: 50, right: 10, zIndex: 9999, backgroundColor: 'red', color: 'white', padding: 5 }}>
+        Settings: {isSettingsModalOpen ? 'OPEN' : 'CLOSED'}
+      </Text>
+
       {/* Top Navigation Bar */}
       <View style={styles.topBar}>
         <Text style={styles.brandTitle}>Worksite</Text>
@@ -64,7 +69,13 @@ export default function Index() {
             <MaterialIcons name="card-giftcard" size={16} color="#4CAF50" />
             <Text style={styles.referText}>Refer a Friend</Text>
           </TouchableOpacity>
-          <TouchableOpacity style={styles.settingsIcon} onPress={() => setIsSettingsModalOpen(true)}>
+          <TouchableOpacity
+            style={styles.settingsIcon}
+            onPress={() => {
+              console.log('Settings icon pressed');
+              setIsSettingsModalOpen(true);
+            }}
+          >
             <MaterialIcons name="settings" size={24} color="#757575" />
           </TouchableOpacity>
         </View>

@@ -77,6 +77,7 @@ const defaultCategories = [
 ];
 
 export function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
+  console.log('SettingsModal render, isOpen:', isOpen);
   const [currentView, setCurrentView] = useState<SettingsView>('main');
   const [notifications, setNotifications] = useState(true);
   const [darkMode, setDarkMode] = useState(false);
