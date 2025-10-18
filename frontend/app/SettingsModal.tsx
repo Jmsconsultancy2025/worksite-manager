@@ -162,7 +162,7 @@ export function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
         onPress={handleLogout}
       >
         <View style={styles.logoutContent}>
-          <MaterialIcons name="logout" size={20} color="#EF4444" />
+          <MaterialIcons name="logout" size={20} color="#6B7280" />
           <Text style={styles.logoutText}>Logout</Text>
         </View>
       </Button>
@@ -498,7 +498,7 @@ const styles = StyleSheet.create({
   },
   logoutText: {
     fontSize: 16,
-    color: '#EF4444',
+    color: '#6B7280',
   },
   formContainer: {
     gap: 16,
@@ -575,7 +575,7 @@ const styles = StyleSheet.create({
   },
   removeText: {
     fontSize: 12,
-    color: '#EF4444',
+    color: '#6B7280',
   },
   addButton: {
     marginTop: 12,
