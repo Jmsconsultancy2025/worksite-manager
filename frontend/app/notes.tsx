@@ -12,6 +12,7 @@ import {
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import { MaterialIcons } from '@expo/vector-icons';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 // TypeScript Interfaces
 interface Task {
@@ -63,11 +64,11 @@ export default function NotesPage() {
   const [formReminder, setFormReminder] = useState(false);
   const [formCompleted, setFormCompleted] = useState(false);
 
-  // Load notes from localStorage
+  // Load notes from AsyncStorage
   useEffect(() => {
-    const loadNotes = () => {
+    const loadNotes = async () => {
       try {
-        const savedNotes = localStorage.getItem('notes');
+        const savedNotes = await AsyncStorage.getItem('notes');
         if (savedNotes) {
           setNotes(JSON.parse(savedNotes));
         } else {
@@ -108,7 +109,7 @@ export default function NotesPage() {
             },
           ];
           setNotes(sampleNotes);
-          localStorage.setItem('notes', JSON.stringify(sampleNotes));
+          await AsyncStorage.setItem('notes', JSON.stringify(sampleNotes));
         }
       } catch (error) {
         console.error('Error loading notes:', error);
@@ -117,10 +118,10 @@ export default function NotesPage() {
     loadNotes();
   }, []);
 
-  // Save notes to localStorage
-  const saveNotes = (updatedNotes: Note[]) => {
+  // Save notes to AsyncStorage
+  const saveNotes = async (updatedNotes: Note[]) => {
     try {
-      localStorage.setItem('notes', JSON.stringify(updatedNotes));
+      await AsyncStorage.setItem('notes', JSON.stringify(updatedNotes));
       setNotes(updatedNotes);
     } catch (error) {
       console.error('Error saving notes:', error);

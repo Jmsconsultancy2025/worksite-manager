@@ -16,6 +16,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { MaterialIcons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import { updateAttendance, loadWorkers } from '../lib/storage';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { AddWorkerModal, NewWorkerData } from '../components/AddWorkerModal';
 
 // Types
@@ -85,21 +86,24 @@ export default function WorkersPage() {
   const [searchQuery, setSearchQuery] = useState('');
   const [workers, setWorkers] = useState<Worker[]>(initialWorkers);
 
-  // Load attendance data from localStorage on mount
+  // Load attendance data from AsyncStorage on mount
   useEffect(() => {
-    const storedWorkers = loadWorkers();
-    const updatedWorkers = initialWorkers.map(worker => {
-      const storedWorker = storedWorkers[worker.id];
-      if (storedWorker && storedWorker.attendance) {
-        return {
-          ...worker,
-          attendanceStatus: storedWorker.attendance.length > 0 ?
-            storedWorker.attendance[storedWorker.attendance.length - 1].status : null
-        };
-      }
-      return worker;
-    });
-    setWorkers(updatedWorkers);
+    const loadData = async () => {
+      const storedWorkers = await loadWorkers();
+      const updatedWorkers = initialWorkers.map(worker => {
+        const storedWorker = storedWorkers[worker.id];
+        if (storedWorker && storedWorker.attendance) {
+          return {
+            ...worker,
+            attendanceStatus: storedWorker.attendance.length > 0 ?
+              storedWorker.attendance[storedWorker.attendance.length - 1].status : null
+          };
+        }
+        return worker;
+      });
+      setWorkers(updatedWorkers);
+    };
+    loadData();
   }, []);
   
   // Modal states
@@ -130,13 +134,28 @@ export default function WorkersPage() {
       worker.phone.includes(searchQuery)
   );
 
+  const getTodayAttendanceStatus = async (workerId: string): Promise<AttendanceStatus> => {
+    const storedWorkers = await loadWorkers();
+    const workerData = storedWorkers[workerId];
+    if (workerData && workerData.attendance) {
+      const today = new Date().toISOString().split('T')[0];
+      const todayRecord = workerData.attendance.find(a => a.date === today);
+      if (todayRecord) {
+        return todayRecord.status === 'present' ? 'present' :
+               todayRecord.status === 'half' ? 'halfday' :
+               todayRecord.status === 'absent' ? 'absent' : null;
+      }
+    }
+    return null;
+  };
+
   // Handle attendance status change
-  const updateAttendanceStatus = (workerId: string, status: AttendanceStatus) => {
+  const updateAttendanceStatus = async (workerId: string, status: AttendanceStatus) => {
     const today = new Date().toISOString().split('T')[0];
     const attendanceStatus = status === 'present' ? 'present' : status === 'halfday' ? 'half' : status === 'absent' ? 'absent' : 'holiday';
 
-    // Save to localStorage using the storage helper
-    updateAttendance(workerId, today, attendanceStatus);
+    // Save to AsyncStorage using the storage helper
+    await updateAttendance(workerId, today, attendanceStatus);
 
     // Update local state
     setWorkers(prevWorkers =>
@@ -150,9 +169,9 @@ export default function WorkersPage() {
   };
 
   // Handle badge click
-  const handleBadgeClick = (worker: Worker, status: AttendanceStatus) => {
+  const handleBadgeClick = async (worker: Worker, status: AttendanceStatus) => {
     const newStatus = worker.attendanceStatus === status ? null : status;
-    updateAttendanceStatus(worker.id, newStatus);
+    await updateAttendanceStatus(worker.id, newStatus);
   };
 
   // Open options menu
@@ -169,32 +188,32 @@ export default function WorkersPage() {
   };
 
   // Handle give advance
-  const handleGiveAdvance = () => {
+  const handleGiveAdvance = async () => {
     if (!selectedWorker) return;
-    
+
     const amount = parseFloat(advanceAmount);
     if (isNaN(amount) || amount <= 0 || amount > selectedWorker.maxAdvanceLimit) {
       Alert.alert('Error', `Please enter a valid amount between ₹1 and ₹${selectedWorker.maxAdvanceLimit}`);
       return;
     }
-    
+
     try {
-      // Load worker profile data from localStorage
-      const storedData = localStorage.getItem(`worker_${selectedWorker.id}`);
+      // Load worker profile data from AsyncStorage
+      const storedData = await AsyncStorage.getItem(`worker_${selectedWorker.id}`);
       if (storedData) {
         const workerData = JSON.parse(storedData);
-        
+
         // Add new advance to worker's data
         const newAdvance = {
           date: advanceDate,
           amount: amount,
         };
-        
+
         workerData.advances = [...(workerData.advances || []), newAdvance];
-        
-        // Save updated data back to localStorage
-        localStorage.setItem(`worker_${selectedWorker.id}`, JSON.stringify(workerData));
-        
+
+        // Save updated data back to AsyncStorage
+        await AsyncStorage.setItem(`worker_${selectedWorker.id}`, JSON.stringify(workerData));
+
         Alert.alert('Success', `Advance of ₹${amount} given to ${selectedWorker.name}`);
         setAdvanceModalVisible(false);
         setAdvanceAmount('');
@@ -207,34 +226,34 @@ export default function WorkersPage() {
   };
 
   // Handle overtime entry
-  const handleAddOvertime = () => {
+  const handleAddOvertime = async () => {
     if (!selectedWorker) return;
-    
+
     const rate = parseFloat(overtimeRate);
     const hours = parseFloat(overtimeHours);
-    
+
     if (isNaN(rate) || isNaN(hours) || rate <= 0 || hours <= 0) {
       Alert.alert('Error', 'Please enter valid rate and hours');
       return;
     }
-    
+
     try {
-      const storedData = localStorage.getItem(`worker_${selectedWorker.id}`);
+      const storedData = await AsyncStorage.getItem(`worker_${selectedWorker.id}`);
       if (storedData) {
         const workerData = JSON.parse(storedData);
-        
+
         const overtimeEntry = {
           date: new Date().toISOString().split('T')[0],
           rate: rate,
           hours: hours,
           amount: rate * hours,
         };
-        
+
         workerData.overtimeEntries = [...(workerData.overtimeEntries || []), overtimeEntry];
         workerData.overtime = (workerData.overtime || 0) + overtimeEntry.amount;
-        
-        localStorage.setItem(`worker_${selectedWorker.id}`, JSON.stringify(workerData));
-        
+
+        await AsyncStorage.setItem(`worker_${selectedWorker.id}`, JSON.stringify(workerData));
+
         Alert.alert('Success', `Overtime of ₹${overtimeEntry.amount} added for ${selectedWorker.name}`);
         setOvertimeModalVisible(false);
         setOvertimeRate('');
@@ -246,7 +265,7 @@ export default function WorkersPage() {
   };
 
   // Handle adjustment entry
-  const handleAddAdjustment = () => {
+  const handleAddAdjustment = async () => {
     if (!selectedWorker) return;
 
     const amount = parseFloat(adjustmentAmount);
@@ -262,7 +281,7 @@ export default function WorkersPage() {
     }
 
     try {
-      const storedData = localStorage.getItem(`worker_${selectedWorker.id}`);
+      const storedData = await AsyncStorage.getItem(`worker_${selectedWorker.id}`);
       if (storedData) {
         const workerData = JSON.parse(storedData);
 
@@ -275,7 +294,7 @@ export default function WorkersPage() {
         workerData.adjustmentEntries = [...(workerData.adjustmentEntries || []), adjustmentEntry];
         workerData.otherAdjustments = (workerData.otherAdjustments || 0) + amount;
 
-        localStorage.setItem(`worker_${selectedWorker.id}`, JSON.stringify(workerData));
+        await AsyncStorage.setItem(`worker_${selectedWorker.id}`, JSON.stringify(workerData));
 
         Alert.alert('Success', `Adjustment of ₹${amount} added for ${selectedWorker.name}`);
         setAdjustmentModalVisible(false);
@@ -318,21 +337,6 @@ export default function WorkersPage() {
     return { backgroundColor: '#E0E0E0', color: '#757575' };
   };
 
-  // Get today's attendance status for a worker
-  const getTodayAttendanceStatus = (workerId: string): AttendanceStatus => {
-    const storedWorkers = loadWorkers();
-    const workerData = storedWorkers[workerId];
-    if (workerData && workerData.attendance) {
-      const today = new Date().toISOString().split('T')[0];
-      const todayRecord = workerData.attendance.find(a => a.date === today);
-      if (todayRecord) {
-        return todayRecord.status === 'present' ? 'present' :
-               todayRecord.status === 'half' ? 'halfday' :
-               todayRecord.status === 'absent' ? 'absent' : null;
-      }
-    }
-    return null;
-  };
 
   return (
     <SafeAreaView style={styles.safeArea}>
@@ -368,8 +372,7 @@ export default function WorkersPage() {
           showsVerticalScrollIndicator={false}
         >
           {filteredWorkers.map((worker) => {
-            const todayStatus = getTodayAttendanceStatus(worker.id);
-            const displayWorker = { ...worker, attendanceStatus: todayStatus };
+            const displayWorker = worker;
 
             return (
               <TouchableOpacity

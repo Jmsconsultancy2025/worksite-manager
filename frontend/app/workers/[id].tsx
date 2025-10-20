@@ -19,6 +19,7 @@ import { MaterialIcons } from '@expo/vector-icons';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { getWorkerById, Worker, AttendanceRecord } from '../../data/workers';
 import { updateAttendance as updateAttendanceStorage, loadWorkers, isExpired } from '../../lib/storage';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 // Date formatting helper - DD-MM-YYYY format
 function formatDDMMYYYY(dateStr: string) {
@@ -86,13 +87,13 @@ export default function WorkerProfilePage() {
   const [datePickerVisible, setDatePickerVisible] = useState(false);
   const [datePickerMode, setDatePickerMode] = useState<'from' | 'to'>('from');
 
-  const worker = workerData;
+  const worker = workerData || initialWorker;
 
-  // Load worker data from localStorage on mount
+  // Load worker data from AsyncStorage on mount
   useEffect(() => {
-    const loadWorkerData = () => {
+    const loadWorkerData = async () => {
       try {
-        const stored = localStorage.getItem(`worker_${id}`);
+        const stored = await AsyncStorage.getItem(`worker_${id}`);
         if (stored) {
           const parsedData = JSON.parse(stored);
           setWorkerData(parsedData);
@@ -104,15 +105,18 @@ export default function WorkerProfilePage() {
     loadWorkerData();
   }, [id]);
 
-  // Save worker data to localStorage whenever it changes
+  // Save worker data to AsyncStorage whenever it changes
   useEffect(() => {
-    if (workerData) {
-      try {
-        localStorage.setItem(`worker_${id}`, JSON.stringify(workerData));
-      } catch (error) {
-        console.error('Error saving worker data:', error);
+    const saveWorkerData = async () => {
+      if (workerData) {
+        try {
+          await AsyncStorage.setItem(`worker_${id}`, JSON.stringify(workerData));
+        } catch (error) {
+          console.error('Error saving worker data:', error);
+        }
       }
-    }
+    };
+    saveWorkerData();
   }, [workerData, id]);
 
   // Show toast notification
@@ -122,14 +126,14 @@ export default function WorkerProfilePage() {
   };
 
   // Update attendance using unified storage function
-  const updateAttendance = (date: string, status: 'present' | 'half' | 'absent' | 'holiday') => {
+  const updateAttendance = async (date: string, status: 'present' | 'half' | 'absent' | 'holiday') => {
     if (!workerData) return;
 
-    const dateISO = date.toISOString ? date.toISOString().split('T')[0] : date;
-    
-    // Update via storage helper (saves to localStorage with timestamp)
-    const updatedWorkerData = updateAttendanceStorage(id as string, dateISO, status);
-    
+    const dateISO = typeof date === 'string' ? date : date.toISOString().split('T')[0];
+
+    // Update via storage helper (saves to AsyncStorage with timestamp)
+    const updatedWorkerData = await updateAttendanceStorage(id as string, dateISO, status);
+
     // Optimistic update: immediately refresh local state
     setWorkerData({
       ...workerData,
@@ -687,8 +691,8 @@ export default function WorkerProfilePage() {
           style={styles.modalOverlay}
           onPress={() => setAdvanceHistoryVisible(false)}
         >
-          <Pressable style={styles.advanceModalContent} onPress={(e) => e.stopPropagation()}>
-            <Text style={styles.advanceModalTitle}>Advance Payments</Text>
+          <Pressable style={styles.attendanceModalContent} onPress={(e) => e.stopPropagation()}>
+            <Text style={styles.attendanceModalTitle}>Advance Payments</Text>
             <Text style={styles.attendanceModalDate}>{workerData?.name}</Text>
             
             <ScrollView style={styles.advanceHistoryList}>
