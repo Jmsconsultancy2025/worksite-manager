@@ -16,6 +16,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { MaterialIcons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import { updateAttendance, loadWorkers } from '../lib/storage';
+import { AddWorkerModal, NewWorkerData } from './AddWorkerModal';
 
 // Types
 type AttendanceStatus = 'present' | 'absent' | 'halfday' | null;
@@ -119,6 +120,9 @@ export default function WorkersPage() {
   // Adjustment form state
   const [adjustmentAmount, setAdjustmentAmount] = useState('');
   const [adjustmentNote, setAdjustmentNote] = useState('');
+
+  // Add Worker Modal state
+  const [isAddWorkerModalOpen, setIsAddWorkerModalOpen] = useState(false);
 
   const filteredWorkers = workers.filter(
     (worker) =>
@@ -244,35 +248,35 @@ export default function WorkersPage() {
   // Handle adjustment entry
   const handleAddAdjustment = () => {
     if (!selectedWorker) return;
-    
+
     const amount = parseFloat(adjustmentAmount);
-    
+
     if (isNaN(amount) || amount === 0) {
       Alert.alert('Error', 'Please enter a valid amount');
       return;
     }
-    
+
     if (adjustmentNote.length > 100) {
       Alert.alert('Error', 'Note must be 100 characters or less');
       return;
     }
-    
+
     try {
       const storedData = localStorage.getItem(`worker_${selectedWorker.id}`);
       if (storedData) {
         const workerData = JSON.parse(storedData);
-        
+
         const adjustmentEntry = {
           date: new Date().toISOString().split('T')[0],
           amount: amount,
           note: adjustmentNote || 'No note',
         };
-        
+
         workerData.adjustmentEntries = [...(workerData.adjustmentEntries || []), adjustmentEntry];
         workerData.otherAdjustments = (workerData.otherAdjustments || 0) + amount;
-        
+
         localStorage.setItem(`worker_${selectedWorker.id}`, JSON.stringify(workerData));
-        
+
         Alert.alert('Success', `Adjustment of ₹${amount} added for ${selectedWorker.name}`);
         setAdjustmentModalVisible(false);
         setAdjustmentAmount('');
@@ -281,6 +285,24 @@ export default function WorkersPage() {
     } catch (error) {
       Alert.alert('Error', 'Failed to add adjustment');
     }
+  };
+
+  // Handle add worker
+  const handleAddWorker = (newWorkerData: NewWorkerData) => {
+    // For now, use a simple ID generation and add to the workers array
+    const newWorkerId = Math.max(...workers.map(w => parseInt(w.id))) + 1;
+    const newWorker: Worker = {
+      id: newWorkerId.toString(),
+      name: newWorkerData.name,
+      phone: newWorkerData.phone,
+      role: newWorkerData.role,
+      attendanceStatus: null,
+      overtime: false,
+      maxAdvanceLimit: 5000, // Default limit
+    };
+
+    setWorkers(prev => [...prev, newWorker]);
+    Alert.alert('Success', `Worker ${newWorkerData.name} added successfully!`);
   };
 
   // Get badge style based on status
@@ -413,7 +435,7 @@ export default function WorkersPage() {
         </ScrollView>
 
         {/* Floating Add Button */}
-        <TouchableOpacity style={styles.floatingButton}>
+        <TouchableOpacity style={styles.floatingButton} onPress={() => setIsAddWorkerModalOpen(true)}>
           <MaterialIcons name="add" size={32} color="#FFFFFF" />
         </TouchableOpacity>
 
@@ -714,6 +736,14 @@ export default function WorkersPage() {
           </Pressable>
         </Pressable>
       </Modal>
+
+      {/* Add Worker Modal */}
+      <AddWorkerModal
+        isOpen={isAddWorkerModalOpen}
+        onClose={() => setIsAddWorkerModalOpen(false)}
+        onAddWorker={handleAddWorker}
+        currentSiteName="Zonuam Site"
+      />
     </SafeAreaView>
   );
 }
