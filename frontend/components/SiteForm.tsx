@@ -6,112 +6,144 @@ import {
   TextInput,
   TouchableOpacity,
   StyleSheet,
-  ScrollView,
+  SafeAreaView,
 } from 'react-native';
-import { X } from 'lucide-react-native';
 
 interface Site {
   id: string;
   name: string;
   location: string;
+  manager: string;
   totalWorkers: number;
   presentWorkers: number;
 }
 
+type SiteFormData = Omit<Site, 'id' | 'totalWorkers' | 'presentWorkers'> & { id?: string };
+
 interface SiteFormProps {
-  site?: Site | null;
-  onSave: (site: Omit<Site, 'id' | 'totalWorkers' | 'presentWorkers'> & { id?: string }) => void;
-  onClose: () => void;
+  site: Site | null;
+  onSave: (siteData: SiteFormData) => void;
+  onCancel: () => void;
 }
 
-const SiteForm: React.FC<SiteFormProps> = ({ site, onSave, onClose }) => {
+const SiteForm: React.FC<SiteFormProps> = ({ site, onSave, onCancel }) => {
   const [name, setName] = useState('');
   const [location, setLocation] = useState('');
+  const [manager, setManager] = useState('');
 
   useEffect(() => {
     if (site) {
       setName(site.name);
       setLocation(site.location);
+      setManager(site.manager);
     } else {
       setName('');
       setLocation('');
+      setManager('');
     }
   }, [site]);
 
   const handleSave = () => {
-    if (!name.trim() || !location.trim()) {
-      alert('Please fill in both name and location.');
+    if (!name.trim() || !location.trim() || !manager.trim()) {
+      alert('Please fill all fields');
       return;
     }
-    onSave({ id: site?.id, name, location });
+    onSave({
+      id: site?.id,
+      name,
+      location,
+      manager,
+    });
   };
 
   return (
-    <ScrollView style={styles.formContainer}>
-      <View style={styles.formHeader}>
-        <Text style={styles.formTitle}>{site ? 'Edit Site' : 'Add New Site'}</Text>
-        <TouchableOpacity onPress={onClose}>
-          <X size={24} color="#333" />
-        </TouchableOpacity>
+    <SafeAreaView style={styles.container}>
+      <View style={styles.header}>
+        <Text style={styles.headerTitle}>{site ? 'Edit Site' : 'Add New Site'}</Text>
       </View>
-      <Text style={styles.label}>Site Name</Text>
-      <TextInput
-        style={styles.input}
-        value={name}
-        onChangeText={setName}
-        placeholder="e.g., Downtown Construction Project"
-      />
-      <Text style={styles.label}>Location</Text>
-      <TextInput
-        style={styles.input}
-        value={location}
-        onChangeText={setLocation}
-        placeholder="e.g., 123 Main St, Anytown"
-      />
-      <TouchableOpacity style={styles.saveButton} onPress={handleSave}>
-        <Text style={styles.saveButtonText}>Save Site</Text>
-      </TouchableOpacity>
-    </ScrollView>
+      <View style={styles.form}>
+        <TextInput
+          style={styles.input}
+          placeholder="Site Name"
+          value={name}
+          onChangeText={setName}
+          placeholderTextColor="#999"
+        />
+        <TextInput
+          style={styles.input}
+          placeholder="Location"
+          value={location}
+          onChangeText={setLocation}
+          placeholderTextColor="#999"
+        />
+        <TextInput
+          style={styles.input}
+          placeholder="Site Manager"
+          value={manager}
+          onChangeText={setManager}
+          placeholderTextColor="#999"
+        />
+        <View style={styles.buttonContainer}>
+          <TouchableOpacity style={[styles.button, styles.saveButton]} onPress={handleSave}>
+            <Text style={styles.buttonText}>Save</Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={[styles.button, styles.cancelButton]} onPress={onCancel}>
+            <Text style={styles.buttonText}>Cancel</Text>
+          </TouchableOpacity>
+        </View>
+      </View>
+    </SafeAreaView>
   );
 };
 
 const styles = StyleSheet.create({
-  formContainer: {
+  container: {
+    flex: 1,
+    backgroundColor: '#fff',
+  },
+  header: {
     padding: 20,
-    backgroundColor: '#FFF',
-  },
-  formHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
+    borderBottomWidth: 1,
+    borderBottomColor: '#e0e0e0',
     alignItems: 'center',
-    marginBottom: 20,
   },
-  formTitle: {
+  headerTitle: {
     fontSize: 22,
     fontWeight: 'bold',
-    color: '#1A237E',
-  },
-  label: {
-    fontSize: 16,
     color: '#333',
-    marginBottom: 8,
+  },
+  form: {
+    padding: 20,
   },
   input: {
-    backgroundColor: '#F0F0F0',
+    borderWidth: 1,
+    borderColor: '#ccc',
     borderRadius: 8,
-    padding: 12,
+    padding: 15,
+    marginBottom: 15,
     fontSize: 16,
-    marginBottom: 16,
+    color: '#333',
   },
-  saveButton: {
-    backgroundColor: '#4CAF50',
+  buttonContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    marginTop: 20,
+  },
+  button: {
+    paddingVertical: 15,
+    paddingHorizontal: 40,
     borderRadius: 8,
-    padding: 16,
     alignItems: 'center',
   },
-  saveButtonText: {
-    color: '#FFF',
-    fontSize: 18,
+  saveButton: {
+    backgroundColor: '#007AFF',
+  },
+  cancelButton: {
+    backgroundColor: '#6c757d',
+  },
+  buttonText: {
+    color: '#fff',
+    fontSize: 16,
     fontWeight: 'bold',
   },
 });
