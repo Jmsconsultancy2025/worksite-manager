@@ -16,7 +16,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { MaterialIcons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import { updateAttendance, loadWorkers } from '../lib/storage';
-import { AddWorkerModal, NewWorkerData } from './AddWorkerModal';
+import { AddWorkerModal, NewWorkerData } from '../components/AddWorkerModal';
 
 // Types
 type AttendanceStatus = 'present' | 'absent' | 'halfday' | null;

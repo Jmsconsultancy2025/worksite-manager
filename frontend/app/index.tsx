@@ -12,10 +12,10 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { MaterialIcons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
-import { ReferralModal } from './ReferralModal';
-import { SignupSigninModal } from './SignupSigninModal';
-import { SettingsModal } from './SettingsModal';
-import { AddSiteModal, NewSiteData } from './AddSiteModal';
+import { ReferralModal } from '../components/ReferralModal';
+import { SignupSigninModal } from '../components/SignupSigninModal';
+import { SettingsModal } from '../components/SettingsModal';
+import { AddSiteModal, NewSiteData } from '../components/AddSiteModal';
 import Toast from 'react-native-toast-message';
 
 // Mock site data
