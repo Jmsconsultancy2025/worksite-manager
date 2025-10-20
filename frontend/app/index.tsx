@@ -51,6 +51,20 @@ export default function Index() {
     const [isAddSiteModalOpen, setIsAddSiteModalOpen] = useState(false);
     const [siteData, setSiteData] = useState(mockSites);
 
+    // Handler to add new site
+    const handleAddSite = (newSiteData: NewSiteData) => {
+      const newId = (Math.max(...siteData.map((s) => parseInt(s.id))) + 1).toString();
+      const newSite = {
+        id: newId,
+        name: newSiteData.name,
+        location: newSiteData.location,
+        totalWorkers: newSiteData.numberOfWorkers,
+        presentWorkers: 0, // Start with 0 present workers
+      };
+
+      setSiteData((prev) => [...prev, newSite]);
+    };
+
   return (
     <SafeAreaView style={styles.safeArea}>
       <StatusBar barStyle="dark-content" backgroundColor="#FFFFFF" />
@@ -188,20 +202,6 @@ export default function Index() {
   );
 }
 
-// Handler to add new site
-const handleAddSite = (newSiteData: NewSiteData) => {
-  const newSite = {
-    id: Math.max(...siteData.map((s: any) => s.id)) + 1,
-    name: newSiteData.name,
-    location: newSiteData.location,
-    totalWorkers: newSiteData.numberOfWorkers,
-    presentWorkers: 0, // Start with 0 present workers
-    manager: newSiteData.manager,
-    startDate: newSiteData.startDate
-  };
-
-  setSiteData((prev: any) => [...prev, newSite]);
-};
 
 const styles = StyleSheet.create({
   safeArea: {
