@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import {
   Text,
@@ -17,6 +18,7 @@ import { SignupSigninModal } from '../components/SignupSigninModal';
 import { SettingsModal } from '../components/SettingsModal';
 import { AddSiteModal, NewSiteData } from '../components/AddSiteModal';
 import Toast from 'react-native-toast-message';
+import { MenuProvider } from 'react-native-popup-menu';
 
 // Mock site data
 const mockSites = [
@@ -50,6 +52,7 @@ export default function Index() {
     const [isSettingsModalOpen, setIsSettingsModalOpen] = useState(false);
     const [isAddSiteModalOpen, setIsAddSiteModalOpen] = useState(false);
     const [siteData, setSiteData] = useState(mockSites);
+    const [searchQuery, setSearchQuery] = useState('');
 
     // Handler to add new site
     const handleAddSite = (newSiteData: NewSiteData) => {
@@ -65,140 +68,158 @@ export default function Index() {
       setSiteData((prev) => [...prev, newSite]);
     };
 
+    // Handler to delete site
+    const handleDeleteSite = (siteId: string) => {
+      // In a real app, you would also handle deleting workers associated with this site.
+      // For example: setWorkers(workers.filter(w => w.siteId !== siteId));
+      setSiteData(prevSites => prevSites.filter(site => site.id !== siteId));
+    };
+
+    const filteredSites = siteData.filter(site =>
+      site.name.toLowerCase().includes(searchQuery.toLowerCase())
+    );
+
   return (
-    <SafeAreaView style={styles.safeArea}>
-      <StatusBar barStyle="dark-content" backgroundColor="#FFFFFF" />
+    <MenuProvider>
+      <SafeAreaView style={styles.safeArea}>
+        <StatusBar barStyle="dark-content" backgroundColor="#FFFFFF" />
 
-      {/* Top Navigation Bar */}
-      <View style={styles.topBar}>
-        <Text style={styles.brandTitle}>Worksite</Text>
-        <View style={styles.topBarRight}>
-          <TouchableOpacity style={styles.signInButton} onPress={() => setIsSignupSigninModalOpen(true)}>
-            <MaterialIcons name="person-add" size={16} color="#4CAF50" />
-            <Text style={styles.signInText}>Sign In</Text>
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.referButton} onPress={() => setIsReferralModalOpen(true)}>
-            <MaterialIcons name="card-giftcard" size={16} color="#4CAF50" />
-            <Text style={styles.referText}>Refer a Friend</Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={styles.settingsIcon}
-            onPress={() => {
-              console.log('Settings icon pressed');
-              setIsSettingsModalOpen(true);
-            }}
-          >
-            <MaterialIcons name="settings" size={24} color="#757575" />
-          </TouchableOpacity>
-        </View>
-      </View>
-
-      <ScrollView
-        style={styles.container}
-        contentContainerStyle={styles.contentContainer}
-        showsVerticalScrollIndicator={false}
-      >
-
-        {/* Search Bar */}
-        <View style={styles.searchContainer}>
-          <MaterialIcons name="search" size={24} color="#9E9E9E" style={styles.searchIcon} />
-          <TextInput
-            style={styles.searchInput}
-            placeholder="Search sites or workers by name / location"
-            placeholderTextColor="#BDBDBD"
-          />
+        {/* Top Navigation Bar */}
+        <View style={styles.topBar}>
+          <Text style={styles.brandTitle}>Worksite</Text>
+          <View style={styles.topBarRight}>
+            <TouchableOpacity style={styles.signInButton} onPress={() => setIsSignupSigninModalOpen(true)}>
+              <MaterialIcons name="person-add" size={16} color="#4CAF50" />
+              <Text style={styles.signInText}>Sign In</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.referButton} onPress={() => setIsReferralModalOpen(true)}>
+              <MaterialIcons name="card-giftcard" size={16} color="#4CAF50" />
+              <Text style={styles.referText}>Refer a Friend</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={styles.settingsIcon}
+              onPress={() => {
+                console.log('Settings icon pressed');
+                setIsSettingsModalOpen(true);
+              }}
+            >
+              <MaterialIcons name="settings" size={24} color="#757575" />
+            </TouchableOpacity>
+          </View>
         </View>
 
-        {/* Site Cards */}
-        {siteData.map((site) => (
-          <TouchableOpacity 
-            key={site.id} 
-            style={styles.siteCard}
-            onPress={() => router.push('/workers')}
-          >
-            <Text style={styles.siteName}>{site.name}</Text>
-            <Text style={styles.siteLocation}>{site.location}</Text>
-            <View style={styles.workerStats}>
-              <Text style={styles.workerText}>
-                Workers: <Text style={styles.workerNumber}>{site.totalWorkers}</Text>
-              </Text>
-              <Text style={styles.separator}> | </Text>
-              <Text style={styles.workerText}>
-                Present: <Text style={styles.presentNumber}>{site.presentWorkers}</Text>
+        <ScrollView
+          style={styles.container}
+          contentContainerStyle={styles.contentContainer}
+          showsVerticalScrollIndicator={false}
+        >
+          <View style={styles.header}>
+            <View>
+              <Text style={styles.headerTitle}>Worksites</Text>
+              <Text style={styles.headerSubtitle}>
+                You are managing {siteData.length} sites
               </Text>
             </View>
+            <TouchableOpacity style={styles.addButton} onPress={() => setIsAddSiteModalOpen(true)}>
+              <MaterialIcons name="add" size={20} color="#FFFFFF" />
+              <Text style={styles.addButtonText}>Add Site</Text>
+            </TouchableOpacity>
+          </View>
+
+          {/* Search Bar */}
+          <View style={styles.searchContainer}>
+            <MaterialIcons name="search" size={24} color="#9E9E9E" style={styles.searchIcon} />
+            <TextInput
+              style={styles.searchInput}
+              placeholder="Search sites or workers by name / location"
+              placeholderTextColor="#BDBDBD"
+              value={searchQuery}
+              onChangeText={setSearchQuery}
+            />
+          </View>
+
+          {/* Site Cards */}
+          {filteredSites.map((site) => (
+            <TouchableOpacity 
+              key={site.id} 
+              style={styles.siteCard}
+              onPress={() => router.push('/workers')}
+            >
+              <Text style={styles.siteName}>{site.name}</Text>
+              <Text style={styles.siteLocation}>{site.location}</Text>
+              <View style={styles.workerStats}>
+                <Text style={styles.workerText}>
+                  Workers: <Text style={styles.workerNumber}>{site.totalWorkers}</Text>
+                </Text>
+                <Text style={styles.separator}> | </Text>
+                <Text style={styles.workerText}>
+                  Present: <Text style={styles.presentNumber}>{site.presentWorkers}</Text>
+                </Text>
+              </View>
+            </TouchableOpacity>
+          ))}
+
+          {/* Powered By Section */}
+          <View style={styles.poweredBySection}>
+            <Text style={styles.poweredByText}>Powered by</Text>
+            <View style={styles.logoContainer}>
+              <MaterialIcons name="business" size={32} color="#424242" />
+            </View>
+          </View>
+
+          {/* Bottom spacing for footer */}
+          <View style={{ height: 80 }} />
+        </ScrollView>
+
+        {/* Referral Modal */}
+        <ReferralModal
+          isOpen={isReferralModalOpen}
+          onClose={() => setIsReferralModalOpen(false)}
+        />
+
+        {/* Signup/Signin Modal */}
+        <SignupSigninModal
+          isOpen={isSignupSigninModalOpen}
+          onClose={() => setIsSignupSigninModalOpen(false)}
+        />
+
+        {/* Settings Modal */}
+        <SettingsModal
+          isOpen={isSettingsModalOpen}
+          onClose={() => setIsSettingsModalOpen(false)}
+        />
+
+        {/* Add Site Modal */}
+        <AddSiteModal
+          isOpen={isAddSiteModalOpen}
+          onClose={() => setIsAddSiteModalOpen(false)}
+          onAddSite={handleAddSite}
+        />
+
+        {/* Toast */}
+        <Toast />
+
+        {/* Bottom Navigation Bar */}
+        <View style={styles.bottomNav}>
+          <TouchableOpacity style={styles.navItem}>
+            <MaterialIcons name="insert-chart" size={24} color="#4CAF50" />
+            <Text style={[styles.navLabel, styles.navLabelActive]}>Reports</Text>
           </TouchableOpacity>
-        ))}
-
-        {/* Add New Site Card */}
-        <TouchableOpacity style={styles.addSiteCard} onPress={() => setIsAddSiteModalOpen(true)}>
-          <View style={styles.addIconCircle}>
-            <MaterialIcons name="add" size={32} color="#9E9E9E" />
-          </View>
-          <Text style={styles.addSiteTitle}>Add New Site</Text>
-          <Text style={styles.addSiteSubtitle}>Create a new construction site</Text>
-        </TouchableOpacity>
-
-        {/* Powered By Section */}
-        <View style={styles.poweredBySection}>
-          <Text style={styles.poweredByText}>Powered by</Text>
-          <View style={styles.logoContainer}>
-            <MaterialIcons name="business" size={32} color="#424242" />
-          </View>
+          <TouchableOpacity style={styles.navItem} onPress={() => router.push('/feedback')}>
+            <MaterialIcons name="feedback" size={24} color="#9E9E9E" />
+            <Text style={styles.navLabel}>Feedback</Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.navItem} onPress={() => router.push('/about')}>
+            <MaterialIcons name="info" size={24} color="#9E9E9E" />
+            <Text style={styles.navLabel}>About Us</Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.navItem}>
+            <MaterialIcons name="star" size={24} color="#9E9E9E" />
+            <Text style={styles.navLabel}>Plans</Text>
+          </TouchableOpacity>
         </View>
-
-        {/* Bottom spacing for footer */}
-        <View style={{ height: 80 }} />
-      </ScrollView>
-
-      {/* Referral Modal */}
-      <ReferralModal
-        isOpen={isReferralModalOpen}
-        onClose={() => setIsReferralModalOpen(false)}
-      />
-
-      {/* Signup/Signin Modal */}
-      <SignupSigninModal
-        isOpen={isSignupSigninModalOpen}
-        onClose={() => setIsSignupSigninModalOpen(false)}
-      />
-
-      {/* Settings Modal */}
-      <SettingsModal
-        isOpen={isSettingsModalOpen}
-        onClose={() => setIsSettingsModalOpen(false)}
-      />
-
-      {/* Add Site Modal */}
-      <AddSiteModal
-        isOpen={isAddSiteModalOpen}
-        onClose={() => setIsAddSiteModalOpen(false)}
-        onAddSite={handleAddSite}
-      />
-
-      {/* Toast */}
-      <Toast />
-
-      {/* Bottom Navigation Bar */}
-      <View style={styles.bottomNav}>
-        <TouchableOpacity style={styles.navItem}>
-          <MaterialIcons name="insert-chart" size={24} color="#4CAF50" />
-          <Text style={[styles.navLabel, styles.navLabelActive]}>Reports</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.navItem} onPress={() => router.push('/feedback')}>
-          <MaterialIcons name="feedback" size={24} color="#9E9E9E" />
-          <Text style={styles.navLabel}>Feedback</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.navItem} onPress={() => router.push('/about')}>
-          <MaterialIcons name="info" size={24} color="#9E9E9E" />
-          <Text style={styles.navLabel}>About Us</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.navItem}>
-          <MaterialIcons name="star" size={24} color="#9E9E9E" />
-          <Text style={styles.navLabel}>Plans</Text>
-        </TouchableOpacity>
-      </View>
-    </SafeAreaView>
+      </SafeAreaView>
+    </MenuProvider>
   );
 }
 
@@ -269,6 +290,39 @@ const styles = StyleSheet.create({
   },
   settingsIcon: {
     padding: 4,
+  },
+  // Header Styles
+  header: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingHorizontal: 16,
+    paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight || 24 : 24,
+    paddingBottom: 16,
+  },
+  headerTitle: {
+    fontSize: 28,
+    fontWeight: 'bold',
+    color: '#1A237E',
+  },
+  headerSubtitle: {
+    fontSize: 14,
+    color: '#757575',
+    marginTop: 2,
+  },
+  addButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#4CAF50',
+    paddingHorizontal: 14,
+    paddingVertical: 10,
+    borderRadius: 20,
+  },
+  addButtonText: {
+    color: '#FFFFFF',
+    fontSize: 14,
+    fontWeight: '600',
+    marginLeft: 6,
   },
   // Search Bar Styles
   searchContainer: {
@@ -346,38 +400,6 @@ const styles = StyleSheet.create({
   presentNumber: {
     fontWeight: '600',
     color: '#4CAF50',
-  },
-  // Add New Site Card Styles
-  addSiteCard: {
-    backgroundColor: '#FFFFFF',
-    borderRadius: 12,
-    padding: 24,
-    marginBottom: 24,
-    marginTop: 4,
-    alignItems: 'center',
-    justifyContent: 'center',
-    borderWidth: 2,
-    borderColor: '#E0E0E0',
-    borderStyle: 'dashed',
-  },
-  addIconCircle: {
-    width: 64,
-    height: 64,
-    borderRadius: 32,
-    backgroundColor: '#F5F5F5',
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginBottom: 12,
-  },
-  addSiteTitle: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: '#424242',
-    marginBottom: 4,
-  },
-  addSiteSubtitle: {
-    fontSize: 13,
-    color: '#9E9E9E',
   },
   // Powered By Section
   poweredBySection: {
