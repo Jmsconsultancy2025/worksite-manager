@@ -16,6 +16,7 @@ interface Site {
   id: string;
   name: string;
   location: string;
+  manager: string;
   totalWorkers: number;
   presentWorkers: number;
 }
@@ -85,6 +86,7 @@ const SiteCard: React.FC<SiteCardProps> = ({ site, onDelete, onEdit }) => {
         </Menu>
       </View>
       <Text style={styles.siteLocation}>{site.location}</Text>
+      <Text style={styles.siteDetail}>Manager: {site.manager}</Text>
       <View style={styles.workerInfo}>
         <View style={styles.workerStat}>
           <Text style={styles.workerCount}>{site.presentWorkers}</Text>
@@ -135,6 +137,11 @@ const styles = StyleSheet.create({
     fontSize: 13,
     color: '#757575',
     marginBottom: 16,
+  },
+  siteDetail: {
+    fontSize: 14,
+    color: '#666',
+    marginBottom: 4,
   },
   workerInfo: {
     flexDirection: 'row',
