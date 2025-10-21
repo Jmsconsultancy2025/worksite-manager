@@ -270,7 +270,7 @@ const styles = StyleSheet.create({
   },
   contentContainer: {
     paddingHorizontal: 16,
-    paddingTop: 8,
+    paddingTop: 0,
   },
   // Top Bar Styles
   topBar: {
@@ -348,7 +348,7 @@ const styles = StyleSheet.create({
   header: {
     paddingHorizontal: 16,
     paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight || 24 : 24,
-    paddingBottom: 16,
+    paddingBottom: 8,
   },
   headerTitle: {
     fontSize: 28,
