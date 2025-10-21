@@ -87,26 +87,24 @@ export default function Index() {
         {/* Top Navigation Bar */}
         <View style={styles.topBar}>
           <Text style={styles.brandTitle}>Worksite Manager</Text>
-          <View style={{flex: 1, alignItems: 'flex-end'}}>
-            <View style={styles.topBarRight}>
-              <TouchableOpacity style={styles.signInButton} onPress={() => setIsSignupSigninModalOpen(true)}>
-                <MaterialIcons name="person-add" size={16} color="#4CAF50" />
-                <Text style={styles.signInText}>Sign In</Text>
-              </TouchableOpacity>
-              <TouchableOpacity style={styles.referButton} onPress={() => setIsReferralModalOpen(true)}>
-                <MaterialIcons name="card-giftcard" size={16} color="#4CAF50" />
-                <Text style={styles.referText}>Refer a Friend</Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                style={styles.settingsIcon}
-                onPress={() => {
-                  console.log('Settings icon pressed');
-                  setIsSettingsModalOpen(true);
-                }}
-              >
-                <MaterialIcons name="settings" size={24} color="#757575" />
-              </TouchableOpacity>
-            </View>
+          <View style={styles.topBarRight}>
+            <TouchableOpacity style={styles.signInButton} onPress={() => setIsSignupSigninModalOpen(true)}>
+              <MaterialIcons name="person-add" size={16} color="#4CAF50" />
+              <Text style={styles.signInText}>Sign In</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.referButton} onPress={() => setIsReferralModalOpen(true)}>
+              <MaterialIcons name="card-giftcard" size={16} color="#4CAF50" />
+              <Text style={styles.referText}>Refer a Friend</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={styles.settingsIcon}
+              onPress={() => {
+                console.log('Settings icon pressed');
+                setIsSettingsModalOpen(true);
+              }}
+            >
+              <MaterialIcons name="settings" size={24} color="#757575" />
+            </TouchableOpacity>
           </View>
         </View>
 
@@ -242,6 +240,7 @@ const styles = StyleSheet.create({
   topBar: {
     flexDirection: 'row',
     alignItems: 'center',
+    justifyContent: 'space-between',
     paddingHorizontal: 16,
     paddingVertical: 12,
     backgroundColor: '#F5F5F5',
@@ -251,6 +250,7 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     color: '#4CAF50',
     textAlign: 'left',
+    flex: 1,
   },
   topBarRight: {
     flexDirection: 'row',
