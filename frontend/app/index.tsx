@@ -86,7 +86,7 @@ export default function Index() {
 
         {/* Top Navigation Bar */}
         <View style={styles.topBar}>
-          <Text style={styles.brandTitle}>Worksite</Text>
+          <Text style={styles.brandTitle}>Worksite{'\n'}Manager</Text>
           <View style={styles.topBarRight}>
             <TouchableOpacity style={styles.signInButton} onPress={() => setIsSignupSigninModalOpen(true)}>
               <MaterialIcons name="person-add" size={16} color="#4CAF50" />
@@ -115,7 +115,6 @@ export default function Index() {
         >
           <View style={styles.header}>
             <View>
-              <Text style={styles.headerTitle}>Worksites</Text>
               <Text style={styles.headerSubtitle}>
                 You are managing {siteData.length} sites
               </Text>
