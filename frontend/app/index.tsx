@@ -18,6 +18,7 @@ import { ReferralModal } from '../components/ReferralModal';
 import { SignupSigninModal } from '../components/SignupSigninModal';
 import { SettingsModal } from '../components/SettingsModal';
 import { AddSiteModal, NewSiteData } from '../components/AddSiteModal';
+import SiteCard from '../components/SiteCard';
 import Toast from 'react-native-toast-message';
 import { MenuProvider } from 'react-native-popup-menu';
 
@@ -27,6 +28,7 @@ const mockSites = [
     id: '1',
     name: 'Zonuam Site',
     location: 'Zonuam, Aizawl',
+    manager: 'John Smith',
     totalWorkers: 12,
     presentWorkers: 10,
   },
@@ -34,6 +36,7 @@ const mockSites = [
     id: '2',
     name: 'Pu Sanga Building Site',
     location: 'Chanmari, Aizawl',
+    manager: 'Sarah Johnson',
     totalWorkers: 8,
     presentWorkers: 7,
   },
@@ -41,6 +44,7 @@ const mockSites = [
     id: '3',
     name: 'Chaltlang Site',
     location: 'Chaltlang Lily Veng',
+    manager: 'Mike Wilson',
     totalWorkers: 15,
     presentWorkers: 15,
   },
@@ -52,6 +56,8 @@ export default function Index() {
     const [isSignupSigninModalOpen, setIsSignupSigninModalOpen] = useState(false);
     const [isSettingsModalOpen, setIsSettingsModalOpen] = useState(false);
     const [isAddSiteModalOpen, setIsAddSiteModalOpen] = useState(false);
+    const [isEditSiteModalOpen, setIsEditSiteModalOpen] = useState(false);
+    const [editingSite, setEditingSite] = useState(null);
     const [siteData, setSiteData] = useState(mockSites);
     const [searchQuery, setSearchQuery] = useState('');
 
@@ -74,6 +80,30 @@ export default function Index() {
       // In a real app, you would also handle deleting workers associated with this site.
       // For example: setWorkers(workers.filter(w => w.siteId !== siteId));
       setSiteData(prevSites => prevSites.filter(site => site.id !== siteId));
+    };
+
+    // Handler to edit site
+    const handleEditSite = (site: any) => {
+      setEditingSite(site);
+      setIsEditSiteModalOpen(true);
+    };
+
+    // Handler to update site
+    const handleUpdateSite = (updatedSiteData: NewSiteData) => {
+      setSiteData(prevSites =>
+        prevSites.map(site =>
+          site.id === editingSite.id
+            ? {
+                ...site,
+                name: updatedSiteData.name,
+                location: updatedSiteData.location,
+                manager: updatedSiteData.manager || site.manager,
+                totalWorkers: updatedSiteData.numberOfWorkers,
+              }
+            : site
+        )
+      );
+      setEditingSite(null);
     };
 
     const filteredSites = siteData.filter(site =>
@@ -134,32 +164,15 @@ export default function Index() {
 
           {/* Site Cards */}
           {filteredSites.map((site) => (
-            <TouchableOpacity
+            <SiteCard
               key={site.id}
-              style={styles.siteCard}
-              onPress={() => router.push('/workers')}
-            >
-              <Text style={styles.siteName}>{site.name}</Text>
-              <Text style={styles.siteLocation}>{site.location}</Text>
-              <View style={styles.workerStats}>
-                <Text style={styles.workerText}>
-                  Workers: <Text style={styles.workerNumber}>{site.totalWorkers}</Text>
-                </Text>
-                <Text style={styles.separator}> | </Text>
-                <Text style={styles.workerText}>
-                  Present: <Text style={styles.presentNumber}>{site.presentWorkers}</Text>
-                </Text>
-              </View>
-            </TouchableOpacity>
+              site={site}
+              onDelete={handleDeleteSite}
+              onEdit={handleEditSite}
+            />
           ))}
 
-          {/* Add Site Button */}
-          <View style={styles.addSiteContainer}>
-            <TouchableOpacity style={styles.addButton} onPress={() => setIsAddSiteModalOpen(true)}>
-              <MaterialIcons name="add" size={20} color="#FFFFFF" />
-              <Text style={styles.addButtonText}>Add Site</Text>
-            </TouchableOpacity>
-          </View>
+          {/* Add Site Button moved to bottom */}
 
           {/* Powered By Section */}
           <View style={styles.poweredBySection}>
@@ -198,8 +211,28 @@ export default function Index() {
           onAddSite={handleAddSite}
         />
 
+        {/* Edit Site Modal */}
+        <AddSiteModal
+          isOpen={isEditSiteModalOpen}
+          onClose={() => {
+            setIsEditSiteModalOpen(false);
+            setEditingSite(null);
+          }}
+          onAddSite={handleUpdateSite}
+          initialData={editingSite}
+          isEditing={true}
+        />
+
         {/* Toast */}
         <Toast />
+
+        {/* Add Site Button at bottom */}
+        <View style={styles.addSiteBottomContainer}>
+          <TouchableOpacity style={styles.addButton} onPress={() => setIsAddSiteModalOpen(true)}>
+            <MaterialIcons name="add" size={20} color="#FFFFFF" />
+            <Text style={styles.addButtonText}>Add Site</Text>
+          </TouchableOpacity>
+        </View>
 
         {/* Bottom Navigation Bar */}
         <View style={styles.bottomNav}>
@@ -325,9 +358,13 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     marginLeft: 6,
   },
-  addSiteContainer: {
+  addSiteBottomContainer: {
+    position: 'absolute',
+    bottom: 80, // Above the bottom nav
+    left: 0,
+    right: 0,
     alignItems: 'center',
-    marginVertical: 16,
+    paddingVertical: 16,
   },
   // Search Bar Styles
   searchContainer: {

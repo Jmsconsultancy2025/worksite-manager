@@ -12,6 +12,8 @@ interface AddSiteModalProps {
   isOpen: boolean;
   onClose: () => void;
   onAddSite: (site: NewSiteData) => void;
+  initialData?: any;
+  isEditing?: boolean;
 }
 
 export interface NewSiteData {
@@ -30,7 +32,7 @@ const managerOptions: SelectItem[] = [
   { label: 'David Brown', value: 'David Brown' },
 ];
 
-export function AddSiteModal({ isOpen, onClose, onAddSite }: AddSiteModalProps) {
+export function AddSiteModal({ isOpen, onClose, onAddSite, initialData, isEditing = false }: AddSiteModalProps) {
   const [formData, setFormData] = useState<NewSiteData>({
     name: '',
     location: '',
@@ -38,6 +40,27 @@ export function AddSiteModal({ isOpen, onClose, onAddSite }: AddSiteModalProps) 
     numberOfWorkers: 0,
     startDate: '',
   });
+
+  // Update form data when initialData changes (for editing)
+  React.useEffect(() => {
+    if (initialData && isEditing) {
+      setFormData({
+        name: initialData.name || '',
+        location: initialData.location || '',
+        manager: initialData.manager || undefined,
+        numberOfWorkers: initialData.totalWorkers || 0,
+        startDate: initialData.startDate || '',
+      });
+    } else if (!isEditing) {
+      setFormData({
+        name: '',
+        location: '',
+        manager: undefined,
+        numberOfWorkers: 0,
+        startDate: '',
+      });
+    }
+  }, [initialData, isEditing]);
 
   const [errors, setErrors] = useState<Partial<NewSiteData>>({});
 
@@ -107,7 +130,7 @@ export function AddSiteModal({ isOpen, onClose, onAddSite }: AddSiteModalProps) 
           <View style={styles.titleRow}>
             <View style={styles.titleContainer}>
               <Plus size={20} color="#2E7D32" style={styles.plusIcon} />
-              <DialogTitle>Add New Site</DialogTitle>
+              <DialogTitle>{isEditing ? 'Edit Site' : 'Add New Site'}</DialogTitle>
             </View>
             <TouchableOpacity onPress={handleCancel} style={styles.closeButton}>
               <X size={24} color="#6B7280" />
@@ -204,7 +227,7 @@ export function AddSiteModal({ isOpen, onClose, onAddSite }: AddSiteModalProps) 
             Cancel
           </Button>
           <Button onPress={handleSave} style={styles.saveButton}>
-            Save Site
+            {isEditing ? 'Update Site' : 'Save Site'}
           </Button>
         </View>
       </DialogContent>
