@@ -328,6 +328,22 @@ const styles = StyleSheet.create({
   settingsIcon: {
     padding: 4,
   },
+  addSiteButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 10,
+    paddingVertical: 5,
+    borderRadius: 18,
+    borderWidth: 1.5,
+    borderColor: '#4CAF50',
+    backgroundColor: '#FFFFFF',
+    gap: 3,
+  },
+  addSiteText: {
+    fontSize: 11,
+    color: '#4CAF50',
+    fontWeight: '600',
+  },
   // Header Styles
   header: {
     paddingHorizontal: 16,
@@ -361,9 +377,8 @@ const styles = StyleSheet.create({
   addSiteBottomContainer: {
     position: 'absolute',
     bottom: 80, // Above the bottom nav
-    left: 0,
-    right: 0,
-    alignItems: 'center',
+    right: 16,
+    alignItems: 'flex-end',
     paddingVertical: 16,
   },
   // Search Bar Styles
@@ -457,8 +472,8 @@ const styles = StyleSheet.create({
     padding: 8,
   },
   logoImage: {
-    width: 32,
-    height: 32,
+    width: 80,
+    height: 80,
     resizeMode: 'contain',
   },
   // Bottom Navigation Bar

@@ -216,7 +216,7 @@ export default function AboutPage() {
         {/* Footer Section */}
         <View style={styles.footer}>
           <Text style={styles.footerVersion}>
-            Worksite v1.0.0 - Built with ❤️ for Construction Teams
+            Worksite Manager v1.0.0 - Built with ❤️ for Construction Teams
           </Text>
           <Text style={styles.footerCopyright}>
             © 2025 MizTech. All rights reserved.
