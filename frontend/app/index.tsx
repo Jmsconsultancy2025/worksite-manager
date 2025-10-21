@@ -9,6 +9,7 @@ import {
   TextInput,
   Platform,
   StatusBar,
+  Image,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { MaterialIcons } from '@expo/vector-icons';
@@ -114,15 +115,9 @@ export default function Index() {
           showsVerticalScrollIndicator={false}
         >
           <View style={styles.header}>
-            <View>
-              <Text style={styles.headerSubtitle}>
-                You are managing {siteData.length} sites
-              </Text>
-            </View>
-            <TouchableOpacity style={styles.addButton} onPress={() => setIsAddSiteModalOpen(true)}>
-              <MaterialIcons name="add" size={20} color="#FFFFFF" />
-              <Text style={styles.addButtonText}>Add Site</Text>
-            </TouchableOpacity>
+            <Text style={styles.headerSubtitle}>
+              You are managing {siteData.length} sites
+            </Text>
           </View>
 
           {/* Search Bar */}
@@ -139,8 +134,8 @@ export default function Index() {
 
           {/* Site Cards */}
           {filteredSites.map((site) => (
-            <TouchableOpacity 
-              key={site.id} 
+            <TouchableOpacity
+              key={site.id}
               style={styles.siteCard}
               onPress={() => router.push('/workers')}
             >
@@ -158,11 +153,19 @@ export default function Index() {
             </TouchableOpacity>
           ))}
 
+          {/* Add Site Button */}
+          <View style={styles.addSiteContainer}>
+            <TouchableOpacity style={styles.addButton} onPress={() => setIsAddSiteModalOpen(true)}>
+              <MaterialIcons name="add" size={20} color="#FFFFFF" />
+              <Text style={styles.addButtonText}>Add Site</Text>
+            </TouchableOpacity>
+          </View>
+
           {/* Powered By Section */}
           <View style={styles.poweredBySection}>
             <Text style={styles.poweredByText}>Powered by</Text>
             <View style={styles.logoContainer}>
-              <MaterialIcons name="business" size={32} color="#424242" />
+              <Image source={require('../assets/images/miztech-logo.png')} style={styles.logoImage} />
             </View>
           </View>
 
@@ -294,9 +297,6 @@ const styles = StyleSheet.create({
   },
   // Header Styles
   header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
     paddingHorizontal: 16,
     paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight || 24 : 24,
     paddingBottom: 16,
@@ -324,6 +324,10 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: '600',
     marginLeft: 6,
+  },
+  addSiteContainer: {
+    alignItems: 'center',
+    marginVertical: 16,
   },
   // Search Bar Styles
   searchContainer: {
@@ -414,6 +418,11 @@ const styles = StyleSheet.create({
   },
   logoContainer: {
     padding: 8,
+  },
+  logoImage: {
+    width: 32,
+    height: 32,
+    resizeMode: 'contain',
   },
   // Bottom Navigation Bar
   bottomNav: {
