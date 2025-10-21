@@ -85,6 +85,7 @@ export default function WorkersPage() {
   const router = useRouter();
   const [searchQuery, setSearchQuery] = useState('');
   const [workers, setWorkers] = useState<Worker[]>(initialWorkers);
+  const siteParam = router.query?.site as string;
 
   // Load attendance data from AsyncStorage on mount
   useEffect(() => {
@@ -129,9 +130,12 @@ export default function WorkersPage() {
   const [isAddWorkerModalOpen, setIsAddWorkerModalOpen] = useState(false);
 
   const filteredWorkers = workers.filter(
-    (worker) =>
-      worker.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      worker.phone.includes(searchQuery)
+    (worker) => {
+      const matchesSearch = worker.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                           worker.phone.includes(searchQuery);
+      const matchesSite = !siteParam || worker.site === siteParam;
+      return matchesSearch && matchesSite;
+    }
   );
 
   const getTodayAttendanceStatus = async (workerId: string): Promise<AttendanceStatus> => {
@@ -348,8 +352,8 @@ export default function WorkersPage() {
             <MaterialIcons name="arrow-back" size={24} color="#1A237E" />
           </TouchableOpacity>
           <View style={styles.headerTextContainer}>
-            <Text style={styles.headerTitle}>Zonuam Site Workers</Text>
-            <Text style={styles.headerSubtitle}>Viewing: Zonuam Site</Text>
+            <Text style={styles.headerTitle}>{siteParam ? `${siteParam} Workers` : 'All Workers'}</Text>
+            <Text style={styles.headerSubtitle}>Viewing: {siteParam || 'All Sites'}</Text>
           </View>
         </View>
 
@@ -745,7 +749,7 @@ export default function WorkersPage() {
         isOpen={isAddWorkerModalOpen}
         onClose={() => setIsAddWorkerModalOpen(false)}
         onAddWorker={handleAddWorker}
-        currentSiteName="Zonuam Site"
+        currentSiteName={siteParam || "All Sites"}
       />
     </SafeAreaView>
   );

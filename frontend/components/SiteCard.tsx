@@ -31,8 +31,7 @@ const SiteCard: React.FC<SiteCardProps> = ({ site, onDelete, onEdit }) => {
   const router = useRouter();
 
   const handleCardPress = () => {
-    // Navigate to site details, not implemented yet
-    // router.push(`/sites/${site.id}`);
+    router.push(`/workers?site=${encodeURIComponent(site.name)}`);
   };
 
   const handleEdit = () => {
@@ -87,17 +86,6 @@ const SiteCard: React.FC<SiteCardProps> = ({ site, onDelete, onEdit }) => {
       </View>
       <Text style={styles.siteLocation}>{site.location}</Text>
       <Text style={styles.siteDetail}>Manager: {site.manager}</Text>
-      <View style={styles.workerInfo}>
-        <View style={styles.workerStat}>
-          <Text style={styles.workerCount}>{site.presentWorkers}</Text>
-          <Text style={styles.workerLabel}>Present</Text>
-        </View>
-        <View style={styles.divider} />
-        <View style={styles.workerStat}>
-          <Text style={styles.workerCount}>{site.totalWorkers}</Text>
-          <Text style={styles.workerLabel}>Total Workers</Text>
-        </View>
-      </View>
     </TouchableOpacity>
   );
 };
