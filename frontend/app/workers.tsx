@@ -15,7 +15,7 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { MaterialIcons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
-import { updateAttendance, loadWorkers } from '../lib/storage';
+import { updateAttendance, loadWorkers, updateWorkerHiddenStatus } from '../lib/storage';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { AddWorkerModal, NewWorkerData } from '../components/AddWorkerModal';
 
@@ -30,6 +30,7 @@ interface Worker {
   attendanceStatus: AttendanceStatus;
   overtime: boolean;
   maxAdvanceLimit: number;
+  hidden: boolean;
 }
 
 // Mock worker data
@@ -42,6 +43,7 @@ const initialWorkers: Worker[] = [
     attendanceStatus: null,
     overtime: false,
     maxAdvanceLimit: 5000,
+    hidden: false,
   },
   {
     id: '2',
@@ -51,6 +53,7 @@ const initialWorkers: Worker[] = [
     attendanceStatus: null,
     overtime: false,
     maxAdvanceLimit: 3000,
+    hidden: false,
   },
   {
     id: '3',
@@ -60,6 +63,7 @@ const initialWorkers: Worker[] = [
     attendanceStatus: null,
     overtime: false,
     maxAdvanceLimit: 4500,
+    hidden: false,
   },
   {
     id: '4',
@@ -69,6 +73,7 @@ const initialWorkers: Worker[] = [
     attendanceStatus: null,
     overtime: false,
     maxAdvanceLimit: 4000,
+    hidden: false,
   },
   {
     id: '5',
@@ -78,6 +83,7 @@ const initialWorkers: Worker[] = [
     attendanceStatus: null,
     overtime: false,
     maxAdvanceLimit: 3500,
+    hidden: false,
   },
 ];
 
@@ -85,6 +91,7 @@ export default function WorkersPage() {
   const router = useRouter();
   const [searchQuery, setSearchQuery] = useState('');
   const [workers, setWorkers] = useState<Worker[]>(initialWorkers);
+  const [showHiddenWorkers, setShowHiddenWorkers] = useState(false);
   const siteParam = router.query?.site as string;
 
   // Load attendance data from AsyncStorage on mount
@@ -93,11 +100,12 @@ export default function WorkersPage() {
       const storedWorkers = await loadWorkers();
       const updatedWorkers = initialWorkers.map(worker => {
         const storedWorker = storedWorkers[worker.id];
-        if (storedWorker && storedWorker.attendance) {
+        if (storedWorker) {
           return {
             ...worker,
-            attendanceStatus: storedWorker.attendance.length > 0 ?
-              storedWorker.attendance[storedWorker.attendance.length - 1].status : null
+            attendanceStatus: storedWorker.attendance && storedWorker.attendance.length > 0 ?
+              storedWorker.attendance[storedWorker.attendance.length - 1].status : null,
+            hidden: storedWorker.hidden || false
           };
         }
         return worker;
@@ -132,9 +140,10 @@ export default function WorkersPage() {
   const filteredWorkers = workers.filter(
     (worker) => {
       const matchesSearch = worker.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                           worker.phone.includes(searchQuery);
+                            worker.phone.includes(searchQuery);
       const matchesSite = !siteParam || worker.site === siteParam;
-      return matchesSearch && matchesSite;
+      const matchesHidden = showHiddenWorkers || !worker.hidden;
+      return matchesSearch && matchesSite && matchesHidden;
     }
   );
 
@@ -310,6 +319,30 @@ export default function WorkersPage() {
     }
   };
 
+  // Handle hide worker
+  const handleHideWorker = async (workerId: string) => {
+    await updateWorkerHiddenStatus(workerId, true);
+
+    setWorkers(prevWorkers =>
+      prevWorkers.map(worker =>
+        worker.id === workerId ? { ...worker, hidden: true } : worker
+      )
+    );
+    Alert.alert('Success', 'Worker hidden successfully!');
+  };
+
+  // Handle activate worker
+  const handleActivateWorker = async (workerId: string) => {
+    await updateWorkerHiddenStatus(workerId, false);
+
+    setWorkers(prevWorkers =>
+      prevWorkers.map(worker =>
+        worker.id === workerId ? { ...worker, hidden: false } : worker
+      )
+    );
+    Alert.alert('Success', 'Worker activated successfully!');
+  };
+
   // Handle add worker
   const handleAddWorker = (newWorkerData: NewWorkerData) => {
     // For now, use a simple ID generation and add to the workers array
@@ -322,6 +355,7 @@ export default function WorkersPage() {
       attendanceStatus: null,
       overtime: false,
       maxAdvanceLimit: 5000, // Default limit
+      hidden: false,
     };
 
     setWorkers(prev => [...prev, newWorker]);
@@ -369,6 +403,17 @@ export default function WorkersPage() {
           />
         </View>
 
+        {/* Show Hidden Workers Toggle */}
+        <View style={styles.toggleContainer}>
+          <Text style={styles.toggleLabel}>Show Hidden Workers</Text>
+          <TouchableOpacity
+            style={[styles.toggleSwitch, showHiddenWorkers && styles.toggleSwitchActive]}
+            onPress={() => setShowHiddenWorkers(!showHiddenWorkers)}
+          >
+            <View style={[styles.toggleKnob, showHiddenWorkers && styles.toggleKnobActive]} />
+          </TouchableOpacity>
+        </View>
+
         {/* Workers List */}
         <ScrollView
           style={styles.workersList}
@@ -390,6 +435,27 @@ export default function WorkersPage() {
                     <Text style={styles.workerName}>{worker.name}</Text>
                     <Text style={styles.workerPhone}>{worker.phone}</Text>
                     <Text style={styles.workerRole}>{worker.role}</Text>
+                    {/* Status Options */}
+                    <View style={styles.statusOptions}>
+                      {!worker.hidden ? (
+                        <>
+                          <Text style={[styles.statusText, styles.activeStatus]}>Active</Text>
+                          <TouchableOpacity
+                            style={styles.hideButton}
+                            onPress={() => handleHideWorker(worker.id)}
+                          >
+                            <Text style={styles.hideButtonText}>Hide</Text>
+                          </TouchableOpacity>
+                        </>
+                      ) : (
+                        <TouchableOpacity
+                          style={styles.activateButton}
+                          onPress={() => handleActivateWorker(worker.id)}
+                        >
+                          <Text style={styles.activateButtonText}>Activate</Text>
+                        </TouchableOpacity>
+                      )}
+                    </View>
                   </View>
                 </View>
 
@@ -825,6 +891,65 @@ const styles = StyleSheet.create({
       },
     }),
   },
+  // Toggle Styles
+  toggleContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    backgroundColor: '#FFFFFF',
+    borderRadius: 12,
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    marginHorizontal: 16,
+    marginBottom: 12,
+    ...Platform.select({
+      ios: {
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 1 },
+        shadowOpacity: 0.08,
+        shadowRadius: 2,
+      },
+      android: {
+        elevation: 1,
+      },
+    }),
+  },
+  toggleLabel: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: '#424242',
+  },
+  toggleSwitch: {
+    width: 50,
+    height: 28,
+    borderRadius: 14,
+    backgroundColor: '#E0E0E0',
+    justifyContent: 'center',
+    paddingHorizontal: 2,
+  },
+  toggleSwitchActive: {
+    backgroundColor: '#4CAF50',
+  },
+  toggleKnob: {
+    width: 24,
+    height: 24,
+    borderRadius: 12,
+    backgroundColor: '#FFFFFF',
+    ...Platform.select({
+      ios: {
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 1 },
+        shadowOpacity: 0.2,
+        shadowRadius: 2,
+      },
+      android: {
+        elevation: 2,
+      },
+    }),
+  },
+  toggleKnobActive: {
+    transform: [{ translateX: 22 }],
+  },
   searchIcon: {
     marginRight: 8,
   },
@@ -888,6 +1013,44 @@ const styles = StyleSheet.create({
     fontSize: 13,
     color: '#9E9E9E',
     lineHeight: 16,
+  },
+  // Status Options Styles
+  statusOptions: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginTop: 8,
+    gap: 8,
+  },
+  statusText: {
+    fontSize: 12,
+    fontWeight: '600',
+  },
+  activeStatus: {
+    color: '#4CAF50',
+  },
+  hideButton: {
+    paddingHorizontal: 12,
+    paddingVertical: 4,
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: '#FF9800',
+    backgroundColor: '#FFFFFF',
+  },
+  hideButtonText: {
+    fontSize: 12,
+    color: '#FF9800',
+    fontWeight: '600',
+  },
+  activateButton: {
+    paddingHorizontal: 12,
+    paddingVertical: 4,
+    borderRadius: 12,
+    backgroundColor: '#4CAF50',
+  },
+  activateButtonText: {
+    fontSize: 12,
+    color: '#FFFFFF',
+    fontWeight: '600',
   },
   // Middle Column: Status Badges
   middleColumn: {

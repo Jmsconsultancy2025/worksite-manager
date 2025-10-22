@@ -53,6 +53,18 @@ export async function updateAttendance(workerId, dateISO, status) {
   return workers[workerId];
 }
 
+export async function updateWorkerHiddenStatus(workerId, hidden) {
+  const workers = await loadWorkers();
+
+  if (!workers[workerId]) {
+    workers[workerId] = {};
+  }
+
+  workers[workerId].hidden = hidden;
+  await saveWorkers(workers);
+  return workers[workerId];
+}
+
 export function isExpired(markedAt) {
   if (!markedAt) return false;
   const now = Date.now();
