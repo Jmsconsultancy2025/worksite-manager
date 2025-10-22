@@ -488,12 +488,12 @@ export default function WorkerProfilePage() {
         <View style={styles.section}>
           <View style={styles.sectionHeader}>
             <Text style={styles.sectionTitle}>Salary & Earnings</Text>
-            <TouchableOpacity 
+            <TouchableOpacity
               style={styles.viewAdvanceButton}
               onPress={() => setAdvanceHistoryVisible(true)}
             >
               <MaterialIcons name="receipt" size={18} color="#4CAF50" />
-              <Text style={styles.viewAdvanceText}>View Advances</Text>
+              <Text style={styles.viewAdvanceText}>View Payouts</Text>
             </TouchableOpacity>
           </View>
           
@@ -539,7 +539,7 @@ export default function WorkerProfilePage() {
             </View>
 
             <View style={[styles.salaryCard, { borderLeftColor: '#F44336' }]}>
-              <Text style={styles.salaryLabel}>Total Advance</Text>
+              <Text style={styles.salaryLabel}>Total Payout</Text>
               <Text style={[styles.salaryValue, { color: '#F44336' }]}>₹{salaryStats.totalAdvance}</Text>
             </View>
 
@@ -692,7 +692,7 @@ export default function WorkerProfilePage() {
           onPress={() => setAdvanceHistoryVisible(false)}
         >
           <Pressable style={styles.attendanceModalContent} onPress={(e) => e.stopPropagation()}>
-            <Text style={styles.attendanceModalTitle}>Advance Payments</Text>
+            <Text style={styles.attendanceModalTitle}>Payout History</Text>
             <Text style={styles.attendanceModalDate}>{workerData?.name}</Text>
             
             <ScrollView style={styles.advanceHistoryList}>
@@ -702,7 +702,7 @@ export default function WorkerProfilePage() {
                     <View style={styles.advanceHistoryInfo}>
                       <MaterialIcons name="receipt" size={24} color="#FF9800" />
                       <View style={styles.advanceHistoryDetails}>
-                        <Text style={styles.advanceHistoryAmount}>₹{advance.amount}</Text>
+                        <Text style={styles.advanceHistoryAmount}>Rs {advance.amount} Paid</Text>
                         <Text style={styles.advanceHistoryDate}>
                           {formatDDMMYYYY(advance.date)}
                         </Text>

@@ -243,7 +243,7 @@ export default function WorkersPage() {
 
     const amount = parseFloat(advanceAmount);
     if (isNaN(amount) || amount <= 0 || amount > selectedWorker.maxAdvanceLimit) {
-      Alert.alert('Error', `Please enter a valid amount between ₹1 and ₹${selectedWorker.maxAdvanceLimit}`);
+      Alert.alert('Error', `Please enter a valid payout amount between ₹1 and ₹${selectedWorker.maxAdvanceLimit}`);
       return;
     }
 
@@ -272,14 +272,14 @@ export default function WorkersPage() {
           )
         );
 
-        Alert.alert('Success', `Advance of ₹${amount} given to ${selectedWorker.name}`);
+        Alert.alert('Success', `Payout of ₹${amount} given to ${selectedWorker.name}`);
         setAdvanceModalVisible(false);
         setAdvanceAmount('');
       } else {
         Alert.alert('Error', 'Worker profile not found');
       }
     } catch (error) {
-      Alert.alert('Error', 'Failed to record advance payment');
+      Alert.alert('Error', 'Failed to record payout');
     }
   };
 
@@ -481,7 +481,7 @@ export default function WorkersPage() {
                     <Text style={styles.workerPhone}>{worker.phone}</Text>
                     <Text style={styles.workerRole}>{worker.role}</Text>
                     {worker.todayAdvanceTotal > 0 && (
-                      <Text style={styles.todayAdvanceText}>Rs {worker.todayAdvanceTotal}</Text>
+                      <Text style={styles.todayAdvanceText}>Rs {worker.todayAdvanceTotal} Paid</Text>
                     )}
                     {/* Status Options */}
                     <View style={styles.statusOptions}>
@@ -544,7 +544,7 @@ export default function WorkersPage() {
                   onPress={() => openAdvanceModal(worker)}
                 >
                   <MaterialIcons name="currency-rupee" size={13} color="#FF9800" />
-                  <Text style={styles.advanceButtonText}>Advance</Text>
+                  <Text style={styles.advanceButtonText}>Payout</Text>
                 </TouchableOpacity>
               </View>
             </TouchableOpacity>
@@ -662,7 +662,7 @@ export default function WorkersPage() {
           onPress={() => setAdvanceModalVisible(false)}
         >
           <Pressable style={styles.advanceModalContent} onPress={(e) => e.stopPropagation()}>
-            <Text style={styles.advanceModalTitle}>Give Advance</Text>
+            <Text style={styles.advanceModalTitle}>Payout</Text>
             
             <View style={styles.advanceForm}>
               <View style={styles.formGroup}>
@@ -686,7 +686,7 @@ export default function WorkersPage() {
               </View>
 
               <View style={styles.formGroup}>
-                <Text style={styles.formLabel}>Amount (₹)</Text>
+                <Text style={styles.formLabel}>Payout Amount</Text>
                 <View style={styles.formInput}>
                   <MaterialIcons name="currency-rupee" size={20} color="#757575" />
                   <TextInput
@@ -698,7 +698,7 @@ export default function WorkersPage() {
                   />
                 </View>
                 <Text style={styles.formHint}>
-                  Max limit: ₹{selectedWorker?.maxAdvanceLimit}
+                  Maximum payout limit: ₹{selectedWorker?.maxAdvanceLimit}
                 </Text>
               </View>
             </View>
@@ -714,7 +714,7 @@ export default function WorkersPage() {
                 style={styles.giveAdvanceButton}
                 onPress={handleGiveAdvance}
               >
-                <Text style={styles.giveAdvanceButtonText}>Give Advance</Text>
+                <Text style={styles.giveAdvanceButtonText}>Submit Payout</Text>
               </TouchableOpacity>
             </View>
           </Pressable>
