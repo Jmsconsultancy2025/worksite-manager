@@ -501,7 +501,7 @@ export default function WorkerProfilePage() {
           <View style={styles.dateRangeContainer}>
             <View style={styles.dateInput}>
               <Text style={styles.dateLabel}>From</Text>
-              <TouchableOpacity 
+              <TouchableOpacity
                 style={styles.datePickerButton}
                 onPress={() => {
                   setDatePickerMode('from');
@@ -516,7 +516,7 @@ export default function WorkerProfilePage() {
             </View>
             <View style={styles.dateInput}>
               <Text style={styles.dateLabel}>To</Text>
-              <TouchableOpacity 
+              <TouchableOpacity
                 style={styles.datePickerButton}
                 onPress={() => {
                   setDatePickerMode('to');
@@ -531,6 +531,13 @@ export default function WorkerProfilePage() {
             </View>
           </View>
 
+          {/* Payout Display */}
+          {salaryStats.totalAdvance > 0 && (
+            <View style={styles.payoutDisplay}>
+              <Text style={styles.payoutText}>Rs {salaryStats.totalAdvance.toFixed(0)} Paid</Text>
+            </View>
+          )}
+
           {/* Salary Cards */}
           <View style={styles.salaryGrid}>
             <View style={[styles.salaryCard, { borderLeftColor: '#4CAF50' }]}>
@@ -539,8 +546,12 @@ export default function WorkerProfilePage() {
             </View>
 
             <View style={[styles.salaryCard, { borderLeftColor: '#F44336' }]}>
-              <Text style={styles.salaryLabel}>Total Payout</Text>
-              <Text style={[styles.salaryValue, { color: '#F44336' }]}>₹{salaryStats.totalAdvance}</Text>
+              <Text style={styles.salaryLabel}>
+                {salaryStats.totalAdvance > 0 ? `Rs ${salaryStats.totalAdvance.toFixed(0)} Paid` : 'Total Payout'}
+              </Text>
+              {salaryStats.totalAdvance === 0 && (
+                <Text style={[styles.salaryValue, { color: '#F44336' }]}>₹{salaryStats.totalAdvance}</Text>
+              )}
             </View>
 
             <View style={[styles.salaryCard, { borderLeftColor: '#2196F3' }]}>
@@ -1491,5 +1502,15 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: '600',
     color: '#FFFFFF',
+  },
+  // Payout Display Styles
+  payoutDisplay: {
+    marginBottom: 16,
+    alignItems: 'center',
+  },
+  payoutText: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    color: '#F44336',
   },
 });
