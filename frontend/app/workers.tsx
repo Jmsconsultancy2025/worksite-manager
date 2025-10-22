@@ -31,6 +31,7 @@ interface Worker {
   overtime: boolean;
   maxAdvanceLimit: number;
   hidden: boolean;
+  todayAdvanceTotal: number;
 }
 
 // Mock worker data
@@ -44,6 +45,7 @@ const initialWorkers: Worker[] = [
     overtime: false,
     maxAdvanceLimit: 5000,
     hidden: false,
+    todayAdvanceTotal: 0,
   },
   {
     id: '2',
@@ -54,6 +56,7 @@ const initialWorkers: Worker[] = [
     overtime: false,
     maxAdvanceLimit: 3000,
     hidden: false,
+    todayAdvanceTotal: 0,
   },
   {
     id: '3',
@@ -64,6 +67,7 @@ const initialWorkers: Worker[] = [
     overtime: false,
     maxAdvanceLimit: 4500,
     hidden: false,
+    todayAdvanceTotal: 0,
   },
   {
     id: '4',
@@ -74,6 +78,7 @@ const initialWorkers: Worker[] = [
     overtime: false,
     maxAdvanceLimit: 4000,
     hidden: false,
+    todayAdvanceTotal: 0,
   },
   {
     id: '5',
@@ -84,6 +89,7 @@ const initialWorkers: Worker[] = [
     overtime: false,
     maxAdvanceLimit: 3500,
     hidden: false,
+    todayAdvanceTotal: 0,
   },
 ];
 
@@ -93,6 +99,15 @@ export default function WorkersPage() {
   const [workers, setWorkers] = useState<Worker[]>(initialWorkers);
   const [showHiddenWorkers, setShowHiddenWorkers] = useState(false);
   const siteParam = router.query?.site as string;
+
+  // Helper function to calculate today's advance total for a worker
+  const calculateTodayAdvanceTotal = (workerData: any): number => {
+    if (!workerData || !workerData.advances) return 0;
+    const today = new Date().toISOString().split('T')[0];
+    return workerData.advances
+      .filter((advance: any) => advance.date === today)
+      .reduce((total: number, advance: any) => total + advance.amount, 0);
+  };
 
   // Load attendance data from AsyncStorage on mount
   useEffect(() => {
@@ -105,7 +120,8 @@ export default function WorkersPage() {
             ...worker,
             attendanceStatus: storedWorker.attendance && storedWorker.attendance.length > 0 ?
               storedWorker.attendance[storedWorker.attendance.length - 1].status : null,
-            hidden: storedWorker.hidden || false
+            hidden: storedWorker.hidden || false,
+            todayAdvanceTotal: calculateTodayAdvanceTotal(storedWorker)
           };
         }
         return worker;
@@ -113,6 +129,27 @@ export default function WorkersPage() {
       setWorkers(updatedWorkers);
     };
     loadData();
+
+    // Set up interval to check for day change and reset advances at midnight
+    const checkDayChange = async () => {
+      const now = new Date();
+      const currentDate = now.toISOString().split('T')[0];
+      const lastCheckedDate = await AsyncStorage.getItem('lastAdvanceCheckDate');
+
+      if (lastCheckedDate !== currentDate) {
+        // Day has changed, reset todayAdvanceTotal for all workers
+        setWorkers(prevWorkers =>
+          prevWorkers.map(worker => ({ ...worker, todayAdvanceTotal: 0 }))
+        );
+        await AsyncStorage.setItem('lastAdvanceCheckDate', currentDate);
+      }
+    };
+
+    // Check immediately and then every minute
+    checkDayChange();
+    const interval = setInterval(checkDayChange, 60000); // Check every minute
+
+    return () => clearInterval(interval);
   }, []);
   
   // Modal states
@@ -226,6 +263,14 @@ export default function WorkersPage() {
 
         // Save updated data back to AsyncStorage
         await AsyncStorage.setItem(`worker_${selectedWorker.id}`, JSON.stringify(workerData));
+
+        // Update local state with new total
+        const newTotal = calculateTodayAdvanceTotal(workerData);
+        setWorkers(prevWorkers =>
+          prevWorkers.map(worker =>
+            worker.id === selectedWorker.id ? { ...worker, todayAdvanceTotal: newTotal } : worker
+          )
+        );
 
         Alert.alert('Success', `Advance of ₹${amount} given to ${selectedWorker.name}`);
         setAdvanceModalVisible(false);
@@ -435,6 +480,9 @@ export default function WorkersPage() {
                     <Text style={styles.workerName}>{worker.name}</Text>
                     <Text style={styles.workerPhone}>{worker.phone}</Text>
                     <Text style={styles.workerRole}>{worker.role}</Text>
+                    {worker.todayAdvanceTotal > 0 && (
+                      <Text style={styles.todayAdvanceText}>Rs {worker.todayAdvanceTotal}</Text>
+                    )}
                     {/* Status Options */}
                     <View style={styles.statusOptions}>
                       {!worker.hidden ? (
@@ -1013,6 +1061,12 @@ const styles = StyleSheet.create({
     fontSize: 13,
     color: '#9E9E9E',
     lineHeight: 16,
+  },
+  todayAdvanceText: {
+    fontSize: 14,
+    fontWeight: 'bold',
+    color: '#FF9800',
+    marginTop: 4,
   },
   // Status Options Styles
   statusOptions: {
