@@ -593,12 +593,6 @@ export default function WorkerProfilePage() {
             </View>
           </View>
 
-          {/* Payout Display */}
-          {salaryStats.totalAdvance > 0 && (
-            <View style={styles.payoutDisplay}>
-              <Text style={styles.payoutText}>Rs {salaryStats.totalAdvance.toFixed(0)} Paid</Text>
-            </View>
-          )}
 
           {/* Salary Cards */}
           <View style={styles.salaryGrid}>
@@ -608,12 +602,8 @@ export default function WorkerProfilePage() {
             </View>
 
             <View style={[styles.salaryCard, { borderLeftColor: '#F44336' }]}>
-              <Text style={styles.salaryLabel}>
-                {salaryStats.totalAdvance > 0 ? `Rs ${salaryStats.totalAdvance.toFixed(0)} Paid` : 'Total Payout'}
-              </Text>
-              {salaryStats.totalAdvance === 0 && (
-                <Text style={[styles.salaryValue, { color: '#F44336' }]}>₹{salaryStats.totalAdvance}</Text>
-              )}
+              <Text style={styles.salaryLabel}>Total Payout</Text>
+              <Text style={[styles.salaryValue, { color: '#F44336' }]}>₹{salaryStats.totalAdvance.toFixed(0)}</Text>
             </View>
 
             <View style={[styles.salaryCard, { borderLeftColor: '#2196F3' }]}>
