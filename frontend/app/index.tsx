@@ -248,7 +248,7 @@ export default function Index() {
             <MaterialIcons name="info" size={24} color="#9E9E9E" />
             <Text style={styles.navLabel}>About Us</Text>
           </TouchableOpacity>
-          <TouchableOpacity style={styles.navItem}>
+          <TouchableOpacity style={styles.navItem} onPress={() => router.push('/plans')}>
             <MaterialIcons name="star" size={24} color="#9E9E9E" />
             <Text style={styles.navLabel}>Plans</Text>
           </TouchableOpacity>

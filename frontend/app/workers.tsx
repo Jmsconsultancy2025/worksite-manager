@@ -9,9 +9,9 @@ import {
   Platform,
   StatusBar,
   Modal,
-  Pressable,
   Alert,
 } from 'react-native';
+import { Pressable } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { MaterialIcons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
@@ -480,9 +480,6 @@ export default function WorkersPage() {
                     <Text style={styles.workerName}>{worker.name}</Text>
                     <Text style={styles.workerPhone}>{worker.phone}</Text>
                     <Text style={styles.workerRole}>{worker.role}</Text>
-                    {worker.todayAdvanceTotal > 0 && (
-                      <Text style={styles.todayAdvanceText}>Rs {worker.todayAdvanceTotal} Paid</Text>
-                    )}
                     {/* Status Options */}
                     <View style={styles.statusOptions}>
                       {!worker.hidden ? (
@@ -540,11 +537,23 @@ export default function WorkersPage() {
               {/* Right Column: Advance Button */}
               <View style={styles.rightColumn}>
                 <TouchableOpacity
-                  style={styles.advanceButton}
+                  style={[
+                    styles.advanceButton,
+                    worker.todayAdvanceTotal > 0 ? styles.advanceButtonPaid : styles.advanceButtonDefault
+                  ]}
                   onPress={() => openAdvanceModal(worker)}
                 >
-                  <MaterialIcons name="currency-rupee" size={13} color="#FF9800" />
-                  <Text style={styles.advanceButtonText}>Payout</Text>
+                  <MaterialIcons
+                    name="currency-rupee"
+                    size={13}
+                    color={worker.todayAdvanceTotal > 0 ? "#DC2626" : "#16A34A"}
+                  />
+                  <Text style={[
+                    styles.advanceButtonText,
+                    worker.todayAdvanceTotal > 0 ? styles.advanceButtonTextPaid : styles.advanceButtonTextDefault
+                  ]}>
+                    {worker.todayAdvanceTotal > 0 ? `Rs ${worker.todayAdvanceTotal} Paid` : 'Payout'}
+                  </Text>
                 </TouchableOpacity>
               </View>
             </TouchableOpacity>
@@ -1147,14 +1156,25 @@ const styles = StyleSheet.create({
     paddingVertical: 7,
     borderRadius: 18,
     borderWidth: 1.5,
-    borderColor: '#FF9800',
-    backgroundColor: '#FFFFFF',
     gap: 3,
+  },
+  advanceButtonDefault: {
+    borderColor: '#16A34A',
+    backgroundColor: '#FFFFFF',
+  },
+  advanceButtonPaid: {
+    borderColor: '#DC2626',
+    backgroundColor: '#FEF2F2',
   },
   advanceButtonText: {
     fontSize: 12,
-    color: '#FF9800',
     fontWeight: '600',
+  },
+  advanceButtonTextDefault: {
+    color: '#16A34A',
+  },
+  advanceButtonTextPaid: {
+    color: '#DC2626',
   },
   // Floating Button
   floatingButton: {
