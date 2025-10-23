@@ -86,6 +86,9 @@ export default function WorkerProfilePage() {
   const [advanceHistoryVisible, setAdvanceHistoryVisible] = useState(false);
   const [datePickerVisible, setDatePickerVisible] = useState(false);
   const [datePickerMode, setDatePickerMode] = useState<'from' | 'to'>('from');
+  const [payoutModalVisible, setPayoutModalVisible] = useState(false);
+  const [selectedPayoutDate, setSelectedPayoutDate] = useState<string | null>(null);
+  const [payoutAmount, setPayoutAmount] = useState('');
 
   const worker = workerData || initialWorker;
 
@@ -155,6 +158,14 @@ export default function WorkerProfilePage() {
     const dateStr = date.toISOString().split('T')[0];
     setSelectedDate(dateStr);
     setAttendanceModalVisible(true);
+  };
+
+  // Handle payout button click
+  const handlePayoutClick = (date: Date) => {
+    const dateStr = date.toISOString().split('T')[0];
+    setSelectedPayoutDate(dateStr);
+    setPayoutAmount('');
+    setPayoutModalVisible(true);
   };
 
   if (!worker) {
@@ -278,13 +289,13 @@ export default function WorkerProfilePage() {
   // Handle payment
   const handleMarkPaid = () => {
     if (!workerData) return;
-    
+
     const amount = parseFloat(paymentAmount);
     if (isNaN(amount) || amount <= 0) {
       Alert.alert('Error', 'Please enter a valid amount');
       return;
     }
-    
+
     const newPayment = {
       id: `p${Date.now()}`,
       date: new Date().toISOString().split('T')[0],
@@ -292,14 +303,46 @@ export default function WorkerProfilePage() {
       from: dateFrom,
       to: dateTo,
     };
-    
+
     setWorkerData({
       ...workerData,
       payments: [...workerData.payments, newPayment],
     });
-    
+
     showToast(`Payment of ₹${amount} recorded successfully!`);
     setPaymentAmount('');
+  };
+
+  // Handle payout for specific date
+  const handlePayoutForDate = () => {
+    if (!workerData || !selectedPayoutDate) return;
+
+    const amount = parseFloat(payoutAmount);
+    if (isNaN(amount) || amount <= 0) {
+      Alert.alert('Error', 'Please enter a valid payout amount');
+      return;
+    }
+
+    const newAdvance = {
+      date: selectedPayoutDate,
+      amount,
+    };
+
+    setWorkerData({
+      ...workerData,
+      advances: [...workerData.advances, newAdvance],
+    });
+
+    showToast(`Payout of ₹${amount} recorded for ${formatDDMMYYYY(selectedPayoutDate)}!`);
+    setPayoutAmount('');
+    setPayoutModalVisible(false);
+  };
+
+  // Check if payout exists for a specific date
+  const getPayoutForDate = (date: Date): number => {
+    const dateStr = date.toISOString().split('T')[0];
+    const payout = worker.advances.find(a => a.date === dateStr);
+    return payout ? payout.amount : 0;
   };
 
   // Get status color - considers expiry (>24h)
@@ -412,6 +455,25 @@ export default function WorkerProfilePage() {
                           {attendance?.status === 'present' ? 'Present' : attendance?.status === 'half' ? 'Half Day' : attendance?.status === 'holiday' ? 'Holiday' : 'Absent'}
                         </Text>
                       </View>
+                      <TouchableOpacity
+                        style={[
+                          styles.payoutButtonVertical,
+                          getPayoutForDate(date) > 0 ? styles.payoutButtonPaid : styles.payoutButtonDefault
+                        ]}
+                        onPress={() => handlePayoutClick(date)}
+                      >
+                        <MaterialIcons
+                          name="currency-rupee"
+                          size={12}
+                          color={getPayoutForDate(date) > 0 ? "#DC2626" : "#16A34A"}
+                        />
+                        <Text style={[
+                          styles.payoutButtonTextVertical,
+                          getPayoutForDate(date) > 0 ? styles.payoutButtonTextPaid : styles.payoutButtonTextDefault
+                        ]}>
+                          {getPayoutForDate(date) > 0 ? `Rs ${getPayoutForDate(date)} Paid` : 'Payout'}
+                        </Text>
+                      </TouchableOpacity>
                     </TouchableOpacity>
                   );
                 })}
@@ -752,7 +814,7 @@ export default function WorkerProfilePage() {
         >
           <Pressable style={styles.datePickerModalContent} onPress={(e) => e.stopPropagation()}>
             <Text style={styles.datePickerModalTitle}>Select Date</Text>
-            
+
             {/* Quick Date Selection */}
             <View style={styles.quickDateRow}>
               <TouchableOpacity
@@ -769,7 +831,7 @@ export default function WorkerProfilePage() {
               >
                 <Text style={styles.quickDateText}>Today</Text>
               </TouchableOpacity>
-              
+
               <TouchableOpacity
                 style={styles.quickDateButton}
                 onPress={() => {
@@ -786,7 +848,7 @@ export default function WorkerProfilePage() {
               >
                 <Text style={styles.quickDateText}>Last Week</Text>
               </TouchableOpacity>
-              
+
               <TouchableOpacity
                 style={styles.quickDateButton}
                 onPress={() => {
@@ -839,6 +901,69 @@ export default function WorkerProfilePage() {
             >
               <Text style={styles.datePickerCloseButtonText}>Cancel</Text>
             </TouchableOpacity>
+          </Pressable>
+        </Pressable>
+      </Modal>
+
+      {/* Payout Modal */}
+      <Modal
+        animationType="slide"
+        transparent={true}
+        visible={payoutModalVisible}
+        onRequestClose={() => setPayoutModalVisible(false)}
+      >
+        <Pressable
+          style={styles.modalOverlay}
+          onPress={() => setPayoutModalVisible(false)}
+        >
+          <Pressable style={styles.attendanceModalContent} onPress={(e) => e.stopPropagation()}>
+            <Text style={styles.attendanceModalTitle}>Record Payout</Text>
+            <Text style={styles.attendanceModalDate}>
+              {selectedPayoutDate && new Date(selectedPayoutDate).toLocaleDateString('en-US', {
+                weekday: 'long',
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric'
+              })}
+            </Text>
+
+            <View style={styles.payoutForm}>
+              <View style={styles.formGroup}>
+                <Text style={styles.formLabel}>Worker Name</Text>
+                <View style={styles.formInputDisabled}>
+                  <Text style={styles.formInputText}>{worker.name}</Text>
+                </View>
+              </View>
+
+              <View style={styles.formGroup}>
+                <Text style={styles.formLabel}>Payout Amount</Text>
+                <View style={styles.formInput}>
+                  <MaterialIcons name="currency-rupee" size={20} color="#757575" />
+                  <TextInput
+                    style={styles.formInputField}
+                    value={payoutAmount}
+                    onChangeText={setPayoutAmount}
+                    placeholder="Enter amount"
+                    keyboardType="numeric"
+                  />
+                </View>
+              </View>
+            </View>
+
+            <View style={styles.advanceModalButtons}>
+              <TouchableOpacity
+                style={styles.cancelButton}
+                onPress={() => setPayoutModalVisible(false)}
+              >
+                <Text style={styles.cancelButtonText}>Cancel</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={styles.giveAdvanceButton}
+                onPress={handlePayoutForDate}
+              >
+                <Text style={styles.giveAdvanceButtonText}>Record Payout</Text>
+              </TouchableOpacity>
+            </View>
           </Pressable>
         </Pressable>
       </Modal>
@@ -1056,6 +1181,34 @@ const styles = StyleSheet.create({
   statusTextVertical: {
     fontSize: 13,
     fontWeight: '600',
+  },
+  payoutButtonVertical: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 12,
+    borderWidth: 1,
+    gap: 2,
+    marginLeft: 8,
+  },
+  payoutButtonDefault: {
+    borderColor: '#16A34A',
+    backgroundColor: '#FFFFFF',
+  },
+  payoutButtonPaid: {
+    borderColor: '#DC2626',
+    backgroundColor: '#FEF2F2',
+  },
+  payoutButtonTextVertical: {
+    fontSize: 10,
+    fontWeight: '600',
+  },
+  payoutButtonTextDefault: {
+    color: '#16A34A',
+  },
+  payoutButtonTextPaid: {
+    color: '#DC2626',
   },
   statsContainer: {
     flexDirection: 'row',
@@ -1512,5 +1665,74 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: 'bold',
     color: '#F44336',
+  },
+  payoutForm: {
+    marginBottom: 20,
+  },
+  formGroup: {
+    marginBottom: 16,
+  },
+  formLabel: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: '#424242',
+    marginBottom: 8,
+  },
+  formInput: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#F5F5F5',
+    borderRadius: 8,
+    paddingHorizontal: 12,
+    paddingVertical: 12,
+    borderWidth: 1,
+    borderColor: '#E0E0E0',
+  },
+  formInputDisabled: {
+    backgroundColor: '#F5F5F5',
+    borderRadius: 8,
+    paddingHorizontal: 12,
+    paddingVertical: 12,
+    borderWidth: 1,
+    borderColor: '#E0E0E0',
+  },
+  formInputField: {
+    flex: 1,
+    fontSize: 14,
+    color: '#424242',
+    marginLeft: 8,
+  },
+  formInputText: {
+    fontSize: 14,
+    color: '#757575',
+  },
+  advanceModalButtons: {
+    flexDirection: 'row',
+    gap: 12,
+  },
+  cancelButton: {
+    flex: 1,
+    paddingVertical: 12,
+    borderRadius: 8,
+    borderWidth: 1.5,
+    borderColor: '#E0E0E0',
+    alignItems: 'center',
+  },
+  cancelButtonText: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: '#757575',
+  },
+  giveAdvanceButton: {
+    flex: 1,
+    paddingVertical: 12,
+    borderRadius: 8,
+    backgroundColor: '#4CAF50',
+    alignItems: 'center',
+  },
+  giveAdvanceButtonText: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: '#FFFFFF',
   },
 });
