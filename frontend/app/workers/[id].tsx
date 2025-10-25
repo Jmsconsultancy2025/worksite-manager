@@ -13,6 +13,7 @@ import {
   Modal,
   Pressable,
   Animated,
+  useWindowDimensions,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { MaterialIcons } from '@expo/vector-icons';
@@ -68,6 +69,7 @@ const Toast = ({ message, visible, onHide }: { message: string; visible: boolean
 export default function WorkerProfilePage() {
   const router = useRouter();
   const { id } = useLocalSearchParams();
+  const { width } = useWindowDimensions();
   const initialWorker = getWorkerById(id as string);
 
   // State
