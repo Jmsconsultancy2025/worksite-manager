@@ -397,13 +397,6 @@ export default function WorkerProfilePage() {
         {/* Worker Info Card - Compact */}
         <View style={styles.infoCard}>
           <View style={styles.compactHeader}>
-            <Text style={styles.workerNameCompact}>{worker.name}</Text>
-            <Text style={styles.workerRoleCompact}>{worker.role}</Text>
-            <TouchableOpacity onPress={() => Linking.openURL(`tel:${worker.phone}`)} style={styles.phoneRow}>
-              <MaterialIcons name="phone" size={16} color="#4CAF50" />
-              <Text style={styles.phoneCompact}>{worker.phone}</Text>
-            </TouchableOpacity>
-            {/* Edit and Delete Buttons */}
             <View style={styles.actionButtons}>
               <TouchableOpacity
                 style={styles.editButton}
@@ -447,6 +440,14 @@ export default function WorkerProfilePage() {
               >
                 <MaterialIcons name="delete" size={16} color="#F44336" />
                 <Text style={styles.deleteButtonText}>Delete</Text>
+              </TouchableOpacity>
+            </View>
+            <View style={styles.workerInfo}>
+              <Text style={styles.workerNameCompact}>{worker.name}</Text>
+              <Text style={styles.workerRoleCompact}>{worker.role}</Text>
+              <TouchableOpacity onPress={() => Linking.openURL(`tel:${worker.phone}`)} style={styles.phoneRow}>
+                <MaterialIcons name="phone" size={16} color="#4CAF50" />
+                <Text style={styles.phoneCompact}>{worker.phone}</Text>
               </TouchableOpacity>
             </View>
           </View>
@@ -1076,6 +1077,16 @@ const styles = StyleSheet.create({
     }),
   },
   compactHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 16,
+  },
+  actionButtons: {
+    flexDirection: 'column',
+    gap: 8,
+  },
+  workerInfo: {
+    flex: 1,
     alignItems: 'center',
     gap: 8,
   },
