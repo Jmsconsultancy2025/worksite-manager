@@ -328,7 +328,7 @@ export default function WorkerProfilePage() {
   };
 
   // Handle payout for specific date
-  const handlePayoutForDate = () => {
+  const handlePayoutForDate = async () => {
     if (!workerData || !selectedPayoutDate) return;
 
     const amount = parseFloat(payoutAmount);
@@ -342,10 +342,17 @@ export default function WorkerProfilePage() {
       amount,
     };
 
-    setWorkerData({
+    const updatedWorkerData = {
       ...workerData,
       advances: [...workerData.advances, newAdvance],
-    });
+    };
+
+    // Save to AsyncStorage
+    const workers = await loadWorkers();
+    workers[id as string] = updatedWorkerData;
+    await saveWorkers(workers);
+
+    setWorkerData(updatedWorkerData);
 
     showToast(`Payout of ₹${amount} recorded for ${formatDDMMYYYY(selectedPayoutDate)}!`);
     setPayoutAmount('');
@@ -422,7 +429,9 @@ export default function WorkerProfilePage() {
                         onPress: async () => {
                           try {
                             // Remove from AsyncStorage
-                            await AsyncStorage.removeItem(`worker_${worker.id}`);
+                            const workers = await loadWorkers();
+                            delete workers[worker.id];
+                            await saveWorkers(workers);
 
                             // Navigate back to workers list
                             router.push('/workers');
