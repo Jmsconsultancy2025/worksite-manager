@@ -14,6 +14,7 @@ export default function RootLayout() {
         <Stack.Screen name="workers/[id]" options={{ headerShown: false }} />
         <Stack.Screen name="cashbook" options={{ headerShown: false }} />
         <Stack.Screen name="sites" options={{ headerShown: false }} />
+        <Stack.Screen name="reports" options={{ headerShown: false }} />
       </Stack>
     </MenuProvider>
   );
