@@ -398,16 +398,16 @@ export default function WorkerProfilePage() {
 
         {/* Worker Info Card - Compact */}
         <View style={styles.infoCard}>
-          <View style={styles.compactHeader}>
-            <View style={styles.workerInfo}>
-              <Text style={styles.workerNameCompact}>{worker.name}</Text>
-              <Text style={styles.workerRoleCompact}>{worker.role}</Text>
+          <View style={[styles.compactHeader, width < 768 && styles.compactHeaderMobile]}>
+            <View style={[styles.workerInfo, width < 768 && styles.workerInfoMobile]}>
+              <Text style={[styles.workerNameCompact, width < 768 && styles.workerNameCompactMobile]}>{worker.name}</Text>
+              <Text style={[styles.workerRoleCompact, width < 768 && styles.workerRoleCompactMobile]}>{worker.role}</Text>
               <TouchableOpacity onPress={() => Linking.openURL(`tel:${worker.phone}`)} style={styles.phoneRow}>
                 <MaterialIcons name="phone" size={16} color="#4CAF50" />
                 <Text style={styles.phoneCompact}>{worker.phone}</Text>
               </TouchableOpacity>
             </View>
-            <View style={styles.actionButtons}>
+            <View style={[styles.actionButtons, width < 768 && styles.actionButtonsMobile]}>
               <TouchableOpacity
                 style={styles.editButton}
                 onPress={() => {
@@ -1081,28 +1081,46 @@ const styles = StyleSheet.create({
   compactHeader: {
     flexDirection: 'row',
     alignItems: 'center',
+    justifyContent: 'space-between',
     gap: 16,
+  },
+  compactHeaderMobile: {
+    flexDirection: 'column',
+    alignItems: 'stretch',
+    gap: 12,
   },
   actionButtons: {
     flexDirection: 'row',
     gap: 8,
   },
+  actionButtonsMobile: {
+    alignSelf: 'flex-end',
+  },
   workerInfo: {
     flex: 1,
-    alignItems: 'center',
+    alignItems: 'flex-start',
     gap: 8,
+  },
+  workerInfoMobile: {
+    alignItems: 'center',
   },
   workerNameCompact: {
     fontSize: 20,
     fontWeight: 'bold',
     color: '#1A237E',
+    textAlign: 'left',
+  },
+  workerNameCompactMobile: {
     textAlign: 'center',
   },
   workerRoleCompact: {
     fontSize: 16,
     color: '#757575',
-    textAlign: 'center',
+    textAlign: 'left',
     marginBottom: 4,
+  },
+  workerRoleCompactMobile: {
+    textAlign: 'center',
   },
   phoneRow: {
     flexDirection: 'row',
