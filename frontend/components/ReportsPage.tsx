@@ -1,7 +1,6 @@
 import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Alert } from 'react-native';
-import { MaterialIcons } from '@expo/vector-icons';
-import { useRouter } from 'expo-router';
+import { ArrowLeft, Download, Building, Users, TrendingUp, BarChart } from 'lucide-react';
+import { useRouter } from 'react-router-dom';
 
 interface ReportsPageProps {
   onAttendanceReportClick?: () => void;
@@ -9,7 +8,7 @@ interface ReportsPageProps {
   onFinancialReportClick?: () => void;
 }
 
-export function ReportsPage({
+function ReportsPage({
   onAttendanceReportClick,
   onPayrollReportClick,
   onFinancialReportClick
@@ -17,279 +16,289 @@ export function ReportsPage({
   const router = useRouter();
 
   const handleAttendanceReport = () => {
-    Alert.alert('Attendance Report', 'Generating attendance report...');
+    console.log('Attendance Report button clicked');
+    window.alert('Attendance Report\nGenerating attendance report...');
   };
 
   const handlePayrollReport = () => {
-    Alert.alert('Payroll Report', 'Generating payroll report...');
+    console.log('Payroll Report button clicked');
+    window.alert('Payroll Report\nGenerating payroll report...');
   };
 
   const handleFinancialReport = () => {
-    Alert.alert('Financial Report', 'Generating financial report...');
+    console.log('Financial Report button clicked');
+    window.alert('Financial Report\nGenerating financial report...');
   };
 
   return (
-    <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
+    <div style={styles.container}>
       {/* Header */}
-      <View style={styles.header}>
-        <View style={styles.headerLeft}>
-          <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
-            <MaterialIcons name="arrow-back" size={24} color="#111827" />
-          </TouchableOpacity>
-          <View style={styles.titleContainer}>
-            <Text style={styles.headerTitle}>Reports</Text>
-            <Text style={styles.headerSubtitle}>Analytics and insights</Text>
-          </View>
-        </View>
-        <TouchableOpacity style={styles.exportButton}>
-          <MaterialIcons name="download" size={16} color="#16A34A" />
-          <Text style={styles.exportButtonText}>Export</Text>
-        </TouchableOpacity>
-      </View>
+      <div style={styles.header}>
+        <div style={styles.headerLeft}>
+          <button onClick={() => router.back()} style={styles.backButton}>
+            <ArrowLeft size={24} color="#111827" />
+          </button>
+          <div style={styles.titleContainer}>
+            <h1 style={styles.headerTitle}>Reports</h1>
+            <p style={styles.headerSubtitle}>Analytics and insights</p>
+          </div>
+        </div>
+        <button style={styles.exportButton}>
+          <Download size={16} color="#16A34A" />
+          <span style={styles.exportButtonText}>Export</span>
+        </button>
+      </div>
 
       {/* Quick Stats */}
-      <View style={styles.statsContainer}>
-        <View style={styles.statCard}>
-          <View style={styles.statIconContainer}>
-            <MaterialIcons name="business" size={20} color="#2563EB" />
-          </View>
-          <View style={styles.statTextContainer}>
-            <Text style={styles.statLabel}>Active Sites</Text>
-            <Text style={styles.statValue}>3</Text>
-          </View>
-        </View>
+      <div style={styles.statsContainer}>
+        <div style={styles.statCard}>
+          <div style={styles.statIconContainer}>
+            <Building size={20} color="#2563EB" />
+          </div>
+          <div style={styles.statTextContainer}>
+            <span style={styles.statLabel}>Active Sites</span>
+            <span style={styles.statValue}>3</span>
+          </div>
+        </div>
 
-        <View style={styles.statCard}>
-          <View style={[styles.statIconContainer, { backgroundColor: '#D1FAE5' }]}>
-            <MaterialIcons name="people" size={20} color="#16A34A" />
-          </View>
-          <View style={styles.statTextContainer}>
-            <Text style={styles.statLabel}>Total Workers</Text>
-            <Text style={styles.statValue}>35</Text>
-          </View>
-        </View>
-      </View>
+        <div style={styles.statCard}>
+          <div style={{...styles.statIconContainer, backgroundColor: '#D1FAE5'}}>
+            <Users size={20} color="#16A34A" />
+          </div>
+          <div style={styles.statTextContainer}>
+            <span style={styles.statLabel}>Total Workers</span>
+            <span style={styles.statValue}>35</span>
+          </div>
+        </div>
+      </div>
 
       {/* Available Reports */}
-      <View style={styles.reportsSection}>
-        <Text style={styles.sectionTitle}>Available Reports</Text>
+      <div style={styles.reportsSection}>
+        <h2 style={styles.sectionTitle}>Available Reports</h2>
 
         {/* Attendance Report Card */}
-        <View style={[styles.reportCard, { borderLeftColor: '#16A34A' }]}>
-          <View style={styles.reportCardHeader}>
-            <View style={styles.reportTitleContainer}>
-              <MaterialIcons name="trending-up" size={16} color="#16A34A" />
-              <Text style={styles.reportTitle}>Attendance Report</Text>
-            </View>
-            <Text style={styles.reportDescription}>
+        <div style={{...styles.reportCard, borderLeftColor: '#16A34A'}}>
+          <div style={styles.reportCardHeader}>
+            <div style={styles.reportTitleContainer}>
+              <TrendingUp size={16} color="#16A34A" />
+              <span style={styles.reportTitle}>Attendance Report</span>
+            </div>
+            <p style={styles.reportDescription}>
               Worker attendance trends and statistics
-            </Text>
-          </View>
-          <TouchableOpacity
+            </p>
+          </div>
+          <button
             style={styles.generateButton}
-            onPress={handleAttendanceReport}
+            onClick={handleAttendanceReport}
           >
-            <Text style={styles.generateButtonText}>Generate Report</Text>
-          </TouchableOpacity>
-        </View>
+            <span style={styles.generateButtonText}>Generate Report</span>
+          </button>
+        </div>
 
         {/* Payroll Report Card */}
-        <View style={[styles.reportCard, { borderLeftColor: '#3B82F6' }]}>
-          <View style={styles.reportCardHeader}>
-            <View style={styles.reportTitleContainer}>
-              <MaterialIcons name="bar-chart" size={16} color="#3B82F6" />
-              <Text style={styles.reportTitle}>Payroll Report</Text>
-            </View>
-            <Text style={styles.reportDescription}>
+        <div style={{...styles.reportCard, borderLeftColor: '#3B82F6'}}>
+          <div style={styles.reportCardHeader}>
+            <div style={styles.reportTitleContainer}>
+              <BarChart size={16} color="#3B82F6" />
+              <span style={styles.reportTitle}>Payroll Report</span>
+            </div>
+            <p style={styles.reportDescription}>
               Salary summaries and payment history
-            </Text>
-          </View>
-          <TouchableOpacity
+            </p>
+          </div>
+          <button
             style={styles.generateButton}
-            onPress={handlePayrollReport}
+            onClick={handlePayrollReport}
           >
-            <Text style={styles.generateButtonText}>Generate Report</Text>
-          </TouchableOpacity>
-        </View>
+            <span style={styles.generateButtonText}>Generate Report</span>
+          </button>
+        </div>
 
         {/* Financial Report Card */}
-        <View style={[styles.reportCard, { borderLeftColor: '#F97316' }]}>
-          <View style={styles.reportCardHeader}>
-            <View style={styles.reportTitleContainer}>
-              <MaterialIcons name="business" size={16} color="#F97316" />
-              <Text style={styles.reportTitle}>Financial Report</Text>
-            </View>
-            <Text style={styles.reportDescription}>
+        <div style={{...styles.reportCard, borderLeftColor: '#F97316'}}>
+          <div style={styles.reportCardHeader}>
+            <div style={styles.reportTitleContainer}>
+              <Building size={16} color="#F97316" />
+              <span style={styles.reportTitle}>Financial Report</span>
+            </div>
+            <p style={styles.reportDescription}>
               Income, expenses, and cash flow analysis
-            </Text>
-          </View>
-          <TouchableOpacity
+            </p>
+          </div>
+          <button
             style={styles.generateButton}
-            onPress={handleFinancialReport}
+            onClick={handleFinancialReport}
           >
-            <Text style={styles.generateButtonText}>Generate Report</Text>
-          </TouchableOpacity>
-        </View>
-      </View>
+            <span style={styles.generateButtonText}>Generate Report</span>
+          </button>
+        </div>
+      </div>
 
       {/* Bottom padding for navigation */}
-      <View style={styles.bottomPadding} />
-    </ScrollView>
+      <div style={styles.bottomPadding} />
+    </div>
   );
 }
 
-const styles = StyleSheet.create({
+const styles = {
   container: {
     flex: 1,
     backgroundColor: '#FFFFFF',
+    overflowY: 'auto',
   },
   // Header
   header: {
+    display: 'flex',
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    paddingHorizontal: 16,
-    paddingVertical: 16,
-    borderBottomWidth: 1,
-    borderBottomColor: '#E5E7EB',
+    padding: '16px',
+    borderBottom: '1px solid #E5E7EB',
     backgroundColor: '#FFFFFF',
   },
   headerLeft: {
     flex: 1,
+    display: 'flex',
     flexDirection: 'row',
     alignItems: 'center',
   },
   backButton: {
-    marginRight: 12,
-    padding: 4,
+    marginRight: '12px',
+    padding: '4px',
+    background: 'none',
+    border: 'none',
+    cursor: 'pointer',
   },
   titleContainer: {
     flex: 1,
   },
   headerTitle: {
-    fontSize: 20,
+    fontSize: '20px',
     fontWeight: '600',
     color: '#111827',
-    marginBottom: 2,
+    marginBottom: '2px',
+    margin: 0,
   },
   headerSubtitle: {
-    fontSize: 14,
+    fontSize: '14px',
     color: '#6B7280',
+    margin: 0,
   },
   exportButton: {
+    display: 'flex',
     flexDirection: 'row',
     alignItems: 'center',
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderWidth: 1,
-    borderColor: '#16A34A',
-    borderRadius: 6,
-    gap: 6,
+    padding: '6px 12px',
+    border: '1px solid #16A34A',
+    borderRadius: '6px',
+    background: 'none',
+    cursor: 'pointer',
+    gap: '6px',
   },
   exportButtonText: {
-    fontSize: 12,
+    fontSize: '12px',
     color: '#16A34A',
     fontWeight: '500',
   },
   // Quick Stats
   statsContainer: {
+    display: 'flex',
     flexDirection: 'row',
-    gap: 12,
-    paddingHorizontal: 16,
-    paddingVertical: 16,
+    gap: '12px',
+    padding: '16px',
   },
   statCard: {
     flex: 1,
+    display: 'flex',
     flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: '#FFFFFF',
-    borderRadius: 8,
-    padding: 12,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.05,
-    shadowRadius: 2,
-    elevation: 1,
+    borderRadius: '8px',
+    padding: '12px',
+    boxShadow: '0 1px 2px rgba(0, 0, 0, 0.05)',
   },
   statIconContainer: {
-    width: 32,
-    height: 32,
-    borderRadius: 6,
+    width: '32px',
+    height: '32px',
+    borderRadius: '6px',
+    display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
     backgroundColor: '#DBEAFE', // Blue background for Active Sites
   },
   statTextContainer: {
-    marginLeft: 8,
+    marginLeft: '8px',
   },
   statLabel: {
-    fontSize: 12,
+    fontSize: '12px',
     color: '#6B7280',
-    marginBottom: 2,
+    marginBottom: '2px',
+    display: 'block',
   },
   statValue: {
-    fontSize: 18,
+    fontSize: '18px',
     fontWeight: '600',
     color: '#111827',
+    display: 'block',
   },
   // Reports Section
   reportsSection: {
-    paddingHorizontal: 16,
-    paddingBottom: 16,
+    padding: '0 16px 16px',
   },
   sectionTitle: {
-    fontSize: 16,
+    fontSize: '16px',
     fontWeight: '500',
     color: '#111827',
-    marginBottom: 12,
+    marginBottom: '12px',
+    margin: 0,
   },
   reportCard: {
     backgroundColor: '#FFFFFF',
-    borderRadius: 8,
-    padding: 16,
-    marginBottom: 12,
-    borderLeftWidth: 4,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.05,
-    shadowRadius: 2,
-    elevation: 1,
+    borderRadius: '8px',
+    padding: '16px',
+    marginBottom: '12px',
+    borderLeft: '4px solid',
+    boxShadow: '0 1px 2px rgba(0, 0, 0, 0.05)',
   },
   reportCardHeader: {
-    marginBottom: 12,
+    marginBottom: '12px',
   },
   reportTitleContainer: {
+    display: 'flex',
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: 4,
+    marginBottom: '4px',
   },
   reportTitle: {
-    fontSize: 14,
+    fontSize: '14px',
     fontWeight: '500',
     color: '#111827',
-    marginLeft: 6,
+    marginLeft: '6px',
   },
   reportDescription: {
-    fontSize: 12,
+    fontSize: '12px',
     color: '#6B7280',
-    lineHeight: 16,
+    lineHeight: '16px',
+    margin: 0,
   },
   generateButton: {
     backgroundColor: '#FFFFFF',
-    borderWidth: 1,
-    borderColor: '#E5E7EB',
-    borderRadius: 6,
-    paddingVertical: 8,
-    paddingHorizontal: 12,
-    alignItems: 'center',
+    border: '1px solid #E5E7EB',
+    borderRadius: '6px',
+    padding: '8px 12px',
+    cursor: 'pointer',
+    display: 'flex',
+    justifyContent: 'center',
   },
   generateButtonText: {
-    fontSize: 12,
+    fontSize: '12px',
     color: '#374151',
     fontWeight: '500',
   },
   // Bottom padding
   bottomPadding: {
-    height: 80,
+    height: '80px',
   },
-});
+};
+
+export default ReportsPage;
