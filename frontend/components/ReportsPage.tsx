@@ -1,6 +1,6 @@
 import React from 'react';
 import { ArrowLeft, Download, Building, Users, TrendingUp, BarChart } from 'lucide-react';
-import { useRouter } from 'react-router-dom';
+import { useRouter } from 'expo-router';
 
 interface ReportsPageProps {
   onAttendanceReportClick?: () => void;

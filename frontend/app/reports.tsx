@@ -1,6 +1,6 @@
 import React from 'react';
 import { Home, People, AccountBalanceWallet, Note, BarChart } from 'lucide-react';
-import { useRouter } from 'react-router-dom';
+import { useRouter } from 'expo-router';
 import ReportsPage from '../components/ReportsPage';
 
 export default function Reports() {

@@ -20,7 +20,6 @@ import { SettingsModal } from '../components/SettingsModal';
 import { AddSiteModal, NewSiteData } from '../components/AddSiteModal';
 import SiteCard from '../components/SiteCard';
 import Toast from 'react-native-toast-message';
-import { MenuProvider } from 'react-native-popup-menu';
 
 // Mock site data
 const mockSites = [
@@ -111,154 +110,152 @@ export default function Index() {
     );
 
   return (
-    <MenuProvider>
-      <SafeAreaView style={styles.safeArea}>
-        <StatusBar barStyle="dark-content" backgroundColor="#FFFFFF" />
+    <SafeAreaView style={styles.safeArea}>
+      <StatusBar barStyle="dark-content" backgroundColor="#FFFFFF" />
 
-        {/* Top Navigation Bar */}
-        <View style={styles.topBar}>
-          <Text style={styles.brandTitle}>Worksite Manager</Text>
-          <View style={styles.topBarRight}>
-            <TouchableOpacity style={styles.signInButton} onPress={() => setIsSignupSigninModalOpen(true)}>
-              <MaterialIcons name="person-add" size={16} color="#4CAF50" />
-              <Text style={styles.signInText}>Sign In</Text>
-            </TouchableOpacity>
-            <TouchableOpacity style={styles.referButton} onPress={() => setIsReferralModalOpen(true)}>
-              <MaterialIcons name="card-giftcard" size={16} color="#4CAF50" />
-              <Text style={styles.referText}>Refer a Friend</Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={styles.settingsIcon}
-              onPress={() => {
-                console.log('Settings icon pressed');
-                setIsSettingsModalOpen(true);
-              }}
-            >
-              <MaterialIcons name="settings" size={24} color="#757575" />
-            </TouchableOpacity>
+      {/* Top Navigation Bar */}
+      <View style={styles.topBar}>
+        <Text style={styles.brandTitle}>Worksite Manager</Text>
+        <View style={styles.topBarRight}>
+          <TouchableOpacity style={styles.signInButton} onPress={() => setIsSignupSigninModalOpen(true)}>
+            <MaterialIcons name="person-add" size={16} color="#4CAF50" />
+            <Text style={styles.signInText}>Sign In</Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.referButton} onPress={() => setIsReferralModalOpen(true)}>
+            <MaterialIcons name="card-giftcard" size={16} color="#4CAF50" />
+            <Text style={styles.referText}>Refer a Friend</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={styles.settingsIcon}
+            onPress={() => {
+              console.log('Settings icon pressed');
+              setIsSettingsModalOpen(true);
+            }}
+          >
+            <MaterialIcons name="settings" size={24} color="#757575" />
+          </TouchableOpacity>
+        </View>
+      </View>
+
+      <ScrollView
+        style={styles.container}
+        contentContainerStyle={styles.contentContainer}
+        showsVerticalScrollIndicator={false}
+      >
+        <View style={styles.header}>
+          <Text style={styles.headerSubtitle}>
+            You are managing {siteData.length} sites
+          </Text>
+        </View>
+
+        {/* Search Bar */}
+        <View style={styles.searchContainer}>
+          <MaterialIcons name="search" size={24} color="#9E9E9E" style={styles.searchIcon} />
+          <TextInput
+            style={styles.searchInput}
+            placeholder="Search sites or workers by name / location"
+            placeholderTextColor="#BDBDBD"
+            value={searchQuery}
+            onChangeText={setSearchQuery}
+          />
+        </View>
+
+        {/* Site Cards */}
+        {filteredSites.map((site) => (
+          <SiteCard
+            key={site.id}
+            site={site}
+            onDelete={handleDeleteSite}
+            onEdit={handleEditSite}
+          />
+        ))}
+
+        {/* Add Site Button moved to bottom */}
+
+        {/* Powered By Section */}
+        <View style={styles.poweredBySection}>
+          <Text style={styles.poweredByText}>Powered by</Text>
+          <View style={styles.logoContainer}>
+            <Image source={require('../assets/images/miztech-logo.png')} style={styles.logoImage} />
           </View>
         </View>
 
-        <ScrollView
-          style={styles.container}
-          contentContainerStyle={styles.contentContainer}
-          showsVerticalScrollIndicator={false}
-        >
-          <View style={styles.header}>
-            <Text style={styles.headerSubtitle}>
-              You are managing {siteData.length} sites
-            </Text>
-          </View>
+        {/* Bottom spacing for footer */}
+        <View style={{ height: 80 }} />
+      </ScrollView>
 
-          {/* Search Bar */}
-          <View style={styles.searchContainer}>
-            <MaterialIcons name="search" size={24} color="#9E9E9E" style={styles.searchIcon} />
-            <TextInput
-              style={styles.searchInput}
-              placeholder="Search sites or workers by name / location"
-              placeholderTextColor="#BDBDBD"
-              value={searchQuery}
-              onChangeText={setSearchQuery}
-            />
-          </View>
+      {/* Referral Modal */}
+      <ReferralModal
+        isOpen={isReferralModalOpen}
+        onClose={() => setIsReferralModalOpen(false)}
+      />
 
-          {/* Site Cards */}
-          {filteredSites.map((site) => (
-            <SiteCard
-              key={site.id}
-              site={site}
-              onDelete={handleDeleteSite}
-              onEdit={handleEditSite}
-            />
-          ))}
+      {/* Signup/Signin Modal */}
+      <SignupSigninModal
+        isOpen={isSignupSigninModalOpen}
+        onClose={() => setIsSignupSigninModalOpen(false)}
+      />
 
-          {/* Add Site Button moved to bottom */}
+      {/* Settings Modal */}
+      <SettingsModal
+        isOpen={isSettingsModalOpen}
+        onClose={() => setIsSettingsModalOpen(false)}
+      />
 
-          {/* Powered By Section */}
-          <View style={styles.poweredBySection}>
-            <Text style={styles.poweredByText}>Powered by</Text>
-            <View style={styles.logoContainer}>
-              <Image source={require('../assets/images/miztech-logo.png')} style={styles.logoImage} />
-            </View>
-          </View>
+      {/* Add Site Modal */}
+      <AddSiteModal
+        isOpen={isAddSiteModalOpen}
+        onClose={() => setIsAddSiteModalOpen(false)}
+        onAddSite={handleAddSite}
+      />
 
-          {/* Bottom spacing for footer */}
-          <View style={{ height: 80 }} />
-        </ScrollView>
+      {/* Edit Site Modal */}
+      <AddSiteModal
+        isOpen={isEditSiteModalOpen}
+        onClose={() => {
+          setIsEditSiteModalOpen(false);
+          setEditingSite(null);
+        }}
+        onAddSite={handleUpdateSite}
+        initialData={editingSite}
+        isEditing={true}
+      />
 
-        {/* Referral Modal */}
-        <ReferralModal
-          isOpen={isReferralModalOpen}
-          onClose={() => setIsReferralModalOpen(false)}
-        />
+      {/* Toast */}
+      <Toast />
 
-        {/* Signup/Signin Modal */}
-        <SignupSigninModal
-          isOpen={isSignupSigninModalOpen}
-          onClose={() => setIsSignupSigninModalOpen(false)}
-        />
+      {/* Add Site Button at bottom */}
+      <View style={styles.addSiteBottomContainer}>
+        <TouchableOpacity style={styles.addButton} onPress={() => setIsAddSiteModalOpen(true)}>
+          <MaterialIcons name="add" size={20} color="#FFFFFF" />
+          <Text style={styles.addButtonText}>Add Site</Text>
+        </TouchableOpacity>
+      </View>
 
-        {/* Settings Modal */}
-        <SettingsModal
-          isOpen={isSettingsModalOpen}
-          onClose={() => setIsSettingsModalOpen(false)}
-        />
-
-        {/* Add Site Modal */}
-        <AddSiteModal
-          isOpen={isAddSiteModalOpen}
-          onClose={() => setIsAddSiteModalOpen(false)}
-          onAddSite={handleAddSite}
-        />
-
-        {/* Edit Site Modal */}
-        <AddSiteModal
-          isOpen={isEditSiteModalOpen}
-          onClose={() => {
-            setIsEditSiteModalOpen(false);
-            setEditingSite(null);
-          }}
-          onAddSite={handleUpdateSite}
-          initialData={editingSite}
-          isEditing={true}
-        />
-
-        {/* Toast */}
-        <Toast />
-
-        {/* Add Site Button at bottom */}
-        <View style={styles.addSiteBottomContainer}>
-          <TouchableOpacity style={styles.addButton} onPress={() => setIsAddSiteModalOpen(true)}>
-            <MaterialIcons name="add" size={20} color="#FFFFFF" />
-            <Text style={styles.addButtonText}>Add Site</Text>
-          </TouchableOpacity>
-        </View>
-
-        {/* Bottom Navigation Bar */}
-        <View style={styles.bottomNav}>
-          <TouchableOpacity style={styles.navItem} onPress={() => router.push('/')}>
-            <MaterialIcons name="home" size={24} color="#9E9E9E" />
-            <Text style={styles.navLabel}>Home</Text>
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.navItem} onPress={() => router.push('/workers')}>
-            <MaterialIcons name="people" size={24} color="#9E9E9E" />
-            <Text style={styles.navLabel}>Workers</Text>
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.navItem} onPress={() => router.push('/cashbook')}>
-            <MaterialIcons name="account-balance-wallet" size={24} color="#9E9E9E" />
-            <Text style={styles.navLabel}>Cashbook</Text>
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.navItem} onPress={() => router.push('/notes')}>
-            <MaterialIcons name="note" size={24} color="#9E9E9E" />
-            <Text style={styles.navLabel}>Notes</Text>
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.navItem} onPress={() => router.push('/reports')}>
-            <MaterialIcons name="bar-chart" size={24} color="#4CAF50" />
-            <Text style={[styles.navLabel, styles.navLabelActive]}>Reports</Text>
-          </TouchableOpacity>
-        </View>
-      </SafeAreaView>
-    </MenuProvider>
+      {/* Bottom Navigation Bar */}
+      <View style={styles.bottomNav}>
+        <TouchableOpacity style={styles.navItem} onPress={() => router.push('/')}>
+          <MaterialIcons name="home" size={24} color="#4CAF50" />
+          <Text style={[styles.navLabel, styles.navLabelActive]}>Home</Text>
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.navItem} onPress={() => router.push('/workers')}>
+          <MaterialIcons name="people" size={24} color="#9E9E9E" />
+          <Text style={styles.navLabel}>Workers</Text>
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.navItem} onPress={() => router.push('/cashbook')}>
+          <MaterialIcons name="account-balance-wallet" size={24} color="#9E9E9E" />
+          <Text style={styles.navLabel}>Cashbook</Text>
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.navItem} onPress={() => router.push('/notes')}>
+          <MaterialIcons name="note" size={24} color="#9E9E9E" />
+          <Text style={styles.navLabel}>Notes</Text>
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.navItem} onPress={() => router.push('/reports')}>
+          <MaterialIcons name="bar-chart" size={24} color="#9E9E9E" />
+          <Text style={styles.navLabel}>Reports</Text>
+        </TouchableOpacity>
+      </View>
+    </SafeAreaView>
   );
 }
 
