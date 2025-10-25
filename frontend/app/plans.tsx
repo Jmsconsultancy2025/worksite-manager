@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Text,
   View,
@@ -7,6 +7,7 @@ import {
   TouchableOpacity,
   Platform,
   StatusBar,
+  Alert,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { MaterialIcons } from '@expo/vector-icons';
@@ -14,6 +15,7 @@ import { useRouter } from 'expo-router';
 import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
 import { Button } from '../ui/button';
 import { Badge } from '../ui/badge';
+import { getUserSubscription, setUserSubscription, PLAN_LIMITS } from '../lib/storage';
 
 
 const plans = [
@@ -35,22 +37,22 @@ const plans = [
     icon: 'flash',
     color: 'green',
     popular: false,
-    current: true
+    current: false
   },
   {
     id: 'standard',
     name: 'Standard Plan',
-    price: '₹999',
+    price: '₹499',
     period: 'month',
     sites: 'Up to 5 sites',
     workers: 'Up to 50 workers',
     features: [
       'Advanced attendance tracking',
-      'Detailed payroll management',
-      'Comprehensive reports',
+      'Salary management',
+      'Basic reports and analytics',
+      'Payment tracking',
       'Priority email support',
-      'Data export features',
-      'Mobile notifications'
+      'Data export features'
     ],
     buttonText: 'Upgrade to Standard',
     buttonVariant: 'default' as const,
@@ -62,19 +64,18 @@ const plans = [
   {
     id: 'pro',
     name: 'Pro Plan',
-    price: '₹1999',
+    price: '₹999',
     period: 'month',
     sites: 'Unlimited sites',
     workers: 'Unlimited workers',
     features: [
       'Everything in Standard',
-      'Custom feature development',
-      'Feature request priority',
-      'Dedicated account manager',
-      'Phone & chat support',
+      'Advanced reports and analytics',
+      'Export functionality',
+      'Custom fields',
+      'Priority support',
       'API access',
-      'Custom integrations',
-      'Advanced analytics'
+      'Custom integrations'
     ],
     buttonText: 'Go Pro',
     buttonVariant: 'default' as const,
@@ -87,9 +88,58 @@ const plans = [
 
 export default function PlansPage() {
   const router = useRouter();
+  const [currentSubscription, setCurrentSubscription] = useState({ plan: 'basic', status: 'active' });
+  const [plansData, setPlansData] = useState(plans);
 
-  const handlePlanSelect = (planId: string) => {
-    console.log(`Selected plan: ${planId}`);
+  useEffect(() => {
+    const loadSubscription = async () => {
+      const subscription = await getUserSubscription();
+      setCurrentSubscription(subscription);
+
+      // Update plans to mark current plan
+      setPlansData(plans.map(plan => ({
+        ...plan,
+        current: plan.id === subscription.plan,
+        buttonText: plan.id === subscription.plan ? 'Current Plan' :
+                   plan.id === 'basic' ? 'Downgrade' : `Upgrade to ${plan.name.split(' ')[0]}`
+      })));
+    };
+    loadSubscription();
+  }, []);
+
+  const handlePlanSelect = async (planId: string) => {
+    if (planId === currentSubscription.plan) {
+      Alert.alert('Already Subscribed', `You are already on the ${plans.find(p => p.id === planId)?.name}`);
+      return;
+    }
+
+    // For demo purposes, we'll simulate plan upgrade
+    // In a real app, this would integrate with payment processing
+    Alert.alert(
+      'Confirm Plan Change',
+      `Are you sure you want to ${planId === 'basic' ? 'downgrade to' : 'upgrade to'} ${plans.find(p => p.id === planId)?.name}?`,
+      [
+        { text: 'Cancel', style: 'cancel' },
+        {
+          text: 'Confirm',
+          onPress: async () => {
+            const success = await setUserSubscription({ plan: planId, status: 'active' });
+            if (success) {
+              setCurrentSubscription({ plan: planId, status: 'active' });
+              setPlansData(plans.map(plan => ({
+                ...plan,
+                current: plan.id === planId,
+                buttonText: plan.id === planId ? 'Current Plan' :
+                           plan.id === 'basic' ? 'Downgrade' : `Upgrade to ${plan.name.split(' ')[0]}`
+              })));
+              Alert.alert('Success', `Successfully ${planId === 'basic' ? 'downgraded to' : 'upgraded to'} ${plans.find(p => p.id === planId)?.name}!`);
+            } else {
+              Alert.alert('Error', 'Failed to update subscription. Please try again.');
+            }
+          }
+        }
+      ]
+    );
   };
 
   const getIconColor = (color: string) => {
@@ -156,7 +206,7 @@ export default function PlansPage() {
 
         {/* Plan Cards */}
         <View style={styles.plansContainer}>
-          {plans.map((plan, index) => (
+          {plansData.map((plan, index) => (
             <View key={plan.id} style={[styles.planCardWrapper, index > 0 && styles.planCardSpacing]}>
               <Card style={[
                 styles.planCard,
@@ -239,6 +289,75 @@ export default function PlansPage() {
               </Card>
             </View>
           ))}
+        </View>
+
+        {/* Plan Comparison Table */}
+        <View style={styles.comparisonSection}>
+          <Text style={styles.comparisonTitle}>Plan Comparison</Text>
+          <View style={styles.comparisonTable}>
+            <View style={styles.tableHeader}>
+              <Text style={styles.tableHeaderText}>Features</Text>
+              <Text style={styles.tableHeaderText}>Basic</Text>
+              <Text style={styles.tableHeaderText}>Standard</Text>
+              <Text style={styles.tableHeaderText}>Pro</Text>
+            </View>
+
+            <View style={styles.tableRow}>
+              <Text style={styles.tableFeature}>Workers</Text>
+              <Text style={styles.tableValue}>10</Text>
+              <Text style={styles.tableValue}>50</Text>
+              <Text style={styles.tableValue}>Unlimited</Text>
+            </View>
+
+            <View style={styles.tableRow}>
+              <Text style={styles.tableFeature}>Sites</Text>
+              <Text style={styles.tableValue}>1</Text>
+              <Text style={styles.tableValue}>5</Text>
+              <Text style={styles.tableValue}>Unlimited</Text>
+            </View>
+
+            <View style={styles.tableRow}>
+              <Text style={styles.tableFeature}>Attendance Tracking</Text>
+              <Text style={styles.tableValue}>✓</Text>
+              <Text style={styles.tableValue}>✓</Text>
+              <Text style={styles.tableValue}>✓</Text>
+            </View>
+
+            <View style={styles.tableRow}>
+              <Text style={styles.tableFeature}>Salary Management</Text>
+              <Text style={styles.tableValue}>✗</Text>
+              <Text style={styles.tableValue}>✓</Text>
+              <Text style={styles.tableValue}>✓</Text>
+            </View>
+
+            <View style={styles.tableRow}>
+              <Text style={styles.tableFeature}>Advanced Reports</Text>
+              <Text style={styles.tableValue}>✗</Text>
+              <Text style={styles.tableValue}>✓</Text>
+              <Text style={styles.tableValue}>✓</Text>
+            </View>
+
+            <View style={styles.tableRow}>
+              <Text style={styles.tableFeature}>Export Data</Text>
+              <Text style={styles.tableValue}>✗</Text>
+              <Text style={styles.tableValue}>✓</Text>
+              <Text style={styles.tableValue}>✓</Text>
+            </View>
+
+            <View style={styles.tableRow}>
+              <Text style={styles.tableFeature}>Custom Fields</Text>
+              <Text style={styles.tableValue}>✗</Text>
+              <Text style={styles.tableValue}>✗</Text>
+              <Text style={styles.tableValue}>✓</Text>
+            </View>
+
+            <View style={styles.tableRow}>
+              <Text style={styles.tableFeature}>API Access</Text>
+              <Text style={styles.tableValue}>✗</Text>
+              <Text style={styles.tableValue}>✗</Text>
+              <Text style={styles.tableValue}>✓</Text>
+            </View>
+          </View>
         </View>
 
         {/* Help Section */}
@@ -543,5 +662,60 @@ const styles = StyleSheet.create({
   },
   faqLabel: {
     fontWeight: 'bold',
+  },
+  // Plan Comparison Table
+  comparisonSection: {
+    backgroundColor: '#FFFFFF',
+    borderRadius: 12,
+    padding: 16,
+    marginBottom: 24,
+    borderWidth: 1,
+    borderColor: '#E5E7EB',
+  },
+  comparisonTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: '#111827',
+    marginBottom: 16,
+    textAlign: 'center',
+  },
+  comparisonTable: {
+    borderWidth: 1,
+    borderColor: '#E5E7EB',
+    borderRadius: 8,
+    overflow: 'hidden',
+  },
+  tableHeader: {
+    flexDirection: 'row',
+    backgroundColor: '#F9FAFB',
+    paddingVertical: 12,
+    paddingHorizontal: 8,
+  },
+  tableHeaderText: {
+    flex: 1,
+    fontSize: 14,
+    fontWeight: 'bold',
+    color: '#374151',
+    textAlign: 'center',
+  },
+  tableRow: {
+    flexDirection: 'row',
+    borderTopWidth: 1,
+    borderTopColor: '#E5E7EB',
+    paddingVertical: 12,
+    paddingHorizontal: 8,
+  },
+  tableFeature: {
+    flex: 2,
+    fontSize: 14,
+    color: '#374151',
+    fontWeight: '500',
+  },
+  tableValue: {
+    flex: 1,
+    fontSize: 14,
+    color: '#6B7280',
+    textAlign: 'center',
+    fontWeight: '500',
   },
 });

@@ -15,7 +15,7 @@ import { Pressable } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { MaterialIcons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
-import { updateAttendance, loadWorkers, updateWorkerHiddenStatus } from '../lib/storage';
+import { updateAttendance, loadWorkers, updateWorkerHiddenStatus, checkWorkerLimit, getUserSubscription } from '../lib/storage';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { AddWorkerModal, NewWorkerData } from '../components/AddWorkerModal';
 
@@ -241,6 +241,20 @@ export default function WorkersPage() {
   const handleGiveAdvance = async () => {
     if (!selectedWorker) return;
 
+    // Check if salary management is available in current plan
+    const subscription = await getUserSubscription();
+    if (subscription.plan === 'basic') {
+      Alert.alert(
+        'Feature Not Available',
+        'Salary management and payouts are available in Standard and Pro plans. Upgrade to manage worker salaries.',
+        [
+          { text: 'Cancel', style: 'cancel' },
+          { text: 'Upgrade', onPress: () => router.push('/plans') }
+        ]
+      );
+      return;
+    }
+
     const amount = parseFloat(advanceAmount);
     if (isNaN(amount) || amount <= 0 || amount > selectedWorker.maxAdvanceLimit) {
       Alert.alert('Error', `Please enter a valid payout amount between ₹1 and ₹${selectedWorker.maxAdvanceLimit}`);
@@ -287,6 +301,20 @@ export default function WorkersPage() {
   const handleAddOvertime = async () => {
     if (!selectedWorker) return;
 
+    // Check if advanced attendance tracking is available
+    const subscription = await getUserSubscription();
+    if (subscription.plan === 'basic') {
+      Alert.alert(
+        'Feature Not Available',
+        'Overtime tracking is available in Standard and Pro plans. Upgrade to track overtime hours.',
+        [
+          { text: 'Cancel', style: 'cancel' },
+          { text: 'Upgrade', onPress: () => router.push('/plans') }
+        ]
+      );
+      return;
+    }
+
     const rate = parseFloat(overtimeRate);
     const hours = parseFloat(overtimeHours);
 
@@ -325,6 +353,20 @@ export default function WorkersPage() {
   // Handle adjustment entry
   const handleAddAdjustment = async () => {
     if (!selectedWorker) return;
+
+    // Check if advanced features are available
+    const subscription = await getUserSubscription();
+    if (subscription.plan === 'basic') {
+      Alert.alert(
+        'Feature Not Available',
+        'Custom adjustments are available in Standard and Pro plans. Upgrade to add custom salary adjustments.',
+        [
+          { text: 'Cancel', style: 'cancel' },
+          { text: 'Upgrade', onPress: () => router.push('/plans') }
+        ]
+      );
+      return;
+    }
 
     const amount = parseFloat(adjustmentAmount);
 
@@ -389,7 +431,23 @@ export default function WorkersPage() {
   };
 
   // Handle add worker
-  const handleAddWorker = (newWorkerData: NewWorkerData) => {
+  const handleAddWorker = async (newWorkerData: NewWorkerData) => {
+    // Check worker limit before adding
+    const canAddWorker = await checkWorkerLimit(workers.length);
+    if (!canAddWorker) {
+      const subscription = await getUserSubscription();
+      const planName = subscription.plan.charAt(0).toUpperCase() + subscription.plan.slice(1);
+      Alert.alert(
+        'Worker Limit Reached',
+        `Your ${planName} plan allows up to ${subscription.plan === 'basic' ? '10' : subscription.plan === 'standard' ? '50' : 'unlimited'} workers. Upgrade to add more workers.`,
+        [
+          { text: 'Cancel', style: 'cancel' },
+          { text: 'Upgrade', onPress: () => router.push('/plans') }
+        ]
+      );
+      return;
+    }
+
     // For now, use a simple ID generation and add to the workers array
     const newWorkerId = Math.max(...workers.map(w => parseInt(w.id))) + 1;
     const newWorker: Worker = {

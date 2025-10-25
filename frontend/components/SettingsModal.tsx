@@ -1,7 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, Text, ScrollView, StyleSheet } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
 import Toast from 'react-native-toast-message';
+import { useRouter } from 'expo-router';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '../ui/dialog';
 import { Button } from '../ui/button';
 import { Input } from '../ui/input';
@@ -10,6 +11,7 @@ import { Switch } from '../ui/switch';
 import { Select, SelectTrigger, SelectValue, SelectContent } from '../ui/select';
 import { SelectItem } from '../ui/select';
 import { Separator } from '../ui/separator';
+import { getUserSubscription, PLAN_LIMITS } from '../lib/storage';
 
 type SettingsView = 'main' | 'profile' | 'preferences' | 'attendance' | 'salary' | 'cashbook' | 'about';
 
@@ -77,15 +79,27 @@ const defaultCategories = [
 ];
 
 export function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
-  console.log('SettingsModal render, isOpen:', isOpen);
-  const [currentView, setCurrentView] = useState<SettingsView>('main');
-  const [notifications, setNotifications] = useState(true);
-  const [darkMode, setDarkMode] = useState(false);
-  const [paidLeave, setPaidLeave] = useState(false);
-  const [halfdayPercentage, setHalfdayPercentage] = useState("50");
-  const [payrollCycle, setPayrollCycle] = useState("monthly");
-  const [workingHours, setWorkingHours] = useState("8");
-  const [categories, setCategories] = useState(defaultCategories);
+   console.log('SettingsModal render, isOpen:', isOpen);
+   const router = useRouter();
+   const [currentView, setCurrentView] = useState<SettingsView>('main');
+   const [notifications, setNotifications] = useState(true);
+   const [darkMode, setDarkMode] = useState(false);
+   const [paidLeave, setPaidLeave] = useState(false);
+   const [halfdayPercentage, setHalfdayPercentage] = useState("50");
+   const [payrollCycle, setPayrollCycle] = useState("monthly");
+   const [workingHours, setWorkingHours] = useState("8");
+   const [categories, setCategories] = useState(defaultCategories);
+   const [currentSubscription, setCurrentSubscription] = useState({ plan: 'basic', status: 'active' });
+
+   useEffect(() => {
+     const loadSubscription = async () => {
+       const subscription = await getUserSubscription();
+       setCurrentSubscription(subscription);
+     };
+     if (isOpen) {
+       loadSubscription();
+     }
+   }, [isOpen]);
 
   const handleBack = () => {
     setCurrentView('main');
@@ -131,6 +145,38 @@ export function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
         <DialogTitle>{getViewTitle()}</DialogTitle>
         <DialogDescription>{getViewDescription()}</DialogDescription>
       </DialogHeader>
+
+      {/* Current Plan Display */}
+      <View style={styles.planDisplay}>
+        <View style={styles.planHeader}>
+          <MaterialIcons name="star" size={20} color="#4CAF50" />
+          <Text style={styles.planTitle}>Current Plan</Text>
+        </View>
+        <View style={styles.planInfo}>
+          <Text style={styles.planName}>
+            {currentSubscription.plan.charAt(0).toUpperCase() + currentSubscription.plan.slice(1)} Plan
+          </Text>
+          <Text style={styles.planDetails}>
+            {PLAN_LIMITS[currentSubscription.plan]?.maxWorkers === -1 ? 'Unlimited' : PLAN_LIMITS[currentSubscription.plan]?.maxWorkers} workers •
+            {PLAN_LIMITS[currentSubscription.plan]?.maxSites === -1 ? 'Unlimited' : PLAN_LIMITS[currentSubscription.plan]?.maxSites} sites
+          </Text>
+        </View>
+        <Button
+          variant="outline"
+          size="sm"
+          style={styles.upgradeButton}
+          onPress={() => {
+            onClose();
+            router.push('/plans');
+          }}
+        >
+          <Text style={styles.upgradeButtonText}>
+            {currentSubscription.plan === 'pro' ? 'Manage Plan' : 'Upgrade Plan'}
+          </Text>
+        </Button>
+      </View>
+
+      <Separator />
 
       <View style={styles.menuContainer}>
         {settingsItems.map((item) => {
