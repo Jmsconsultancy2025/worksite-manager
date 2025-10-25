@@ -376,24 +376,12 @@ export default function WorkerProfilePage() {
         {/* Worker Info Card - Compact */}
         <View style={styles.infoCard}>
           <View style={styles.compactHeader}>
-            <View style={styles.avatarSmall}>
-              <MaterialIcons name="person" size={32} color="#FFFFFF" />
-            </View>
-            <View style={styles.workerDetails}>
-              <Text style={styles.workerNameCompact}>{worker.name}</Text>
-              <Text style={styles.workerRoleCompact}>{worker.role}</Text>
-              <View style={styles.contactRow}>
-                <MaterialIcons name="phone" size={14} color="#4CAF50" />
-                <TouchableOpacity onPress={() => Linking.openURL(`tel:${worker.phone}`)}>
-                  <Text style={styles.phoneCompact}>{worker.phone}</Text>
-                </TouchableOpacity>
-                <MaterialIcons name="location-on" size={14} color="#757575" style={{ marginLeft: 12 }} />
-                <Text style={styles.siteCompact}>{worker.site}</Text>
-              </View>
-            </View>
-            <View style={styles.dailyRateBadge}>
-              <Text style={styles.dailyRateValueCompact}>₹{worker.dailyRate}/day</Text>
-            </View>
+            <Text style={styles.workerNameCompact}>{worker.name}</Text>
+            <Text style={styles.workerRoleCompact}>{worker.role}</Text>
+            <TouchableOpacity onPress={() => Linking.openURL(`tel:${worker.phone}`)} style={styles.phoneRow}>
+              <MaterialIcons name="phone" size={16} color="#4CAF50" />
+              <Text style={styles.phoneCompact}>{worker.phone}</Text>
+            </TouchableOpacity>
           </View>
         </View>
 
@@ -1021,56 +1009,31 @@ const styles = StyleSheet.create({
     }),
   },
   compactHeader: {
-    flexDirection: 'row',
     alignItems: 'center',
-    gap: 12,
-  },
-  avatarSmall: {
-    width: 56,
-    height: 56,
-    borderRadius: 28,
-    backgroundColor: '#4CAF50',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  workerDetails: {
-    flex: 1,
+    gap: 8,
   },
   workerNameCompact: {
-    fontSize: 18,
+    fontSize: 20,
     fontWeight: 'bold',
     color: '#1A237E',
-    marginBottom: 2,
+    textAlign: 'center',
   },
   workerRoleCompact: {
-    fontSize: 13,
+    fontSize: 16,
     color: '#757575',
-    marginBottom: 6,
+    textAlign: 'center',
+    marginBottom: 4,
   },
-  contactRow: {
+  phoneRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 4,
+    justifyContent: 'center',
+    gap: 6,
   },
   phoneCompact: {
-    fontSize: 12,
+    fontSize: 14,
     color: '#4CAF50',
     fontWeight: '500',
-  },
-  siteCompact: {
-    fontSize: 12,
-    color: '#757575',
-  },
-  dailyRateBadge: {
-    backgroundColor: '#E8F5E9',
-    paddingHorizontal: 12,
-    paddingVertical: 8,
-    borderRadius: 8,
-  },
-  dailyRateValueCompact: {
-    fontSize: 14,
-    fontWeight: 'bold',
-    color: '#4CAF50',
   },
   // Section
   section: {
