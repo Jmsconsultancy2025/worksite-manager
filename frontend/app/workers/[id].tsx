@@ -18,7 +18,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { MaterialIcons } from '@expo/vector-icons';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { getWorkerById, Worker, AttendanceRecord } from '../../data/workers';
-import { updateAttendance as updateAttendanceStorage, loadWorkers, isExpired } from '../../lib/storage';
+import { updateAttendance as updateAttendanceStorage, loadWorkers, saveWorkers, isExpired } from '../../lib/storage';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 // Date formatting helper - DD-MM-YYYY format
@@ -263,31 +263,38 @@ export default function WorkerProfilePage() {
   }, [dateFrom, dateTo, worker]);
 
   // Handle advance payment
-  const handleAddAdvance = () => {
+  const handleAddAdvance = async () => {
     if (!workerData) return;
-    
+
     const amount = parseFloat(advanceAmount);
     if (isNaN(amount) || amount <= 0) {
       Alert.alert('Error', 'Please enter a valid advance amount');
       return;
     }
-    
+
     const newAdvance = {
       date: new Date().toISOString().split('T')[0],
       amount,
     };
-    
-    setWorkerData({
+
+    const updatedWorkerData = {
       ...workerData,
       advances: [...workerData.advances, newAdvance],
-    });
-    
+    };
+
+    // Save to AsyncStorage
+    const workers = await loadWorkers();
+    workers[id as string] = updatedWorkerData;
+    await saveWorkers(workers);
+
+    setWorkerData(updatedWorkerData);
+
     showToast(`Advance payment of ₹${amount} added successfully!`);
     setAdvanceAmount('');
   };
 
   // Handle payment
-  const handleMarkPaid = () => {
+  const handleMarkPaid = async () => {
     if (!workerData) return;
 
     const amount = parseFloat(paymentAmount);
@@ -304,10 +311,17 @@ export default function WorkerProfilePage() {
       to: dateTo,
     };
 
-    setWorkerData({
+    const updatedWorkerData = {
       ...workerData,
       payments: [...workerData.payments, newPayment],
-    });
+    };
+
+    // Save to AsyncStorage
+    const workers = await loadWorkers();
+    workers[id as string] = updatedWorkerData;
+    await saveWorkers(workers);
+
+    setWorkerData(updatedWorkerData);
 
     showToast(`Payment of ₹${amount} recorded successfully!`);
     setPaymentAmount('');
