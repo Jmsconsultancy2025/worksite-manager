@@ -397,58 +397,60 @@ export default function WorkerProfilePage() {
         {/* Worker Info Card - Compact */}
         <View style={styles.infoCard}>
           <View style={styles.compactHeader}>
-            <View style={styles.actionButtons}>
-              <TouchableOpacity
-                style={styles.editButton}
-                onPress={() => {
-                  // TODO: Implement edit functionality
-                  Alert.alert('Edit Worker', 'Edit functionality will be implemented here');
-                }}
-              >
-                <MaterialIcons name="edit" size={16} color="#2196F3" />
-                <Text style={styles.editButtonText}>Edit</Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                style={styles.deleteButton}
-                onPress={() => {
-                  Alert.alert(
-                    'Delete Worker',
-                    'Are you sure you want to delete this worker? This action cannot be undone.',
-                    [
-                      { text: 'Cancel', style: 'cancel' },
-                      {
-                        text: 'Delete',
-                        style: 'destructive',
-                        onPress: async () => {
-                          try {
-                            // Remove from AsyncStorage
-                            const workers = await loadWorkers();
-                            delete workers[worker.id];
-                            await saveWorkers(workers);
+            <View style={styles.workerInfo}>
+              <View style={styles.buttonRow}>
+                <TouchableOpacity
+                  style={styles.editButton}
+                  onPress={() => {
+                    // TODO: Implement edit functionality
+                    Alert.alert('Edit Worker', 'Edit functionality will be implemented here');
+                  }}
+                >
+                  <MaterialIcons name="edit" size={16} color="#2196F3" />
+                  <Text style={styles.editButtonText}>Edit</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={styles.deleteButton}
+                  onPress={() => {
+                    Alert.alert(
+                      'Delete Worker',
+                      'Are you sure you want to delete this worker? This action cannot be undone.',
+                      [
+                        { text: 'Cancel', style: 'cancel' },
+                        {
+                          text: 'Delete',
+                          style: 'destructive',
+                          onPress: async () => {
+                            try {
+                              // Remove from AsyncStorage
+                              const workers = await loadWorkers();
+                              delete workers[worker.id];
+                              await saveWorkers(workers);
 
-                            // Navigate back to workers list
-                            router.push('/workers');
-                            showToast('Worker deleted successfully!');
-                          } catch (error) {
-                            Alert.alert('Error', 'Failed to delete worker');
+                              // Navigate back to workers list
+                              router.push('/workers');
+                              showToast('Worker deleted successfully!');
+                            } catch (error) {
+                              Alert.alert('Error', 'Failed to delete worker');
+                            }
                           }
                         }
-                      }
-                    ]
-                  );
-                }}
-              >
-                <MaterialIcons name="delete" size={16} color="#F44336" />
-                <Text style={styles.deleteButtonText}>Delete</Text>
-              </TouchableOpacity>
-            </View>
-            <View style={styles.workerInfo}>
-              <Text style={styles.workerNameCompact}>{worker.name}</Text>
-              <Text style={styles.workerRoleCompact}>{worker.role}</Text>
-              <TouchableOpacity onPress={() => Linking.openURL(`tel:${worker.phone}`)} style={styles.phoneRow}>
-                <MaterialIcons name="phone" size={16} color="#4CAF50" />
-                <Text style={styles.phoneCompact}>{worker.phone}</Text>
-              </TouchableOpacity>
+                      ]
+                    );
+                  }}
+                >
+                  <MaterialIcons name="delete" size={16} color="#F44336" />
+                  <Text style={styles.deleteButtonText}>Delete</Text>
+                </TouchableOpacity>
+              </View>
+              <View style={styles.textInfo}>
+                <Text style={styles.workerNameCompact}>{worker.name}</Text>
+                <Text style={styles.workerRoleCompact}>{worker.role}</Text>
+                <TouchableOpacity onPress={() => Linking.openURL(`tel:${worker.phone}`)} style={styles.phoneRow}>
+                  <MaterialIcons name="phone" size={16} color="#4CAF50" />
+                  <Text style={styles.phoneCompact}>{worker.phone}</Text>
+                </TouchableOpacity>
+              </View>
             </View>
           </View>
         </View>
@@ -1079,13 +1081,18 @@ const styles = StyleSheet.create({
   compactHeader: {
     flexDirection: 'row',
     alignItems: 'center',
+  },
+  workerInfo: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
     gap: 16,
   },
-  actionButtons: {
+  buttonRow: {
     flexDirection: 'column',
     gap: 8,
   },
-  workerInfo: {
+  textInfo: {
     flex: 1,
     alignItems: 'center',
     gap: 8,
