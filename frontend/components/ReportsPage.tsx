@@ -1,6 +1,7 @@
 import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, ScrollView } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Alert } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
+import { useRouter } from 'expo-router';
 
 interface ReportsPageProps {
   onAttendanceReportClick?: () => void;
@@ -13,13 +14,32 @@ export function ReportsPage({
   onPayrollReportClick,
   onFinancialReportClick
 }: ReportsPageProps) {
+  const router = useRouter();
+
+  const handleAttendanceReport = () => {
+    Alert.alert('Attendance Report', 'Generating attendance report...');
+  };
+
+  const handlePayrollReport = () => {
+    Alert.alert('Payroll Report', 'Generating payroll report...');
+  };
+
+  const handleFinancialReport = () => {
+    Alert.alert('Financial Report', 'Generating financial report...');
+  };
+
   return (
     <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
       {/* Header */}
       <View style={styles.header}>
         <View style={styles.headerLeft}>
-          <Text style={styles.headerTitle}>Reports</Text>
-          <Text style={styles.headerSubtitle}>Analytics and insights</Text>
+          <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
+            <MaterialIcons name="arrow-back" size={24} color="#111827" />
+          </TouchableOpacity>
+          <View style={styles.titleContainer}>
+            <Text style={styles.headerTitle}>Reports</Text>
+            <Text style={styles.headerSubtitle}>Analytics and insights</Text>
+          </View>
         </View>
         <TouchableOpacity style={styles.exportButton}>
           <MaterialIcons name="download" size={16} color="#16A34A" />
@@ -67,7 +87,7 @@ export function ReportsPage({
           </View>
           <TouchableOpacity
             style={styles.generateButton}
-            onPress={onAttendanceReportClick}
+            onPress={handleAttendanceReport}
           >
             <Text style={styles.generateButtonText}>Generate Report</Text>
           </TouchableOpacity>
@@ -86,7 +106,7 @@ export function ReportsPage({
           </View>
           <TouchableOpacity
             style={styles.generateButton}
-            onPress={onPayrollReportClick}
+            onPress={handlePayrollReport}
           >
             <Text style={styles.generateButtonText}>Generate Report</Text>
           </TouchableOpacity>
@@ -105,7 +125,7 @@ export function ReportsPage({
           </View>
           <TouchableOpacity
             style={styles.generateButton}
-            onPress={onFinancialReportClick}
+            onPress={handleFinancialReport}
           >
             <Text style={styles.generateButtonText}>Generate Report</Text>
           </TouchableOpacity>
@@ -135,6 +155,15 @@ const styles = StyleSheet.create({
     backgroundColor: '#FFFFFF',
   },
   headerLeft: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  backButton: {
+    marginRight: 12,
+    padding: 4,
+  },
+  titleContainer: {
     flex: 1,
   },
   headerTitle: {
