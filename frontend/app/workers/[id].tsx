@@ -382,6 +382,50 @@ export default function WorkerProfilePage() {
               <MaterialIcons name="phone" size={16} color="#4CAF50" />
               <Text style={styles.phoneCompact}>{worker.phone}</Text>
             </TouchableOpacity>
+            {/* Edit and Delete Buttons */}
+            <View style={styles.actionButtons}>
+              <TouchableOpacity
+                style={styles.editButton}
+                onPress={() => {
+                  // TODO: Implement edit functionality
+                  Alert.alert('Edit Worker', 'Edit functionality will be implemented here');
+                }}
+              >
+                <MaterialIcons name="edit" size={16} color="#2196F3" />
+                <Text style={styles.editButtonText}>Edit</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={styles.deleteButton}
+                onPress={() => {
+                  Alert.alert(
+                    'Delete Worker',
+                    'Are you sure you want to delete this worker? This action cannot be undone.',
+                    [
+                      { text: 'Cancel', style: 'cancel' },
+                      {
+                        text: 'Delete',
+                        style: 'destructive',
+                        onPress: async () => {
+                          try {
+                            // Remove from AsyncStorage
+                            await AsyncStorage.removeItem(`worker_${worker.id}`);
+
+                            // Navigate back to workers list
+                            router.push('/workers');
+                            showToast('Worker deleted successfully!');
+                          } catch (error) {
+                            Alert.alert('Error', 'Failed to delete worker');
+                          }
+                        }
+                      }
+                    ]
+                  );
+                }}
+              >
+                <MaterialIcons name="delete" size={16} color="#F44336" />
+                <Text style={styles.deleteButtonText}>Delete</Text>
+              </TouchableOpacity>
+            </View>
           </View>
         </View>
 

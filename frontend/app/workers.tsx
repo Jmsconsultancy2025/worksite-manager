@@ -642,23 +642,6 @@ export default function WorkersPage() {
                         </TouchableOpacity>
                       )}
                     </View>
-                    {/* Edit and Delete Buttons */}
-                    <View style={styles.actionButtons}>
-                      <TouchableOpacity
-                        style={styles.editButton}
-                        onPress={() => handleEditWorker(worker)}
-                      >
-                        <MaterialIcons name="edit" size={16} color="#2196F3" />
-                        <Text style={styles.editButtonText}>Edit</Text>
-                      </TouchableOpacity>
-                      <TouchableOpacity
-                        style={styles.deleteButton}
-                        onPress={() => handleDeleteWorker(worker.id)}
-                      >
-                        <MaterialIcons name="delete" size={16} color="#F44336" />
-                        <Text style={styles.deleteButtonText}>Delete</Text>
-                      </TouchableOpacity>
-                    </View>
                   </View>
                 </View>
 
