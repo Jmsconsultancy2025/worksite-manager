@@ -174,6 +174,13 @@ export default function WorkersPage() {
   // Add Worker Modal state
   const [isAddWorkerModalOpen, setIsAddWorkerModalOpen] = useState(false);
 
+  // Edit Worker Modal state
+  const [editModalVisible, setEditModalVisible] = useState(false);
+  const [editingWorker, setEditingWorker] = useState<Worker | null>(null);
+  const [editName, setEditName] = useState('');
+  const [editPhone, setEditPhone] = useState('');
+  const [editRole, setEditRole] = useState('');
+
   const filteredWorkers = workers.filter(
     (worker) => {
       const matchesSearch = worker.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -430,6 +437,82 @@ export default function WorkersPage() {
     Alert.alert('Success', 'Worker activated successfully!');
   };
 
+  // Handle delete worker
+  const handleDeleteWorker = async (workerId: string) => {
+    Alert.alert(
+      'Delete Worker',
+      'Are you sure you want to delete this worker? This action cannot be undone.',
+      [
+        { text: 'Cancel', style: 'cancel' },
+        {
+          text: 'Delete',
+          style: 'destructive',
+          onPress: async () => {
+            try {
+              // Remove from AsyncStorage
+              await AsyncStorage.removeItem(`worker_${workerId}`);
+
+              // Update local state
+              setWorkers(prevWorkers => prevWorkers.filter(worker => worker.id !== workerId));
+
+              Alert.alert('Success', 'Worker deleted successfully!');
+            } catch (error) {
+              Alert.alert('Error', 'Failed to delete worker');
+            }
+          }
+        }
+      ]
+    );
+  };
+
+  // Handle edit worker
+  const handleEditWorker = (worker: Worker) => {
+    setEditingWorker(worker);
+    setEditName(worker.name);
+    setEditPhone(worker.phone);
+    setEditRole(worker.role);
+    setEditModalVisible(true);
+  };
+
+  // Handle save edit
+  const handleSaveEdit = async () => {
+    if (!editingWorker) return;
+
+    if (!editName.trim() || !editPhone.trim() || !editRole.trim()) {
+      Alert.alert('Error', 'Please fill in all fields');
+      return;
+    }
+
+    try {
+      // Load existing worker data
+      const storedData = await AsyncStorage.getItem(`worker_${editingWorker.id}`);
+      let workerData = storedData ? JSON.parse(storedData) : {};
+
+      // Update worker data
+      workerData.name = editName.trim();
+      workerData.phone = editPhone.trim();
+      workerData.role = editRole.trim();
+
+      // Save updated data
+      await AsyncStorage.setItem(`worker_${editingWorker.id}`, JSON.stringify(workerData));
+
+      // Update local state
+      setWorkers(prevWorkers =>
+        prevWorkers.map(worker =>
+          worker.id === editingWorker.id
+            ? { ...worker, name: editName.trim(), phone: editPhone.trim(), role: editRole.trim() }
+            : worker
+        )
+      );
+
+      Alert.alert('Success', 'Worker updated successfully!');
+      setEditModalVisible(false);
+      setEditingWorker(null);
+    } catch (error) {
+      Alert.alert('Error', 'Failed to update worker');
+    }
+  };
+
   // Handle add worker
   const handleAddWorker = async (newWorkerData: NewWorkerData) => {
     // Check worker limit before adding
@@ -558,6 +641,23 @@ export default function WorkersPage() {
                           <Text style={styles.activateButtonText}>Activate</Text>
                         </TouchableOpacity>
                       )}
+                    </View>
+                    {/* Edit and Delete Buttons */}
+                    <View style={styles.actionButtons}>
+                      <TouchableOpacity
+                        style={styles.editButton}
+                        onPress={() => handleEditWorker(worker)}
+                      >
+                        <MaterialIcons name="edit" size={16} color="#2196F3" />
+                        <Text style={styles.editButtonText}>Edit</Text>
+                      </TouchableOpacity>
+                      <TouchableOpacity
+                        style={styles.deleteButton}
+                        onPress={() => handleDeleteWorker(worker.id)}
+                      >
+                        <MaterialIcons name="delete" size={16} color="#F44336" />
+                        <Text style={styles.deleteButtonText}>Delete</Text>
+                      </TouchableOpacity>
                     </View>
                   </View>
                 </View>
@@ -932,6 +1032,80 @@ export default function WorkersPage() {
         onAddWorker={handleAddWorker}
         currentSiteName={siteParam || "All Sites"}
       />
+
+      {/* Edit Worker Modal */}
+      <Modal
+        animationType="slide"
+        transparent={true}
+        visible={editModalVisible}
+        onRequestClose={() => setEditModalVisible(false)}
+      >
+        <Pressable
+          style={styles.modalOverlay}
+          onPress={() => setEditModalVisible(false)}
+        >
+          <Pressable style={styles.advanceModalContent} onPress={(e) => e.stopPropagation()}>
+            <Text style={styles.advanceModalTitle}>Edit Worker</Text>
+
+            <View style={styles.advanceForm}>
+              <View style={styles.formGroup}>
+                <Text style={styles.formLabel}>Name</Text>
+                <View style={styles.formInput}>
+                  <MaterialIcons name="person" size={20} color="#757575" />
+                  <TextInput
+                    style={styles.formInputField}
+                    value={editName}
+                    onChangeText={setEditName}
+                    placeholder="Enter worker name"
+                  />
+                </View>
+              </View>
+
+              <View style={styles.formGroup}>
+                <Text style={styles.formLabel}>Phone</Text>
+                <View style={styles.formInput}>
+                  <MaterialIcons name="phone" size={20} color="#757575" />
+                  <TextInput
+                    style={styles.formInputField}
+                    value={editPhone}
+                    onChangeText={setEditPhone}
+                    placeholder="Enter phone number"
+                    keyboardType="numeric"
+                  />
+                </View>
+              </View>
+
+              <View style={styles.formGroup}>
+                <Text style={styles.formLabel}>Role</Text>
+                <View style={styles.formInput}>
+                  <MaterialIcons name="work" size={20} color="#757575" />
+                  <TextInput
+                    style={styles.formInputField}
+                    value={editRole}
+                    onChangeText={setEditRole}
+                    placeholder="Enter worker role"
+                  />
+                </View>
+              </View>
+            </View>
+
+            <View style={styles.advanceModalButtons}>
+              <TouchableOpacity
+                style={styles.cancelButton}
+                onPress={() => setEditModalVisible(false)}
+              >
+                <Text style={styles.cancelButtonText}>Cancel</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={styles.giveAdvanceButton}
+                onPress={handleSaveEdit}
+              >
+                <Text style={styles.giveAdvanceButtonText}>Save Changes</Text>
+              </TouchableOpacity>
+            </View>
+          </Pressable>
+        </Pressable>
+      </Modal>
     </SafeAreaView>
   );
 }
@@ -1172,6 +1346,45 @@ const styles = StyleSheet.create({
     fontSize: 12,
     color: '#FFFFFF',
     fontWeight: '600',
+  },
+  // Action Buttons Styles
+  actionButtons: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginTop: 8,
+    gap: 8,
+  },
+  editButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 6,
+    borderWidth: 1,
+    borderColor: '#2196F3',
+    backgroundColor: '#FFFFFF',
+  },
+  editButtonText: {
+    fontSize: 12,
+    color: '#2196F3',
+    fontWeight: '600',
+    marginLeft: 4,
+  },
+  deleteButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 6,
+    borderWidth: 1,
+    borderColor: '#F44336',
+    backgroundColor: '#FFFFFF',
+  },
+  deleteButtonText: {
+    fontSize: 12,
+    color: '#F44336',
+    fontWeight: '600',
+    marginLeft: 4,
   },
   // Middle Column: Status Badges
   middleColumn: {
