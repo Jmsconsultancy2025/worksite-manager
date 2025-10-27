@@ -193,9 +193,9 @@ export function AddSiteModal({ isOpen, onClose, onAddSite, initialData, isEditin
             </View>
             <Input
               placeholder="Enter number of workers"
-              value={formData.numberOfWorkers.toString()}
+              value={formData.numberOfWorkers?.toString() || ''}
               onChangeText={(value) => {
-                const num = parseInt(value) || 0;
+                const num = value === '' ? undefined : parseInt(value) || undefined;
                 handleInputChange('numberOfWorkers', num);
               }}
               keyboardType="numeric"
