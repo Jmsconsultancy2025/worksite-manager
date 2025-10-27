@@ -100,10 +100,6 @@ export function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
      }
    }, [isOpen]);
 
-   useEffect(() => {
-     console.log('SettingsModal render', { currentSubscription });
-   }, [currentSubscription]);
-
   const handleBack = () => {
     setCurrentView('main');
   };

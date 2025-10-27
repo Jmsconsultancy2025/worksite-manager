@@ -21,8 +21,8 @@ import { AddSiteModal, NewSiteData } from '../components/AddSiteModal';
 import SiteCard from '../components/SiteCard';
 import Toast from 'react-native-toast-message';
 
-// Mock site data
-const mockSites = [
+// Sample site data
+const sampleSites = [
   {
     id: '1',
     name: 'Zonuam Site',
@@ -47,6 +47,22 @@ const mockSites = [
     totalWorkers: 15,
     presentWorkers: 15,
   },
+  {
+    id: '4',
+    name: 'Ramhlun Site',
+    location: 'Ramhlun North, Aizawl',
+    manager: 'David Brown',
+    totalWorkers: 6,
+    presentWorkers: 5,
+  },
+  {
+    id: '5',
+    name: 'Bawngkawn Site',
+    location: 'Bawngkawn, Aizawl',
+    manager: 'Lisa Davis',
+    totalWorkers: 9,
+    presentWorkers: 9,
+  },
 ];
 
 export default function Index() {
@@ -57,7 +73,7 @@ export default function Index() {
     const [isAddSiteModalOpen, setIsAddSiteModalOpen] = useState(false);
     const [isEditSiteModalOpen, setIsEditSiteModalOpen] = useState(false);
     const [editingSite, setEditingSite] = useState(null);
-    const [siteData, setSiteData] = useState(mockSites);
+    const [siteData, setSiteData] = useState(sampleSites);
     const [searchQuery, setSearchQuery] = useState('');
 
     // Handler to add new site
@@ -170,7 +186,19 @@ export default function Index() {
           />
         ))}
 
-        {/* Add Site Button moved to bottom */}
+        {/* Add New Site Card */}
+        <TouchableOpacity
+          style={styles.addSiteCard}
+          onPress={() => setIsAddSiteModalOpen(true)}
+        >
+          <View style={styles.addSiteContent}>
+            <View style={styles.addIconContainer}>
+              <MaterialIcons name="add" size={32} color="#4CAF50" />
+            </View>
+            <Text style={styles.addSiteText}>Add New Site</Text>
+            <Text style={styles.addSiteSubtext}>Create a new worksite to manage workers</Text>
+          </View>
+        </TouchableOpacity>
 
         {/* Powered By Section */}
         <View style={styles.poweredBySection}>
@@ -253,6 +281,10 @@ export default function Index() {
         <TouchableOpacity style={styles.navItem} onPress={() => router.push('/reports')}>
           <MaterialIcons name="bar-chart" size={24} color="#9E9E9E" />
           <Text style={styles.navLabel}>Reports</Text>
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.navItem} onPress={() => router.push('/plans')}>
+          <MaterialIcons name="star" size={24} color="#9E9E9E" />
+          <Text style={styles.navLabel}>Plans</Text>
         </TouchableOpacity>
       </View>
     </SafeAreaView>
@@ -476,6 +508,51 @@ const styles = StyleSheet.create({
     width: 80,
     height: 80,
     resizeMode: 'contain',
+  },
+  // Add Site Card Styles
+  addSiteCard: {
+    backgroundColor: '#FFFFFF',
+    borderRadius: 12,
+    borderWidth: 2,
+    borderColor: '#4CAF50',
+    borderStyle: 'dashed',
+    padding: 24,
+    marginBottom: 16,
+    alignItems: 'center',
+    ...Platform.select({
+      ios: {
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.08,
+        shadowRadius: 4,
+      },
+      android: {
+        elevation: 3,
+      },
+    }),
+  },
+  addSiteContent: {
+    alignItems: 'center',
+  },
+  addIconContainer: {
+    width: 64,
+    height: 64,
+    borderRadius: 32,
+    backgroundColor: '#E8F5E9',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 12,
+  },
+  addSiteText: {
+    fontSize: 18,
+    fontWeight: '600',
+    color: '#4CAF50',
+    marginBottom: 4,
+  },
+  addSiteSubtext: {
+    fontSize: 14,
+    color: '#757575',
+    textAlign: 'center',
   },
   // Bottom Navigation Bar
   bottomNav: {
