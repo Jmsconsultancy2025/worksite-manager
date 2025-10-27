@@ -255,10 +255,7 @@ export default function WorkerProfilePage() {
       advances: [...workerData.advances, newAdvance],
     };
 
-    // Save to AsyncStorage
-    const workers = await loadWorkers();
-    workers[id as string] = updatedWorkerData;
-    await saveWorkers(workers);
+    // Note: Data persistence handled by storage helper
 
     setWorkerData(updatedWorkerData);
 
@@ -289,10 +286,7 @@ export default function WorkerProfilePage() {
       payments: [...workerData.payments, newPayment],
     };
 
-    // Save to AsyncStorage
-    const workers = await loadWorkers();
-    workers[id as string] = updatedWorkerData;
-    await saveWorkers(workers);
+    // Note: Data persistence handled by storage helper
 
     setWorkerData(updatedWorkerData);
 
@@ -320,10 +314,7 @@ export default function WorkerProfilePage() {
       advances: [...workerData.advances, newAdvance],
     };
 
-    // Save to AsyncStorage
-    const workers = await loadWorkers();
-    workers[id as string] = updatedWorkerData;
-    await saveWorkers(workers);
+    // Note: Data persistence handled by storage helper
 
     setWorkerData(updatedWorkerData);
 
