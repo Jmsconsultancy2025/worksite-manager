@@ -79,7 +79,6 @@ const defaultCategories = [
 ];
 
 export function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
-   console.log('SettingsModal render', { currentSubscription });
    const router = useRouter();
    const [currentView, setCurrentView] = useState<SettingsView>('main');
    const [notifications, setNotifications] = useState(true);
@@ -100,6 +99,10 @@ export function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
        loadSubscription();
      }
    }, [isOpen]);
+
+   useEffect(() => {
+     console.log('SettingsModal render', { currentSubscription });
+   }, [currentSubscription]);
 
   const handleBack = () => {
     setCurrentView('main');
