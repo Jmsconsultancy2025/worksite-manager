@@ -20,7 +20,7 @@ export interface NewSiteData {
   name: string;
   location: string;
   manager?: string;
-  numberOfWorkers: number;
+  numberOfWorkers?: number;
   startDate: string;
 }
 
@@ -37,7 +37,7 @@ export function AddSiteModal({ isOpen, onClose, onAddSite, initialData, isEditin
     name: '',
     location: '',
     manager: undefined,
-    numberOfWorkers: 0,
+    numberOfWorkers: undefined,
     startDate: '',
   });
 
@@ -48,7 +48,7 @@ export function AddSiteModal({ isOpen, onClose, onAddSite, initialData, isEditin
         name: initialData.name || '',
         location: initialData.location || '',
         manager: initialData.manager || undefined,
-        numberOfWorkers: initialData.totalWorkers || 0,
+        numberOfWorkers: initialData.totalWorkers || undefined,
         startDate: initialData.startDate || '',
       });
     } else if (!isEditing) {
@@ -83,9 +83,7 @@ export function AddSiteModal({ isOpen, onClose, onAddSite, initialData, isEditin
       newErrors.location = 'Location is required';
     }
 
-    if (formData.numberOfWorkers < 1) {
-      newErrors.numberOfWorkers = 'Number of workers must be at least 1';
-    }
+    // Number of workers is now optional
 
     if (!formData.startDate.trim()) {
       newErrors.startDate = 'Start date is required';
@@ -117,7 +115,7 @@ export function AddSiteModal({ isOpen, onClose, onAddSite, initialData, isEditin
       name: '',
       location: '',
       manager: undefined,
-      numberOfWorkers: 0,
+      numberOfWorkers: undefined,
       startDate: '',
     });
     setErrors({});
@@ -191,7 +189,7 @@ export function AddSiteModal({ isOpen, onClose, onAddSite, initialData, isEditin
           <View style={styles.field}>
             <View style={styles.labelRow}>
               <Users size={16} color="#6B7280" />
-              <Label style={styles.label}>Number of Workers *</Label>
+              <Label style={styles.label}>Number of Workers (Optional)</Label>
             </View>
             <Input
               placeholder="Enter number of workers"

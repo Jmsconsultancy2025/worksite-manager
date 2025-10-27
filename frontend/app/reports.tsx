@@ -1,5 +1,5 @@
 import React from 'react';
-import { Home, People, AccountBalanceWallet, Note, BarChart } from 'lucide-react';
+import { Home, People, AccountBalanceWallet, Note, BarChart } from 'lucide-react-native';
 import { useRouter } from 'expo-router';
 import ReportsPage from '../components/ReportsPage';
 

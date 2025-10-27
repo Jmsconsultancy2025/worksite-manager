@@ -19,7 +19,7 @@ import {
   Phone,
   MapPin,
   ExternalLink,
-} from 'lucide-react';
+} from 'lucide-react-native';
 import { useRouter } from 'expo-router';
 import { Button } from '../ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';

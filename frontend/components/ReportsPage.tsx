@@ -1,5 +1,5 @@
 import React from 'react';
-import { ArrowLeft, Download, Building, Users, TrendingUp, BarChart } from 'lucide-react';
+import { ArrowLeft, Download, Building, Users, TrendingUp, BarChart } from 'lucide-react-native';
 import { useRouter } from 'expo-router';
 
 interface ReportsPageProps {
