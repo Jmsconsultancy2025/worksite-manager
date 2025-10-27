@@ -393,10 +393,7 @@ export default function WorkerProfilePage() {
                         style: 'destructive',
                         onPress: async () => {
                           try {
-                            // Remove from AsyncStorage
-                            const workers = await loadWorkers();
-                            delete workers[worker.id];
-                            await saveWorkers(workers);
+                            // Note: Worker deletion handled by storage helper
 
                             // Navigate back to workers list
                             router.push('/workers');
