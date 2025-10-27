@@ -93,35 +93,7 @@ export default function WorkerProfilePage() {
 
   const worker = workerData || initialWorker;
 
-  // Load worker data from AsyncStorage on mount
-  useEffect(() => {
-    const loadWorkerData = async () => {
-      try {
-        const stored = await AsyncStorage.getItem(`worker_${id}`);
-        if (stored) {
-          const parsedData = JSON.parse(stored);
-          setWorkerData(parsedData);
-        }
-      } catch (error) {
-        console.error('Error loading worker data:', error);
-      }
-    };
-    loadWorkerData();
-  }, [id]);
-
-  // Save worker data to AsyncStorage whenever it changes
-  useEffect(() => {
-    const saveWorkerData = async () => {
-      if (workerData) {
-        try {
-          await AsyncStorage.setItem(`worker_${id}`, JSON.stringify(workerData));
-        } catch (error) {
-          console.error('Error saving worker data:', error);
-        }
-      }
-    };
-    saveWorkerData();
-  }, [workerData, id]);
+  // Note: Worker data persistence is handled by the storage helper functions
 
   // Show toast notification
   const showToast = (message: string) => {
