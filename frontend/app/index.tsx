@@ -125,6 +125,9 @@ export default function Index() {
       site.name.toLowerCase().includes(searchQuery.toLowerCase())
     );
 
+  console.log("App entry loaded");
+
+  return (
   return (
     <SafeAreaView style={styles.safeArea}>
       <StatusBar barStyle="dark-content" backgroundColor="#FFFFFF" />
