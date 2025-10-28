@@ -126,8 +126,6 @@ export default function Index() {
     );
 
   console.log("App entry loaded");
-
-  return (
   return (
     <SafeAreaView style={styles.safeArea}>
       <StatusBar barStyle="dark-content" backgroundColor="#FFFFFF" />
@@ -558,42 +556,22 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   // Bottom Navigation Bar
-  bottomNav: {
-    position: 'absolute',
-    bottom: 0,
-    left: 0,
-    right: 0,
-    flexDirection: 'row',
-    backgroundColor: '#FFFFFF',
-    borderTopWidth: 1,
-    borderTopColor: '#E0E0E0',
-    paddingVertical: 8,
-    paddingBottom: Platform.OS === 'ios' ? 24 : 8,
-    ...Platform.select({
-      ios: {
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: -2 },
-        shadowOpacity: 0.1,
-        shadowRadius: 4,
-      },
-      android: {
-        elevation: 8,
-      },
-    }),
-  },
-  navItem: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingVertical: 4,
-  },
-  navLabel: {
-    fontSize: 11,
-    color: '#757575',
-    marginTop: 4,
-  },
-  navLabelActive: {
-    color: '#4CAF50',
-    fontWeight: '600',
-  },
-});
+  <View style={styles.bottomNav}>
+  <TouchableOpacity style={styles.navItem} onPress={() => router.push('/reports')}>
+    <MaterialIcons name="bar-chart" size={28} color={route.name === '/reports' ? "#4CAF50" : "#9E9E9E"} />
+    <Text style={[styles.navLabel, route.name === '/reports' && styles.navLabelActive]}>Reports</Text>
+  </TouchableOpacity>
+  <TouchableOpacity style={styles.navItem} onPress={() => router.push('/feedback')}>
+    <MaterialIcons name="feedback" size={28} color={route.name === '/feedback' ? "#4CAF50" : "#9E9E9E"} />
+    <Text style={[styles.navLabel, route.name === '/feedback' && styles.navLabelActive]}>Feedback</Text>
+  </TouchableOpacity>
+  <TouchableOpacity style={styles.navItem} onPress={() => router.push('/about')}>
+    <MaterialIcons name="info" size={28} color={route.name === '/about' ? "#4CAF50" : "#9E9E9E"} />
+    <Text style={[styles.navLabel, route.name === '/about' && styles.navLabelActive]}>About Us</Text>
+  </TouchableOpacity>
+  <TouchableOpacity style={styles.navItem} onPress={() => router.push('/plans')}>
+    <MaterialIcons name="star" size={28} color={route.name === '/plans' ? "#4CAF50" : "#9E9E9E"} />
+    <Text style={[styles.navLabel, route.name === '/plans' && styles.navLabelActive]}>Plans</Text>
+  </TouchableOpacity>
+</View>
+
