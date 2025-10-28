@@ -79,26 +79,31 @@ const defaultCategories = [
 ];
 
 export function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
-   const router = useRouter();
-   const [currentView, setCurrentView] = useState<SettingsView>('main');
-   const [notifications, setNotifications] = useState(true);
-   const [darkMode, setDarkMode] = useState(false);
-   const [paidLeave, setPaidLeave] = useState(false);
-   const [halfdayPercentage, setHalfdayPercentage] = useState("50");
-   const [payrollCycle, setPayrollCycle] = useState("monthly");
-   const [workingHours, setWorkingHours] = useState("8");
-   const [categories, setCategories] = useState(defaultCategories);
-   const [currentSubscription, setCurrentSubscription] = useState({ plan: 'basic', status: 'active' });
+    const router = useRouter();
+    const [currentView, setCurrentView] = useState<SettingsView>('main');
+    const [notifications, setNotifications] = useState(true);
+    const [darkMode, setDarkMode] = useState(false);
+    const [paidLeave, setPaidLeave] = useState(false);
+    const [halfdayPercentage, setHalfdayPercentage] = useState("50");
+    const [payrollCycle, setPayrollCycle] = useState("monthly");
+    const [workingHours, setWorkingHours] = useState("8");
+    const [categories, setCategories] = useState(defaultCategories);
+    const [currentSubscription, setCurrentSubscription] = useState({ plan: 'basic', status: 'active' });
 
-   useEffect(() => {
-     const loadSubscription = async () => {
-       const subscription = await getUserSubscription();
-       setCurrentSubscription(subscription);
-     };
-     if (isOpen) {
-       loadSubscription();
-     }
-   }, [isOpen]);
+    useEffect(() => {
+      const loadSubscription = async () => {
+        const subscription = await getUserSubscription();
+        setCurrentSubscription(subscription);
+      };
+      if (isOpen) {
+        loadSubscription();
+      }
+    }, [isOpen]);
+
+    const planKey = currentSubscription?.plan ?? 'basic';
+    const planLimits = PLAN_LIMITS?.[planKey] ?? {};
+
+    console.log('DEBUG PLAN_LIMITS', { planKey, planLimits, PLAN_LIMITS });
 
   const handleBack = () => {
     setCurrentView('main');
@@ -153,11 +158,11 @@ export function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
         </View>
         <View style={styles.planInfo}>
           <Text style={styles.planName}>
-            {currentSubscription.plan.charAt(0).toUpperCase() + currentSubscription.plan.slice(1)} Plan
+            {planKey.charAt(0).toUpperCase() + planKey.slice(1)} Plan
           </Text>
           <Text style={styles.planDetails}>
-            {PLAN_LIMITS[currentSubscription.plan]?.maxWorkers === -1 ? 'Unlimited' : PLAN_LIMITS[currentSubscription.plan]?.maxWorkers} workers •
-            {PLAN_LIMITS[currentSubscription.plan]?.maxSites === -1 ? 'Unlimited' : PLAN_LIMITS[currentSubscription.plan]?.maxSites} sites
+            {planLimits?.maxWorkers === -1 ? 'Unlimited' : planLimits?.maxWorkers ?? 0} workers •
+            {planLimits?.maxSites === -1 ? 'Unlimited' : planLimits?.maxSites ?? 0} sites
           </Text>
         </View>
         <Button
@@ -170,10 +175,16 @@ export function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
           }}
         >
           <Text style={styles.upgradeButtonText}>
-            {currentSubscription.plan === 'pro' ? 'Manage Plan' : 'Upgrade Plan'}
+            {planKey === 'pro' ? 'Manage Plan' : 'Upgrade Plan'}
           </Text>
         </Button>
       </View>
+
+      {!planLimits && (
+        <View style={styles.loadingContainer}>
+          <Text style={styles.loadingText}>Loading subscription data...</Text>
+        </View>
+      )}
 
       <Separator />
 
