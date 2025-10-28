@@ -105,6 +105,14 @@ export function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
 
     console.log('DEBUG PLAN_LIMITS', { planKey, planLimits, PLAN_LIMITS });
 
+    if (!planLimits) {
+      return (
+        <View style={styles.loadingContainer}>
+          <Text style={styles.loadingText}>Loading subscription data...</Text>
+        </View>
+      );
+    }
+
   const handleBack = () => {
     setCurrentView('main');
   };
@@ -180,11 +188,6 @@ export function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
         </Button>
       </View>
 
-      {!planLimits && (
-        <View style={styles.loadingContainer}>
-          <Text style={styles.loadingText}>Loading subscription data...</Text>
-        </View>
-      )}
 
       <Separator />
 
