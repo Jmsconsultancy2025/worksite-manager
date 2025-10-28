@@ -558,20 +558,21 @@ const styles = StyleSheet.create({
   // Bottom Navigation Bar
   <View style={styles.bottomNav}>
   <TouchableOpacity style={styles.navItem} onPress={() => router.push('/reports')}>
-    <MaterialIcons name="bar-chart" size={28} color={route.name === '/reports' ? "#4CAF50" : "#9E9E9E"} />
-    <Text style={[styles.navLabel, route.name === '/reports' && styles.navLabelActive]}>Reports</Text>
+    <MaterialIcons name="bar-chart" size={28} color="#9E9E9E" />
+    <Text style={styles.navLabel}>Reports</Text>
   </TouchableOpacity>
   <TouchableOpacity style={styles.navItem} onPress={() => router.push('/feedback')}>
-    <MaterialIcons name="feedback" size={28} color={route.name === '/feedback' ? "#4CAF50" : "#9E9E9E"} />
-    <Text style={[styles.navLabel, route.name === '/feedback' && styles.navLabelActive]}>Feedback</Text>
+    <MaterialIcons name="feedback" size={28} color="#9E9E9E" />
+    <Text style={styles.navLabel}>Feedback</Text>
   </TouchableOpacity>
   <TouchableOpacity style={styles.navItem} onPress={() => router.push('/about')}>
-    <MaterialIcons name="info" size={28} color={route.name === '/about' ? "#4CAF50" : "#9E9E9E"} />
-    <Text style={[styles.navLabel, route.name === '/about' && styles.navLabelActive]}>About Us</Text>
+    <MaterialIcons name="info" size={28} color="#9E9E9E" />
+    <Text style={styles.navLabel}>About Us</Text>
   </TouchableOpacity>
   <TouchableOpacity style={styles.navItem} onPress={() => router.push('/plans')}>
-    <MaterialIcons name="star" size={28} color={route.name === '/plans' ? "#4CAF50" : "#9E9E9E"} />
-    <Text style={[styles.navLabel, route.name === '/plans' && styles.navLabelActive]}>Plans</Text>
+    <MaterialIcons name="star" size={28} color="#9E9E9E" />
+    <Text style={styles.navLabel}>Plans</Text>
   </TouchableOpacity>
 </View>
+
 
