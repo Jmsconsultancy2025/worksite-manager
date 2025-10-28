@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+9import React, { useState, useEffect } from 'react';
 import { View, Text, ScrollView, StyleSheet } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
 import Toast from 'react-native-toast-message';
@@ -92,8 +92,14 @@ export function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
 
     useEffect(() => {
       const loadSubscription = async () => {
-        const subscription = await getUserSubscription();
-        setCurrentSubscription(subscription);
+        try {
+          const subscription = await getUserSubscription();
+          setCurrentSubscription(subscription);
+          console.log('DEBUG subscription load', { subscription, getUserSubscription: typeof getUserSubscription });
+        } catch (error) {
+          console.error('Error loading subscription:', error);
+          setCurrentSubscription({ plan: 'basic', status: 'active' });
+        }
       };
       if (isOpen) {
         loadSubscription();

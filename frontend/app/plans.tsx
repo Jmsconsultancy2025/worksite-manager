@@ -93,16 +93,22 @@ export default function PlansPage() {
 
   useEffect(() => {
     const loadSubscription = async () => {
-      const subscription = await getUserSubscription();
-      setCurrentSubscription(subscription);
+      try {
+        const subscription = await getUserSubscription();
+        setCurrentSubscription(subscription);
+        console.log('DEBUG subscription load', { subscription, getUserSubscription: typeof getUserSubscription });
 
-      // Update plans to mark current plan
-      setPlansData(plans.map(plan => ({
-        ...plan,
-        current: plan.id === subscription.plan,
-        buttonText: plan.id === subscription.plan ? 'Current Plan' :
-                   plan.id === 'basic' ? 'Downgrade' : `Upgrade to ${plan.name.split(' ')[0]}`
-      })));
+        // Update plans to mark current plan
+        setPlansData(plans.map(plan => ({
+          ...plan,
+          current: plan.id === subscription.plan,
+          buttonText: plan.id === subscription.plan ? 'Current Plan' :
+                     plan.id === 'basic' ? 'Downgrade' : `Upgrade to ${plan.name.split(' ')[0]}`
+        })));
+      } catch (error) {
+        console.error('Error loading subscription:', error);
+        setCurrentSubscription({ plan: 'basic', status: 'active' });
+      }
     };
     loadSubscription();
   }, []);
