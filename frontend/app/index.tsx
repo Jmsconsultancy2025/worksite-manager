@@ -556,23 +556,33 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   // Bottom Navigation Bar
-  <View style={styles.bottomNav}>
-  <TouchableOpacity style={styles.navItem} onPress={() => router.push('/reports')}>
-    <MaterialIcons name="bar-chart" size={28} color="#9E9E9E" />
-    <Text style={styles.navLabel}>Reports</Text>
-  </TouchableOpacity>
-  <TouchableOpacity style={styles.navItem} onPress={() => router.push('/feedback')}>
-    <MaterialIcons name="feedback" size={28} color="#9E9E9E" />
-    <Text style={styles.navLabel}>Feedback</Text>
-  </TouchableOpacity>
-  <TouchableOpacity style={styles.navItem} onPress={() => router.push('/about')}>
-    <MaterialIcons name="info" size={28} color="#9E9E9E" />
-    <Text style={styles.navLabel}>About Us</Text>
-  </TouchableOpacity>
-  <TouchableOpacity style={styles.navItem} onPress={() => router.push('/plans')}>
-    <MaterialIcons name="star" size={28} color="#9E9E9E" />
-    <Text style={styles.navLabel}>Plans</Text>
-  </TouchableOpacity>
-</View>
+  bottomNav: {
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    alignItems: 'center',
+    backgroundColor: '#FFFFFF',
+    paddingVertical: 10,
+    paddingHorizontal: 16,
+    borderTopWidth: 1,
+    borderTopColor: '#E0E0E0',
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    right: 0,
+  },
+  navItem: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    flex: 1,
+  },
+  navLabel: {
+    fontSize: 10,
+    color: '#9E9E9E',
+    marginTop: 4,
+  },
+  navLabelActive: {
+    color: '#4CAF50',
+  },
+});
 
 
