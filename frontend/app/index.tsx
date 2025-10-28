@@ -263,28 +263,20 @@ export default function Index() {
 
       {/* Bottom Navigation Bar */}
       <View style={styles.bottomNav}>
-        <TouchableOpacity style={styles.navItem} onPress={() => router.push('/')}>
-          <MaterialIcons name="home" size={24} color="#4CAF50" />
-          <Text style={[styles.navLabel, styles.navLabelActive]}>Home</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.navItem} onPress={() => router.push('/workers')}>
-          <MaterialIcons name="people" size={24} color="#9E9E9E" />
-          <Text style={styles.navLabel}>Workers</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.navItem} onPress={() => router.push('/cashbook')}>
-          <MaterialIcons name="account-balance-wallet" size={24} color="#9E9E9E" />
-          <Text style={styles.navLabel}>Cashbook</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.navItem} onPress={() => router.push('/notes')}>
-          <MaterialIcons name="note" size={24} color="#9E9E9E" />
-          <Text style={styles.navLabel}>Notes</Text>
-        </TouchableOpacity>
         <TouchableOpacity style={styles.navItem} onPress={() => router.push('/reports')}>
-          <MaterialIcons name="bar-chart" size={24} color="#9E9E9E" />
+          <MaterialIcons name="bar-chart" size={28} color="#333333" />
           <Text style={styles.navLabel}>Reports</Text>
         </TouchableOpacity>
+        <TouchableOpacity style={styles.navItem} onPress={() => router.push('/feedback')}>
+          <MaterialIcons name="feedback" size={28} color="#333333" />
+          <Text style={styles.navLabel}>Feedback</Text>
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.navItem} onPress={() => router.push('/about')}>
+          <MaterialIcons name="info" size={28} color="#333333" />
+          <Text style={styles.navLabel}>About Us</Text>
+        </TouchableOpacity>
         <TouchableOpacity style={styles.navItem} onPress={() => router.push('/plans')}>
-          <MaterialIcons name="star" size={24} color="#9E9E9E" />
+          <MaterialIcons name="star" size={28} color="#333333" />
           <Text style={styles.navLabel}>Plans</Text>
         </TouchableOpacity>
       </View>
@@ -561,7 +553,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-around',
     alignItems: 'center',
     backgroundColor: '#FFFFFF',
-    paddingVertical: 10,
+    paddingVertical: 12,
     paddingHorizontal: 16,
     borderTopWidth: 1,
     borderTopColor: '#E0E0E0',
@@ -569,16 +561,29 @@ const styles = StyleSheet.create({
     bottom: 0,
     left: 0,
     right: 0,
+    ...Platform.select({
+      ios: {
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: -2 },
+        shadowOpacity: 0.1,
+        shadowRadius: 4,
+      },
+      android: {
+        elevation: 8,
+      },
+    }),
   },
   navItem: {
     alignItems: 'center',
     justifyContent: 'center',
     flex: 1,
+    minHeight: 60, // Ensure large enough tap targets for mobile
   },
   navLabel: {
-    fontSize: 10,
-    color: '#9E9E9E',
+    fontSize: 12,
+    color: '#555555',
     marginTop: 4,
+    fontWeight: '500',
   },
   navLabelActive: {
     color: '#4CAF50',
