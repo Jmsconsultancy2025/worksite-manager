@@ -2,14 +2,15 @@ import React from 'react';
 import { View, TouchableOpacity, Text, StyleSheet } from 'react-native';
 import { Home, People, AccountBalanceWallet, Note, BarChart } from 'lucide-react-native';
 import { useRouter } from 'expo-router';
-import ReportsPage from '../components/ReportsPage';
 
 export default function Reports() {
   const router = useRouter();
 
   return (
     <View style={styles.container}>
-      <ReportsPage />
+      <View style={styles.content}>
+        <Text style={styles.placeholderText}>Reports page is working</Text>
+      </View>
       {/* Bottom Navigation Bar */}
       <View style={styles.bottomNav}>
         <TouchableOpacity style={styles.navItem} onPress={() => router.push('/')}>
@@ -41,6 +42,16 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#FFFFFF',
+  },
+  content: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  placeholderText: {
+    fontSize: 18,
+    color: '#4CAF50',
+    fontWeight: 'bold',
   },
   // Bottom Navigation Bar
   bottomNav: {
