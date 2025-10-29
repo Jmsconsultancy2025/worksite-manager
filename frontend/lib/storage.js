@@ -134,6 +134,19 @@ export async function saveWorkersList(workersList) {
   }
 }
 
+export async function updateWorkerHiddenStatus(workerId, hidden) {
+  const workers = await loadWorkers();
+
+  if (!workers[workerId]) {
+    workers[workerId] = {};
+  }
+
+  workers[workerId].hidden = hidden;
+
+  await saveWorkers(workers);
+  return workers[workerId];
+}
+
 export async function checkWorkerLimit(currentCount) {
   const subscription = await getUserSubscription();
   const planLimits = PLAN_LIMITS[subscription.plan] || PLAN_LIMITS.basic;
