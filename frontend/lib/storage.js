@@ -6,9 +6,9 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 const WORKERS_KEY = 'worksite_workers';
 const SUBSCRIPTION_KEY = '@currentSubscription';
 
-export function loadWorkers() {
+export async function loadWorkers() {
   try {
-    const data = localStorage.getItem(WORKERS_KEY);
+    const data = await AsyncStorage.getItem(WORKERS_KEY);
     return data ? JSON.parse(data) : {};
   } catch (error) {
     console.error('Error loading workers:', error);
@@ -16,9 +16,9 @@ export function loadWorkers() {
   }
 }
 
-export function saveWorkers(workers) {
+export async function saveWorkers(workers) {
   try {
-    localStorage.setItem(WORKERS_KEY, JSON.stringify(workers));
+    await AsyncStorage.setItem(WORKERS_KEY, JSON.stringify(workers));
     return true;
   } catch (error) {
     console.error('Error saving workers:', error);
@@ -26,33 +26,33 @@ export function saveWorkers(workers) {
   }
 }
 
-export function updateAttendance(workerId, dateISO, status) {
-  const workers = loadWorkers();
-  
+export async function updateAttendance(workerId, dateISO, status) {
+  const workers = await loadWorkers();
+
   if (!workers[workerId]) {
     workers[workerId] = { attendance: [] };
   }
-  
+
   if (!workers[workerId].attendance) {
     workers[workerId].attendance = [];
   }
-  
+
   // Find existing or create new
   const existingIndex = workers[workerId].attendance.findIndex(a => a.date === dateISO);
-  
+
   const record = {
     date: dateISO,
     status: status,
     markedAt: Date.now()
   };
-  
+
   if (existingIndex >= 0) {
     workers[workerId].attendance[existingIndex] = record;
   } else {
     workers[workerId].attendance.push(record);
   }
-  
-  saveWorkers(workers);
+
+  await saveWorkers(workers);
   return workers[workerId];
 }
 

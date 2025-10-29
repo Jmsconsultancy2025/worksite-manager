@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, TouchableOpacity, Text, ScrollView, StyleSheet } from 'react-native';
+import { View, TouchableOpacity, Text, ScrollView, StyleSheet, Alert } from 'react-native';
 import { ArrowLeft, Download, Building, Users, TrendingUp, BarChart } from 'lucide-react-native';
 import { useRouter } from 'expo-router';
 
@@ -18,17 +18,17 @@ function ReportsPage({
 
   const handleAttendanceReport = () => {
     console.log('Attendance Report button clicked');
-    window.alert('Attendance Report\nGenerating attendance report...');
+    Alert.alert('Attendance Report', 'Generating attendance report...');
   };
 
   const handlePayrollReport = () => {
     console.log('Payroll Report button clicked');
-    window.alert('Payroll Report\nGenerating payroll report...');
+    Alert.alert('Payroll Report', 'Generating payroll report...');
   };
 
   const handleFinancialReport = () => {
     console.log('Financial Report button clicked');
-    window.alert('Financial Report\nGenerating financial report...');
+    Alert.alert('Financial Report', 'Generating financial report...');
   };
 
   return (
@@ -128,7 +128,7 @@ function ReportsPage({
           </View>
           <TouchableOpacity
             style={styles.generateButton}
-            onClick={handleFinancialReport}
+            onPress={handleFinancialReport}
           >
             <Text style={styles.generateButtonText}>Generate Report</Text>
           </TouchableOpacity>
