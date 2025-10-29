@@ -15,7 +15,7 @@ import { Pressable } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { MaterialIcons } from '@expo/vector-icons';
 import { useRouter, useLocalSearchParams } from 'expo-router';
-import { updateAttendance, loadWorkers, updateWorkerHiddenStatus, checkWorkerLimit, getUserSubscription, updateSalary } from '../lib/storage';
+import { updateAttendance, loadWorkers, updateWorkerHiddenStatus, checkWorkerLimit, getUserSubscription, updateSalary, isExpired } from '../lib/storage';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { AddWorkerModal, NewWorkerData } from '../components/AddWorkerModal';
 
