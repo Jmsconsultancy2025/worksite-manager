@@ -2,7 +2,7 @@ import React from 'react';
 import { View, TouchableOpacity, Text, StyleSheet } from 'react-native';
 import { Home, People, AccountBalanceWallet, Note, BarChart } from 'lucide-react-native';
 import { useRouter } from 'expo-router';
-import ReportsPage from '../components/ReportsPage_backup';
+import ReportsPage from '../components/ReportsPage';
 
 export default function Reports() {
   const router = useRouter();
