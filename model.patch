@@ -1,416 +1,446 @@
 diff --git a/backend/server.py b/backend/server.py
-index 05856c57..12e722c5 100644
+index 12e722c5..3a29036c 100644
 --- a/backend/server.py
 +++ b/backend/server.py
-@@ -1,4 +1,5 @@
--from fastapi import FastAPI, APIRouter
-+from fastapi import FastAPI, APIRouter, HTTPException, Depends, Header
-+from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
- from dotenv import load_dotenv
- from starlette.middleware.cors import CORSMiddleware
- from motor.motor_asyncio import AsyncIOMotorClient
-@@ -6,9 +7,11 @@ import os
- import logging
- from pathlib import Path
- from pydantic import BaseModel, Field
--from typing import List
-+from typing import List, Optional
- import uuid
--from datetime import datetime
-+from datetime import datetime, timedelta
-+import jwt
-+import hashlib
+@@ -63,6 +63,20 @@ class Token(BaseModel):
+     user: User
  
  
- ROOT_DIR = Path(__file__).parent
-@@ -17,14 +20,48 @@ load_dotenv(ROOT_DIR / '.env')
- # MongoDB connection
- mongo_url = os.environ['MONGO_URL']
- client = AsyncIOMotorClient(mongo_url)
--db = client[os.environ['DB_NAME']]
-+db = client[os.environ.get('DB_NAME', 'worksite_manager')]
++# ==================== WORKER MODELS ====================
 +
-+# JWT Configuration
-+SECRET_KEY = os.environ.get('JWT_SECRET_KEY', 'your-secret-key-change-in-production')
-+ALGORITHM = "HS256"
-+ACCESS_TOKEN_EXPIRE_HOURS = 24 * 30  # 30 days
- 
- # Create the main app without a prefix
--app = FastAPI()
-+app = FastAPI(title="Worksite Manager API", version="1.0.0")
- 
- # Create a router with the /api prefix
- api_router = APIRouter(prefix="/api")
- 
-+# Security
-+security = HTTPBearer()
-+
-+
-+# ==================== AUTHENTICATION MODELS ====================
-+
-+class User(BaseModel):
++class Site(BaseModel):
 +    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
-+    email: str
 +    name: str
-+    role: str = "manager"  # manager, admin, viewer
-+    company_name: Optional[str] = None
++    location: str
++    user_id: str
 +    created_at: datetime = Field(default_factory=datetime.utcnow)
 +
-+class UserCreate(BaseModel):
-+    email: str
-+    password: str
++class SiteCreate(BaseModel):
 +    name: str
-+    company_name: Optional[str] = None
++    location: str
 +
-+class UserLogin(BaseModel):
-+    email: str
-+    password: str
 +
-+class Token(BaseModel):
-+    access_token: str
-+    token_type: str
-+    user: User
-+
- 
  # Define Models
  class StatusCheck(BaseModel):
+     id: str = Field(default_factory=lambda: str(uuid.uuid4()))
 diff --git a/model.patch b/model.patch
-index 37132305..e69de29b 100644
+index c11fe832..e69de29b 100644
 --- a/model.patch
 +++ b/model.patch
-@@ -1,335 +0,0 @@
--diff --git a/frontend/app/workers/[id].tsx b/frontend/app/workers/[id].tsx
--index a782720d..083ffad0 100644
----- a/frontend/app/workers/[id].tsx
--+++ b/frontend/app/workers/[id].tsx
--@@ -19,8 +19,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
-- import { MaterialIcons } from '@expo/vector-icons';
-- import { useRouter, useLocalSearchParams } from 'expo-router';
-- import { getWorkerById, Worker, AttendanceRecord } from '../../data/workers';
---import { updateAttendance as updateAttendanceStorage, loadWorkers, saveWorkers, isExpired } from '../../lib/storage';
---import AsyncStorage from '@react-native-async-storage/async-storage';
--+import { updateAttendance as updateAttendanceStorage, isExpired } from '../../lib/storage';
+@@ -1,416 +0,0 @@
+-diff --git a/backend/server.py b/backend/server.py
+-index 05856c57..12e722c5 100644
+---- a/backend/server.py
+-+++ b/backend/server.py
+-@@ -1,4 +1,5 @@
+--from fastapi import FastAPI, APIRouter
+-+from fastapi import FastAPI, APIRouter, HTTPException, Depends, Header
+-+from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
+- from dotenv import load_dotenv
+- from starlette.middleware.cors import CORSMiddleware
+- from motor.motor_asyncio import AsyncIOMotorClient
+-@@ -6,9 +7,11 @@ import os
+- import logging
+- from pathlib import Path
+- from pydantic import BaseModel, Field
+--from typing import List
+-+from typing import List, Optional
+- import uuid
+--from datetime import datetime
+-+from datetime import datetime, timedelta
+-+import jwt
+-+import hashlib
 - 
-- // Date formatting helper - DD-MM-YYYY format
-- function formatDDMMYYYY(dateStr: string) {
--@@ -94,35 +93,7 @@ export default function WorkerProfilePage() {
 - 
--   const worker = workerData || initialWorker;
+- ROOT_DIR = Path(__file__).parent
+-@@ -17,14 +20,48 @@ load_dotenv(ROOT_DIR / '.env')
+- # MongoDB connection
+- mongo_url = os.environ['MONGO_URL']
+- client = AsyncIOMotorClient(mongo_url)
+--db = client[os.environ['DB_NAME']]
+-+db = client[os.environ.get('DB_NAME', 'worksite_manager')]
+-+
+-+# JWT Configuration
+-+SECRET_KEY = os.environ.get('JWT_SECRET_KEY', 'your-secret-key-change-in-production')
+-+ALGORITHM = "HS256"
+-+ACCESS_TOKEN_EXPIRE_HOURS = 24 * 30  # 30 days
 - 
---  // Load worker data from AsyncStorage on mount
---  useEffect(() => {
---    const loadWorkerData = async () => {
---      try {
---        const stored = await AsyncStorage.getItem(`worker_${id}`);
---        if (stored) {
---          const parsedData = JSON.parse(stored);
---          setWorkerData(parsedData);
---        }
---      } catch (error) {
---        console.error('Error loading worker data:', error);
---      }
---    };
---    loadWorkerData();
---  }, [id]);
---
---  // Save worker data to AsyncStorage whenever it changes
---  useEffect(() => {
---    const saveWorkerData = async () => {
---      if (workerData) {
---        try {
---          await AsyncStorage.setItem(`worker_${id}`, JSON.stringify(workerData));
---        } catch (error) {
---          console.error('Error saving worker data:', error);
---        }
---      }
---    };
---    saveWorkerData();
---  }, [workerData, id]);
--+  // Note: Worker data persistence is handled by the storage helper functions
+- # Create the main app without a prefix
+--app = FastAPI()
+-+app = FastAPI(title="Worksite Manager API", version="1.0.0")
 - 
--   // Show toast notification
--   const showToast = (message: string) => {
--@@ -284,10 +255,7 @@ export default function WorkerProfilePage() {
--       advances: [...workerData.advances, newAdvance],
--     };
+- # Create a router with the /api prefix
+- api_router = APIRouter(prefix="/api")
 - 
---    // Save to AsyncStorage
---    const workers = await loadWorkers();
---    workers[id as string] = updatedWorkerData;
---    await saveWorkers(workers);
--+    // Note: Data persistence handled by storage helper
+-+# Security
+-+security = HTTPBearer()
+-+
+-+
+-+# ==================== AUTHENTICATION MODELS ====================
+-+
+-+class User(BaseModel):
+-+    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+-+    email: str
+-+    name: str
+-+    role: str = "manager"  # manager, admin, viewer
+-+    company_name: Optional[str] = None
+-+    created_at: datetime = Field(default_factory=datetime.utcnow)
+-+
+-+class UserCreate(BaseModel):
+-+    email: str
+-+    password: str
+-+    name: str
+-+    company_name: Optional[str] = None
+-+
+-+class UserLogin(BaseModel):
+-+    email: str
+-+    password: str
+-+
+-+class Token(BaseModel):
+-+    access_token: str
+-+    token_type: str
+-+    user: User
+-+
 - 
--     setWorkerData(updatedWorkerData);
-- 
--@@ -318,10 +286,7 @@ export default function WorkerProfilePage() {
--       payments: [...workerData.payments, newPayment],
--     };
-- 
---    // Save to AsyncStorage
---    const workers = await loadWorkers();
---    workers[id as string] = updatedWorkerData;
---    await saveWorkers(workers);
--+    // Note: Data persistence handled by storage helper
-- 
--     setWorkerData(updatedWorkerData);
-- 
--@@ -349,10 +314,7 @@ export default function WorkerProfilePage() {
--       advances: [...workerData.advances, newAdvance],
--     };
-- 
---    // Save to AsyncStorage
---    const workers = await loadWorkers();
---    workers[id as string] = updatedWorkerData;
---    await saveWorkers(workers);
--+    // Note: Data persistence handled by storage helper
-- 
--     setWorkerData(updatedWorkerData);
-- 
--@@ -431,10 +393,7 @@ export default function WorkerProfilePage() {
--                         style: 'destructive',
--                         onPress: async () => {
--                           try {
---                            // Remove from AsyncStorage
---                            const workers = await loadWorkers();
---                            delete workers[worker.id];
---                            await saveWorkers(workers);
--+                            // Note: Worker deletion handled by storage helper
-- 
--                             // Navigate back to workers list
--                             router.push('/workers');
+- # Define Models
+- class StatusCheck(BaseModel):
 -diff --git a/model.patch b/model.patch
--index 567af529..e69de29b 100644
+-index 37132305..e69de29b 100644
 ---- a/model.patch
 -+++ b/model.patch
--@@ -1,231 +0,0 @@
+-@@ -1,335 +0,0 @@
 --diff --git a/frontend/app/workers/[id].tsx b/frontend/app/workers/[id].tsx
---index 47f6638..98cde07 100644
+--index a782720d..083ffad0 100644
 ----- a/frontend/app/workers/[id].tsx
 --+++ b/frontend/app/workers/[id].tsx
---@@ -121,36 +121,19 @@ export default function WorkerProfilePage() {
---     setToastVisible(true);
---   };
+--@@ -19,8 +19,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
+-- import { MaterialIcons } from '@expo/vector-icons';
+-- import { useRouter, useLocalSearchParams } from 'expo-router';
+-- import { getWorkerById, Worker, AttendanceRecord } from '../../data/workers';
+---import { updateAttendance as updateAttendanceStorage, loadWorkers, saveWorkers, isExpired } from '../../lib/storage';
+---import AsyncStorage from '@react-native-async-storage/async-storage';
+--+import { updateAttendance as updateAttendanceStorage, isExpired } from '../../lib/storage';
 -- 
----  // Check if attendance is older than 24 hours
----  const isAttendanceExpired = (timestamp: number | undefined): boolean => {
----    if (!timestamp) return false;
----    const now = Date.now();
----    const hoursPassed = (now - timestamp) / (1000 * 60 * 60);
----    return hoursPassed >= 24;
----  };
----
----  // Update attendance for a specific date
---+  // Update attendance using unified storage function
---   const updateAttendance = (date: string, status: 'present' | 'half' | 'absent' | 'holiday') => {
---     if (!workerData) return;
+-- // Date formatting helper - DD-MM-YYYY format
+-- function formatDDMMYYYY(dateStr: string) {
+--@@ -94,35 +93,7 @@ export default function WorkerProfilePage() {
 -- 
----    const updatedAttendance = [...workerData.attendance];
----    const existingIndex = updatedAttendance.findIndex(a => a.date === date);
----
----    const newRecord: AttendanceRecord = {
----      date,
----      status,
----      timestamp: Date.now(), // Record when attendance was marked
+--   const worker = workerData || initialWorker;
+-- 
+---  // Load worker data from AsyncStorage on mount
+---  useEffect(() => {
+---    const loadWorkerData = async () => {
+---      try {
+---        const stored = await AsyncStorage.getItem(`worker_${id}`);
+---        if (stored) {
+---          const parsedData = JSON.parse(stored);
+---          setWorkerData(parsedData);
+---        }
+---      } catch (error) {
+---        console.error('Error loading worker data:', error);
+---      }
 ---    };
+---    loadWorkerData();
+---  }, [id]);
 ---
----    if (existingIndex >= 0) {
----      updatedAttendance[existingIndex] = newRecord;
----    } else {
----      updatedAttendance.push(newRecord);
----    }
----
---+    const dateISO = date.toISOString ? date.toISOString().split('T')[0] : date;
---+    
---+    // Update via storage helper (saves to localStorage with timestamp)
---+    const updatedWorkerData = updateAttendanceStorage(id as string, dateISO, status);
---+    
---+    // Optimistic update: immediately refresh local state
---     setWorkerData({
---       ...workerData,
----      attendance: updatedAttendance,
---+      attendance: updatedWorkerData.attendance || []
---     });
+---  // Save worker data to AsyncStorage whenever it changes
+---  useEffect(() => {
+---    const saveWorkerData = async () => {
+---      if (workerData) {
+---        try {
+---          await AsyncStorage.setItem(`worker_${id}`, JSON.stringify(workerData));
+---        } catch (error) {
+---          console.error('Error saving worker data:', error);
+---        }
+---      }
+---    };
+---    saveWorkerData();
+---  }, [workerData, id]);
+--+  // Note: Worker data persistence is handled by the storage helper functions
 -- 
---     const statusLabels = {
---@@ -159,7 +142,7 @@ export default function WorkerProfilePage() {
---       absent: 'Absent',
---       holiday: 'Holiday',
+--   // Show toast notification
+--   const showToast = (message: string) => {
+--@@ -284,10 +255,7 @@ export default function WorkerProfilePage() {
+--       advances: [...workerData.advances, newAdvance],
 --     };
----    showToast(`Attendance updated: ${statusLabels[status]} for ${formatDDMMYYYY(date)}`);
---+    showToast(`Attendance updated for ${formatDDMMYYYY(dateISO)}: ${statusLabels[status]}`);
---     setAttendanceModalVisible(false);
---   };
 -- 
---@@ -315,11 +298,11 @@ export default function WorkerProfilePage() {
---     setPaymentAmount('');
---   };
+---    // Save to AsyncStorage
+---    const workers = await loadWorkers();
+---    workers[id as string] = updatedWorkerData;
+---    await saveWorkers(workers);
+--+    // Note: Data persistence handled by storage helper
 -- 
----  // Get status color - considers if attendance is expired (>24 hours)
----  const getStatusColor = (status: string, timestamp?: number) => {
----    // If attendance is expired (>24 hours old), return gray
----    if (timestamp && isAttendanceExpired(timestamp)) {
----      return '#9E9E9E'; // Gray for expired
---+  // Get status color - considers expiry (>24h)
---+  const getStatusColor = (status: string, markedAt?: number) => {
---+    // If expired, show gray
---+    if (markedAt && isExpired(markedAt)) {
---+      return '#9E9E9E'; // Gray
---     }
---     
---     switch (status) {
---@@ -411,7 +394,7 @@ export default function WorkerProfilePage() {
---                 {weekDates.map((date, index) => {
---                   const attendance = getAttendanceForDate(date);
---                   const dayNames = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
----                  const statusColor = getStatusColor(attendance?.status || 'absent', attendance?.timestamp);
---+                  const statusColor = getStatusColor(attendance?.status || 'absent', attendance?.markedAt);
---                   
---                   return (
---                     <TouchableOpacity key={index} style={styles.dayRowVertical} onPress={() => handleDateClick(date)}>
---@@ -477,7 +460,7 @@ export default function WorkerProfilePage() {
---               <View style={styles.calendarGrid}>
---                 {monthDates.map((date, index) => {
---                   const attendance = getAttendanceForDate(date);
----                  const statusColor = getStatusColor(attendance?.status || 'absent', attendance?.timestamp);
---+                  const statusColor = getStatusColor(attendance?.status || 'absent', attendance?.markedAt);
---                   return (
---                     <TouchableOpacity
---                       key={index}
+--     setWorkerData(updatedWorkerData);
+-- 
+--@@ -318,10 +286,7 @@ export default function WorkerProfilePage() {
+--       payments: [...workerData.payments, newPayment],
+--     };
+-- 
+---    // Save to AsyncStorage
+---    const workers = await loadWorkers();
+---    workers[id as string] = updatedWorkerData;
+---    await saveWorkers(workers);
+--+    // Note: Data persistence handled by storage helper
+-- 
+--     setWorkerData(updatedWorkerData);
+-- 
+--@@ -349,10 +314,7 @@ export default function WorkerProfilePage() {
+--       advances: [...workerData.advances, newAdvance],
+--     };
+-- 
+---    // Save to AsyncStorage
+---    const workers = await loadWorkers();
+---    workers[id as string] = updatedWorkerData;
+---    await saveWorkers(workers);
+--+    // Note: Data persistence handled by storage helper
+-- 
+--     setWorkerData(updatedWorkerData);
+-- 
+--@@ -431,10 +393,7 @@ export default function WorkerProfilePage() {
+--                         style: 'destructive',
+--                         onPress: async () => {
+--                           try {
+---                            // Remove from AsyncStorage
+---                            const workers = await loadWorkers();
+---                            delete workers[worker.id];
+---                            await saveWorkers(workers);
+--+                            // Note: Worker deletion handled by storage helper
+-- 
+--                             // Navigate back to workers list
+--                             router.push('/workers');
 --diff --git a/model.patch b/model.patch
---index 5e17a23..e69de29 100644
+--index 567af529..e69de29b 100644
 ----- a/model.patch
 --+++ b/model.patch
---@@ -1,127 +0,0 @@
----diff --git a/frontend/app/index.tsx b/frontend/app/index.tsx
----index 28d549e..1cb9b0a 100644
------- a/frontend/app/index.tsx
----+++ b/frontend/app/index.tsx
----@@ -122,20 +122,24 @@ export default function Index() {
----       {/* Bottom Navigation Bar */}
----       <View style={styles.bottomNav}>
----         <TouchableOpacity style={styles.navItem}>
-----          <MaterialIcons name="bar-chart" size={24} color="#757575" />
-----          <Text style={styles.navLabel}>Reports</Text>
----+          <MaterialIcons name="home" size={24} color="#4CAF50" />
----+          <Text style={[styles.navLabel, styles.navLabelActive]}>Home</Text>
----         </TouchableOpacity>
-----        <TouchableOpacity style={styles.navItem}>
-----          <MaterialIcons name="feedback" size={24} color="#757575" />
-----          <Text style={styles.navLabel}>Feedback</Text>
----+        <TouchableOpacity style={styles.navItem} onPress={() => router.push('/workers')}>
----+          <MaterialIcons name="people" size={24} color="#9E9E9E" />
----+          <Text style={styles.navLabel}>Workers</Text>
----+        </TouchableOpacity>
----+        <TouchableOpacity style={styles.navItem} onPress={() => router.push('/cashbook')}>
----+          <MaterialIcons name="account-balance-wallet" size={24} color="#9E9E9E" />
----+          <Text style={styles.navLabel}>Cashbook</Text>
----         </TouchableOpacity>
----         <TouchableOpacity style={styles.navItem}>
-----          <MaterialIcons name="info" size={24} color="#757575" />
-----          <Text style={styles.navLabel}>About Us</Text>
----+          <MaterialIcons name="note" size={24} color="#9E9E9E" />
----+          <Text style={styles.navLabel}>Notes</Text>
----         </TouchableOpacity>
----         <TouchableOpacity style={styles.navItem}>
-----          <MaterialIcons name="star" size={24} color="#757575" />
-----          <Text style={styles.navLabel}>Plans</Text>
----+          <MaterialIcons name="bar-chart" size={24} color="#9E9E9E" />
----+          <Text style={styles.navLabel}>Reports</Text>
----         </TouchableOpacity>
----       </View>
----     </SafeAreaView>
----@@ -366,4 +370,8 @@ const styles = StyleSheet.create({
----     color: '#757575',
----     marginTop: 4,
----   },
----+  navLabelActive: {
----+    color: '#4CAF50',
----+    fontWeight: '600',
----+  },
---- });
+--@@ -1,231 +0,0 @@
+---diff --git a/frontend/app/workers/[id].tsx b/frontend/app/workers/[id].tsx
+---index 47f6638..98cde07 100644
+------ a/frontend/app/workers/[id].tsx
+---+++ b/frontend/app/workers/[id].tsx
+---@@ -121,36 +121,19 @@ export default function WorkerProfilePage() {
+---     setToastVisible(true);
+---   };
+--- 
+----  // Check if attendance is older than 24 hours
+----  const isAttendanceExpired = (timestamp: number | undefined): boolean => {
+----    if (!timestamp) return false;
+----    const now = Date.now();
+----    const hoursPassed = (now - timestamp) / (1000 * 60 * 60);
+----    return hoursPassed >= 24;
+----  };
+----
+----  // Update attendance for a specific date
+---+  // Update attendance using unified storage function
+---   const updateAttendance = (date: string, status: 'present' | 'half' | 'absent' | 'holiday') => {
+---     if (!workerData) return;
+--- 
+----    const updatedAttendance = [...workerData.attendance];
+----    const existingIndex = updatedAttendance.findIndex(a => a.date === date);
+----
+----    const newRecord: AttendanceRecord = {
+----      date,
+----      status,
+----      timestamp: Date.now(), // Record when attendance was marked
+----    };
+----
+----    if (existingIndex >= 0) {
+----      updatedAttendance[existingIndex] = newRecord;
+----    } else {
+----      updatedAttendance.push(newRecord);
+----    }
+----
+---+    const dateISO = date.toISOString ? date.toISOString().split('T')[0] : date;
+---+    
+---+    // Update via storage helper (saves to localStorage with timestamp)
+---+    const updatedWorkerData = updateAttendanceStorage(id as string, dateISO, status);
+---+    
+---+    // Optimistic update: immediately refresh local state
+---     setWorkerData({
+---       ...workerData,
+----      attendance: updatedAttendance,
+---+      attendance: updatedWorkerData.attendance || []
+---     });
+--- 
+---     const statusLabels = {
+---@@ -159,7 +142,7 @@ export default function WorkerProfilePage() {
+---       absent: 'Absent',
+---       holiday: 'Holiday',
+---     };
+----    showToast(`Attendance updated: ${statusLabels[status]} for ${formatDDMMYYYY(date)}`);
+---+    showToast(`Attendance updated for ${formatDDMMYYYY(dateISO)}: ${statusLabels[status]}`);
+---     setAttendanceModalVisible(false);
+---   };
+--- 
+---@@ -315,11 +298,11 @@ export default function WorkerProfilePage() {
+---     setPaymentAmount('');
+---   };
+--- 
+----  // Get status color - considers if attendance is expired (>24 hours)
+----  const getStatusColor = (status: string, timestamp?: number) => {
+----    // If attendance is expired (>24 hours old), return gray
+----    if (timestamp && isAttendanceExpired(timestamp)) {
+----      return '#9E9E9E'; // Gray for expired
+---+  // Get status color - considers expiry (>24h)
+---+  const getStatusColor = (status: string, markedAt?: number) => {
+---+    // If expired, show gray
+---+    if (markedAt && isExpired(markedAt)) {
+---+      return '#9E9E9E'; // Gray
+---     }
+---     
+---     switch (status) {
+---@@ -411,7 +394,7 @@ export default function WorkerProfilePage() {
+---                 {weekDates.map((date, index) => {
+---                   const attendance = getAttendanceForDate(date);
+---                   const dayNames = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+----                  const statusColor = getStatusColor(attendance?.status || 'absent', attendance?.timestamp);
+---+                  const statusColor = getStatusColor(attendance?.status || 'absent', attendance?.markedAt);
+---                   
+---                   return (
+---                     <TouchableOpacity key={index} style={styles.dayRowVertical} onPress={() => handleDateClick(date)}>
+---@@ -477,7 +460,7 @@ export default function WorkerProfilePage() {
+---               <View style={styles.calendarGrid}>
+---                 {monthDates.map((date, index) => {
+---                   const attendance = getAttendanceForDate(date);
+----                  const statusColor = getStatusColor(attendance?.status || 'absent', attendance?.timestamp);
+---+                  const statusColor = getStatusColor(attendance?.status || 'absent', attendance?.markedAt);
+---                   return (
+---                     <TouchableOpacity
+---                       key={index}
 ---diff --git a/model.patch b/model.patch
----index 6e63374..e69de29 100644
+---index 5e17a23..e69de29 100644
 ------ a/model.patch
 ---+++ b/model.patch
----@@ -1,75 +0,0 @@
-----diff --git a/frontend/app/workers/[id].tsx b/frontend/app/workers/[id].tsx
-----index a8c3330..e9de3dc 100644
-------- a/frontend/app/workers/[id].tsx
-----+++ b/frontend/app/workers/[id].tsx
-----@@ -71,6 +71,7 @@ export default function WorkerProfilePage() {
-----   const [attendanceModalVisible, setAttendanceModalVisible] = useState(false);
-----   const [toastMessage, setToastMessage] = useState('');
-----   const [toastVisible, setToastVisible] = useState(false);
-----+  const [advanceHistoryVisible, setAdvanceHistoryVisible] = useState(false);
----- 
-----   const worker = workerData;
----- 
+---@@ -1,127 +0,0 @@
+----diff --git a/frontend/app/index.tsx b/frontend/app/index.tsx
+----index 28d549e..1cb9b0a 100644
+------- a/frontend/app/index.tsx
+----+++ b/frontend/app/index.tsx
+----@@ -122,20 +122,24 @@ export default function Index() {
+----       {/* Bottom Navigation Bar */}
+----       <View style={styles.bottomNav}>
+----         <TouchableOpacity style={styles.navItem}>
+-----          <MaterialIcons name="bar-chart" size={24} color="#757575" />
+-----          <Text style={styles.navLabel}>Reports</Text>
+----+          <MaterialIcons name="home" size={24} color="#4CAF50" />
+----+          <Text style={[styles.navLabel, styles.navLabelActive]}>Home</Text>
+----         </TouchableOpacity>
+-----        <TouchableOpacity style={styles.navItem}>
+-----          <MaterialIcons name="feedback" size={24} color="#757575" />
+-----          <Text style={styles.navLabel}>Feedback</Text>
+----+        <TouchableOpacity style={styles.navItem} onPress={() => router.push('/workers')}>
+----+          <MaterialIcons name="people" size={24} color="#9E9E9E" />
+----+          <Text style={styles.navLabel}>Workers</Text>
+----+        </TouchableOpacity>
+----+        <TouchableOpacity style={styles.navItem} onPress={() => router.push('/cashbook')}>
+----+          <MaterialIcons name="account-balance-wallet" size={24} color="#9E9E9E" />
+----+          <Text style={styles.navLabel}>Cashbook</Text>
+----         </TouchableOpacity>
+----         <TouchableOpacity style={styles.navItem}>
+-----          <MaterialIcons name="info" size={24} color="#757575" />
+-----          <Text style={styles.navLabel}>About Us</Text>
+----+          <MaterialIcons name="note" size={24} color="#9E9E9E" />
+----+          <Text style={styles.navLabel}>Notes</Text>
+----         </TouchableOpacity>
+----         <TouchableOpacity style={styles.navItem}>
+-----          <MaterialIcons name="star" size={24} color="#757575" />
+-----          <Text style={styles.navLabel}>Plans</Text>
+----+          <MaterialIcons name="bar-chart" size={24} color="#9E9E9E" />
+----+          <Text style={styles.navLabel}>Reports</Text>
+----         </TouchableOpacity>
+----       </View>
+----     </SafeAreaView>
+----@@ -366,4 +370,8 @@ const styles = StyleSheet.create({
+----     color: '#757575',
+----     marginTop: 4,
+----   },
+----+  navLabelActive: {
+----+    color: '#4CAF50',
+----+    fontWeight: '600',
+----+  },
+---- });
 ----diff --git a/model.patch b/model.patch
-----index 5ac0004..e69de29 100644
+----index 6e63374..e69de29 100644
 ------- a/model.patch
 ----+++ b/model.patch
-----@@ -1,58 +0,0 @@
------diff --git a/frontend/app/workers.tsx b/frontend/app/workers.tsx
------index 73e815b..e1a9ea9 100644
--------- a/frontend/app/workers.tsx
------+++ b/frontend/app/workers.tsx
------@@ -10,6 +10,7 @@ import {
------   StatusBar,
------   Modal,
------   Pressable,
------+  Alert,
------ } from 'react-native';
------ import { SafeAreaView } from 'react-native-safe-area-context';
------ import { MaterialIcons } from '@expo/vector-icons';
------@@ -129,15 +130,39 @@ export default function WorkersPage() {
+----@@ -1,75 +0,0 @@
+-----diff --git a/frontend/app/workers/[id].tsx b/frontend/app/workers/[id].tsx
+-----index a8c3330..e9de3dc 100644
+-------- a/frontend/app/workers/[id].tsx
+-----+++ b/frontend/app/workers/[id].tsx
+-----@@ -71,6 +71,7 @@ export default function WorkerProfilePage() {
+-----   const [attendanceModalVisible, setAttendanceModalVisible] = useState(false);
+-----   const [toastMessage, setToastMessage] = useState('');
+-----   const [toastVisible, setToastVisible] = useState(false);
+-----+  const [advanceHistoryVisible, setAdvanceHistoryVisible] = useState(false);
 ----- 
------   // Handle give advance
------   const handleGiveAdvance = () => {
-------    if (selectedWorker && advanceAmount) {
-------      const amount = parseFloat(advanceAmount);
-------      if (amount > 0 && amount <= selectedWorker.maxAdvanceLimit) {
-------        // Here you would typically call an API to record the advance
-------        alert(`Advance of ₹${amount} given to ${selectedWorker.name}`);
------+    if (!selectedWorker) return;
------+    
------+    const amount = parseFloat(advanceAmount);
------+    if (isNaN(amount) || amount <= 0 || amount > selectedWorker.maxAdvanceLimit) {
------+      Alert.alert('Error', `Please enter a valid amount between ₹1 and ₹${selectedWorker.maxAdvanceLimit}`);
------+      return;
------+    }
------+    
------+    try {
------+      // Load worker profile data from localStorage
------+      const storedData = localStorage.getItem(`worker_${selectedWorker.id}`);
------+      if (storedData) {
------+        const workerData = JSON.parse(storedData);
------+        
------+        // Add new advance to worker's data
------+        const newAdvance = {
------+          date: advanceDate,
------+          amount: amount,
------+        };
------+        
------+        workerData.advances = [...(workerData.advances || []), newAdvance];
------+        
------+        // Save updated data back to localStorage
------+        localStorage.setItem(`worker_${selectedWorker.id}`, JSON.stringify(workerData));
------+        
------+        Alert.alert('Success', `Advance of ₹${amount} given to ${selectedWorker.name}`);
------         setAdvanceModalVisible(false);
------+        setAdvanceAmount('');
------       } else {
-------        alert(`Amount must be between ₹1 and ₹${selectedWorker.maxAdvanceLimit}`);
------+        Alert.alert('Error', 'Worker profile not found');
------       }
------+    } catch (error) {
------+      Alert.alert('Error', 'Failed to record advance payment');
------     }
------   };
+-----   const worker = workerData;
 ----- 
---diff --git a/worksite-manager-app b/worksite-manager-app
------ a/worksite-manager-app
---+++ b/worksite-manager-app
---@@ -1 +1 @@
----Subproject commit 2f4c8d11e1daaa14e4cc8ab556476eaefa5fdb36
---+Subproject commit 2f4c8d11e1daaa14e4cc8ab556476eaefa5fdb36-dirty
+-----diff --git a/model.patch b/model.patch
+-----index 5ac0004..e69de29 100644
+-------- a/model.patch
+-----+++ b/model.patch
+-----@@ -1,58 +0,0 @@
+------diff --git a/frontend/app/workers.tsx b/frontend/app/workers.tsx
+------index 73e815b..e1a9ea9 100644
+--------- a/frontend/app/workers.tsx
+------+++ b/frontend/app/workers.tsx
+------@@ -10,6 +10,7 @@ import {
+------   StatusBar,
+------   Modal,
+------   Pressable,
+------+  Alert,
+------ } from 'react-native';
+------ import { SafeAreaView } from 'react-native-safe-area-context';
+------ import { MaterialIcons } from '@expo/vector-icons';
+------@@ -129,15 +130,39 @@ export default function WorkersPage() {
+------ 
+------   // Handle give advance
+------   const handleGiveAdvance = () => {
+-------    if (selectedWorker && advanceAmount) {
+-------      const amount = parseFloat(advanceAmount);
+-------      if (amount > 0 && amount <= selectedWorker.maxAdvanceLimit) {
+-------        // Here you would typically call an API to record the advance
+-------        alert(`Advance of ₹${amount} given to ${selectedWorker.name}`);
+------+    if (!selectedWorker) return;
+------+    
+------+    const amount = parseFloat(advanceAmount);
+------+    if (isNaN(amount) || amount <= 0 || amount > selectedWorker.maxAdvanceLimit) {
+------+      Alert.alert('Error', `Please enter a valid amount between ₹1 and ₹${selectedWorker.maxAdvanceLimit}`);
+------+      return;
+------+    }
+------+    
+------+    try {
+------+      // Load worker profile data from localStorage
+------+      const storedData = localStorage.getItem(`worker_${selectedWorker.id}`);
+------+      if (storedData) {
+------+        const workerData = JSON.parse(storedData);
+------+        
+------+        // Add new advance to worker's data
+------+        const newAdvance = {
+------+          date: advanceDate,
+------+          amount: amount,
+------+        };
+------+        
+------+        workerData.advances = [...(workerData.advances || []), newAdvance];
+------+        
+------+        // Save updated data back to localStorage
+------+        localStorage.setItem(`worker_${selectedWorker.id}`, JSON.stringify(workerData));
+------+        
+------+        Alert.alert('Success', `Advance of ₹${amount} given to ${selectedWorker.name}`);
+------         setAdvanceModalVisible(false);
+------+        setAdvanceAmount('');
+------       } else {
+-------        alert(`Amount must be between ₹1 and ₹${selectedWorker.maxAdvanceLimit}`);
+------+        Alert.alert('Error', 'Worker profile not found');
+------       }
+------+    } catch (error) {
+------+      Alert.alert('Error', 'Failed to record advance payment');
+------     }
+------   };
+------ 
+---diff --git a/worksite-manager-app b/worksite-manager-app
+------ a/worksite-manager-app
+---+++ b/worksite-manager-app
+---@@ -1 +1 @@
+----Subproject commit 2f4c8d11e1daaa14e4cc8ab556476eaefa5fdb36
+---+Subproject commit 2f4c8d11e1daaa14e4cc8ab556476eaefa5fdb36-dirty
