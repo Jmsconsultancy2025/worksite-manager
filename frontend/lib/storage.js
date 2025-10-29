@@ -4,6 +4,7 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const WORKERS_KEY = 'worksite_workers';
+const WORKERS_LIST_KEY = 'worksite_workers_list';
 const SUBSCRIPTION_KEY = '@currentSubscription';
 
 export async function loadWorkers() {
@@ -111,6 +112,32 @@ export async function setUserSubscription(subscription) {
     console.error('Error saving subscription:', e);
     return false;
   }
+}
+
+export async function loadWorkersList() {
+  try {
+    const data = await AsyncStorage.getItem(WORKERS_LIST_KEY);
+    return data ? JSON.parse(data) : [];
+  } catch (error) {
+    console.error('Error loading workers list:', error);
+    return [];
+  }
+}
+
+export async function saveWorkersList(workersList) {
+  try {
+    await AsyncStorage.setItem(WORKERS_LIST_KEY, JSON.stringify(workersList));
+    return true;
+  } catch (error) {
+    console.error('Error saving workers list:', error);
+    return false;
+  }
+}
+
+export async function checkWorkerLimit(currentCount) {
+  const subscription = await getUserSubscription();
+  const planLimits = PLAN_LIMITS[subscription.plan] || PLAN_LIMITS.basic;
+  return currentCount < planLimits.workers;
 }
 
 export const PLAN_LIMITS = {

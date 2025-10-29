@@ -15,7 +15,7 @@ import { Pressable } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { MaterialIcons } from '@expo/vector-icons';
 import { useRouter, useLocalSearchParams } from 'expo-router';
-import { updateAttendance, loadWorkers, updateWorkerHiddenStatus, checkWorkerLimit, getUserSubscription, updateSalary, isExpired } from '../lib/storage';
+import { updateAttendance, loadWorkers, updateWorkerHiddenStatus, checkWorkerLimit, getUserSubscription, updateSalary, isExpired, loadWorkersList, saveWorkersList } from '../lib/storage';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { AddWorkerModal, NewWorkerData } from '../components/AddWorkerModal';
 
@@ -122,11 +122,16 @@ export default function WorkersPage() {
       .reduce((total: number, advance: any) => total + advance.amount, 0);
   };
 
-  // Load attendance data from AsyncStorage on mount
+  // Load workers data from AsyncStorage on mount
   useEffect(() => {
     const loadData = async () => {
+      const storedWorkersList = await loadWorkersList();
       const storedWorkers = await loadWorkers();
-      const updatedWorkers = initialWorkers.map(worker => {
+
+      // If no stored workers list, use initial workers and save them
+      let workersToUse = storedWorkersList.length > 0 ? storedWorkersList : initialWorkers;
+
+      const updatedWorkers = workersToUse.map(worker => {
         const storedWorker = storedWorkers[worker.id];
         if (storedWorker) {
           // Check if attendance is expired (24 hours old)
@@ -149,6 +154,11 @@ export default function WorkersPage() {
         return worker;
       });
       setWorkers(updatedWorkers);
+
+      // Save initial workers if none were stored
+      if (storedWorkersList.length === 0) {
+        await saveWorkersList(initialWorkers);
+      }
     };
     loadData();
 
@@ -488,7 +498,11 @@ export default function WorkersPage() {
               await AsyncStorage.removeItem(`worker_${workerId}`);
 
               // Update local state
-              setWorkers(prevWorkers => prevWorkers.filter(worker => worker.id !== workerId));
+              const updatedWorkers = workers.filter(worker => worker.id !== workerId);
+              setWorkers(updatedWorkers);
+
+              // Save updated list to AsyncStorage
+              await saveWorkersList(updatedWorkers);
 
               Alert.alert('Success', 'Worker deleted successfully!');
             } catch (error) {
@@ -532,13 +546,15 @@ export default function WorkersPage() {
       await AsyncStorage.setItem(`worker_${editingWorker.id}`, JSON.stringify(workerData));
 
       // Update local state
-      setWorkers(prevWorkers =>
-        prevWorkers.map(worker =>
-          worker.id === editingWorker.id
-            ? { ...worker, name: editName.trim(), phone: editPhone.trim(), role: editRole.trim() }
-            : worker
-        )
+      const updatedWorkers = workers.map(worker =>
+        worker.id === editingWorker.id
+          ? { ...worker, name: editName.trim(), phone: editPhone.trim(), role: editRole.trim() }
+          : worker
       );
+      setWorkers(updatedWorkers);
+
+      // Save updated list to AsyncStorage
+      await saveWorkersList(updatedWorkers);
 
       Alert.alert('Success', 'Worker updated successfully!');
       setEditModalVisible(false);
@@ -582,7 +598,12 @@ export default function WorkersPage() {
       site: newWorkerData.site || siteParam || 'All Sites',
     };
 
-    setWorkers(prev => [...prev, newWorker]);
+    const updatedWorkers = [...workers, newWorker];
+    setWorkers(updatedWorkers);
+
+    // Save to AsyncStorage
+    await saveWorkersList(updatedWorkers);
+
     Alert.alert('Success', `Worker ${newWorkerData.name} added successfully!`);
   };
 
