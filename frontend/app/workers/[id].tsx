@@ -72,7 +72,7 @@ export default function WorkerProfilePage() {
   const initialWorker = getWorkerById(id as string);
 
   // State
-  const [workerData, setWorkerData] = useState<Worker | null>(initialWorker);
+  const [workerData, setWorkerData] = useState<Worker | null>(null);
   const [attendanceView, setAttendanceView] = useState<'weekly' | 'monthly'>('weekly');
   const [selectedWeekOffset, setSelectedWeekOffset] = useState(0);
   const [selectedMonth, setSelectedMonth] = useState(new Date());
@@ -93,7 +93,32 @@ export default function WorkerProfilePage() {
 
   const worker = workerData || initialWorker;
 
-  // Note: Worker data persistence is handled by the storage helper functions
+  // Load worker data from AsyncStorage on mount
+  useEffect(() => {
+    const loadWorkerData = async () => {
+      const storedWorkers = await loadWorkers();
+      const storedWorker = storedWorkers[id as string];
+
+      if (storedWorker) {
+        // Merge with initial worker data for complete profile
+        const mergedWorker: Worker = {
+          ...initialWorker,
+          ...storedWorker,
+          attendance: storedWorker.attendance || [],
+          advances: storedWorker.advances || [],
+          payments: storedWorker.payments || [],
+          overtime: storedWorker.overtime || 0,
+          otherAdjustments: storedWorker.otherAdjustments || 0,
+        };
+        setWorkerData(mergedWorker);
+      } else {
+        // Use initial worker data if no stored data
+        setWorkerData(initialWorker);
+      }
+    };
+
+    loadWorkerData();
+  }, [id, initialWorker]);
 
   // Show toast notification
   const showToast = (message: string) => {
