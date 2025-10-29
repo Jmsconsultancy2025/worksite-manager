@@ -11,9 +11,8 @@ import { Switch } from '../ui/switch';
 import { Select, SelectTrigger, SelectValue, SelectContent } from '../ui/select';
 import { SelectItem } from '../ui/select';
 import { Separator } from '../ui/separator';
-import { getUserSubscription, PLAN_LIMITS } from '../lib/storage';
 
-type SettingsView = 'main' | 'profile' | 'preferences' | 'attendance' | 'salary' | 'cashbook' | 'about';
+type SettingsView = 'main' | 'profile' | 'preferences' | 'attendance' | 'salary' | 'cashbook';
 
 interface SettingsModalProps {
   isOpen: boolean;
@@ -56,13 +55,6 @@ const settingsItems = [
     description: 'Default categories and preferences',
     view: 'cashbook' as SettingsView
   },
-  {
-    id: 'about',
-    icon: 'info',
-    title: 'About',
-    description: 'App version and support',
-    view: 'about' as SettingsView
-  }
 ];
 
 const payrollCycleItems = [
@@ -88,36 +80,8 @@ export function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
     const [payrollCycle, setPayrollCycle] = useState("monthly");
     const [workingHours, setWorkingHours] = useState("8");
     const [categories, setCategories] = useState(defaultCategories);
-    const [currentSubscription, setCurrentSubscription] = useState({ plan: 'basic', status: 'active' });
 
-    useEffect(() => {
-      const loadSubscription = async () => {
-        try {
-          const subscription = await getUserSubscription();
-          setCurrentSubscription(subscription);
-          console.log('DEBUG subscription load', { subscription, getUserSubscription: typeof getUserSubscription });
-        } catch (error) {
-          console.error('Error loading subscription:', error);
-          setCurrentSubscription({ plan: 'basic', status: 'active' });
-        }
-      };
-      if (isOpen) {
-        loadSubscription();
-      }
-    }, [isOpen]);
 
-    const planKey = currentSubscription?.plan ?? 'basic';
-    const planLimits = PLAN_LIMITS?.[planKey] ?? {};
-
-    console.log('DEBUG PLAN_LIMITS', { planKey, planLimits, PLAN_LIMITS });
-
-    if (!planLimits) {
-      return (
-        <View style={styles.loadingContainer}>
-          <Text style={styles.loadingText}>Loading subscription data...</Text>
-        </View>
-      );
-    }
 
   const handleBack = () => {
     setCurrentView('main');
@@ -146,7 +110,6 @@ export function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
       case 'attendance': return 'Attendance Settings';
       case 'salary': return 'Salary Settings';
       case 'cashbook': return 'Cashbook Settings';
-      case 'about': return 'About';
       default: return 'Settings';
     }
   };
@@ -164,38 +127,6 @@ export function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
         <DialogDescription>{getViewDescription()}</DialogDescription>
       </DialogHeader>
 
-      {/* Current Plan Display */}
-      <View style={styles.planDisplay}>
-        <View style={styles.planHeader}>
-          <MaterialIcons name="star" size={20} color="#4CAF50" />
-          <Text style={styles.planTitle}>Current Plan</Text>
-        </View>
-        <View style={styles.planInfo}>
-          <Text style={styles.planName}>
-            {planKey.charAt(0).toUpperCase() + planKey.slice(1)} Plan
-          </Text>
-          <Text style={styles.planDetails}>
-            {planLimits?.maxWorkers === -1 ? 'Unlimited' : planLimits?.maxWorkers ?? 0} workers •
-            {planLimits?.maxSites === -1 ? 'Unlimited' : planLimits?.maxSites ?? 0} sites
-          </Text>
-        </View>
-        <Button
-          variant="outline"
-          size="sm"
-          style={styles.upgradeButton}
-          onPress={() => {
-            onClose();
-            router.push('/plans');
-          }}
-        >
-          <Text style={styles.upgradeButtonText}>
-            {planKey === 'pro' ? 'Manage Plan' : 'Upgrade Plan'}
-          </Text>
-        </Button>
-      </View>
-
-
-      <Separator />
 
       <View style={styles.menuContainer}>
         {settingsItems.map((item) => {
@@ -434,44 +365,6 @@ export function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
     </View>
   );
 
-  const renderAboutView = () => (
-    <View style={styles.viewContainer}>
-      <Button variant="ghost" style={styles.backButton} onPress={handleBack}>
-        <View style={styles.backContent}>
-          <MaterialIcons name="arrow-back" size={16} color="#6B7280" />
-          <Text style={styles.backText}>Back</Text>
-        </View>
-      </Button>
-
-      <DialogHeader>
-        <DialogTitle>{getViewTitle()}</DialogTitle>
-        <DialogDescription>{getViewDescription()}</DialogDescription>
-      </DialogHeader>
-
-      <View style={styles.aboutContainer}>
-        <View style={styles.appHeader}>
-          <Text style={styles.appName}>Worksite</Text>
-          <Text style={styles.appVersion}>Version 1.0.0</Text>
-        </View>
-
-        <View style={styles.aboutButtons}>
-          <Button variant="outline" style={styles.aboutButton}>
-            Contact Support
-          </Button>
-
-          <Button variant="outline" style={styles.aboutButton}>
-            Privacy Policy
-          </Button>
-
-          <Button variant="outline" style={styles.aboutButton}>
-            Terms of Service
-          </Button>
-        </View>
-
-        <Text style={styles.footerText}>© 2025 MizTech. All rights reserved.</Text>
-      </View>
-    </View>
-  );
 
   const renderCurrentView = () => {
     switch (currentView) {
@@ -480,7 +373,6 @@ export function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
       case 'attendance': return renderAttendanceView();
       case 'salary': return renderSalaryView();
       case 'cashbook': return renderCashbookView();
-      case 'about': return renderAboutView();
       default: return renderMainView();
     }
   };
@@ -644,35 +536,6 @@ const styles = StyleSheet.create({
   },
   addButton: {
     marginTop: 12,
-  },
-  aboutContainer: {
-    gap: 24,
-    alignItems: 'center',
-  },
-  appHeader: {
-    alignItems: 'center',
-    gap: 8,
-  },
-  appName: {
-    fontSize: 24,
-    fontWeight: '600',
-    color: '#2E7D32',
-  },
-  appVersion: {
-    fontSize: 14,
-    color: '#6B7280',
-  },
-  aboutButtons: {
-    gap: 12,
-    width: '100%',
-  },
-  aboutButton: {
-    width: '100%',
-  },
-  footerText: {
-    fontSize: 12,
-    color: '#6B7280',
-    textAlign: 'center',
   },
   saveButton: {
     width: '100%',
