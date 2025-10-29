@@ -15,7 +15,7 @@ import { Pressable } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { MaterialIcons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
-import { updateAttendance, loadWorkers, updateWorkerHiddenStatus, checkWorkerLimit, getUserSubscription } from '../lib/storage';
+import { updateAttendance, loadWorkers, updateWorkerHiddenStatus, checkWorkerLimit, getUserSubscription, updateSalary } from '../lib/storage';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { AddWorkerModal, NewWorkerData } from '../components/AddWorkerModal';
 
@@ -32,65 +32,71 @@ interface Worker {
   maxAdvanceLimit: number;
   hidden: boolean;
   todayAdvanceTotal: number;
+  dailyRate: number;
 }
 
 // Mock worker data
 const initialWorkers: Worker[] = [
-  {
-    id: '1',
-    name: 'Sanga',
-    phone: '9876543210',
-    role: 'Mason',
-    attendanceStatus: null,
-    overtime: false,
-    maxAdvanceLimit: 5000,
-    hidden: false,
-    todayAdvanceTotal: 0,
-  },
-  {
-    id: '2',
-    name: 'Liana',
-    phone: '9876543211',
-    role: 'Helper',
-    attendanceStatus: null,
-    overtime: false,
-    maxAdvanceLimit: 3000,
-    hidden: false,
-    todayAdvanceTotal: 0,
-  },
-  {
-    id: '3',
-    name: 'Rema',
-    phone: '9876543212',
-    role: 'Carpenter',
-    attendanceStatus: null,
-    overtime: false,
-    maxAdvanceLimit: 4500,
-    hidden: false,
-    todayAdvanceTotal: 0,
-  },
-  {
-    id: '4',
-    name: 'Joseph',
-    phone: '9876543213',
-    role: 'Electrician',
-    attendanceStatus: null,
-    overtime: false,
-    maxAdvanceLimit: 4000,
-    hidden: false,
-    todayAdvanceTotal: 0,
-  },
-  {
-    id: '5',
-    name: 'Maria',
-    phone: '9876543214',
-    role: 'Painter',
-    attendanceStatus: null,
-    overtime: false,
-    maxAdvanceLimit: 3500,
-    hidden: false,
-    todayAdvanceTotal: 0,
-  },
+ {
+   id: '1',
+   name: 'Sanga',
+   phone: '9876543210',
+   role: 'Mason',
+   attendanceStatus: null,
+   overtime: false,
+   maxAdvanceLimit: 5000,
+   hidden: false,
+   todayAdvanceTotal: 0,
+   dailyRate: 500,
+ },
+ {
+   id: '2',
+   name: 'Liana',
+   phone: '9876543211',
+   role: 'Helper',
+   attendanceStatus: null,
+   overtime: false,
+   maxAdvanceLimit: 3000,
+   hidden: false,
+   todayAdvanceTotal: 0,
+   dailyRate: 300,
+ },
+ {
+   id: '3',
+   name: 'Rema',
+   phone: '9876543212',
+   role: 'Carpenter',
+   attendanceStatus: null,
+   overtime: false,
+   maxAdvanceLimit: 4500,
+   hidden: false,
+   todayAdvanceTotal: 0,
+   dailyRate: 450,
+ },
+ {
+   id: '4',
+   name: 'Joseph',
+   phone: '9876543213',
+   role: 'Electrician',
+   attendanceStatus: null,
+   overtime: false,
+   maxAdvanceLimit: 4000,
+   hidden: false,
+   todayAdvanceTotal: 0,
+   dailyRate: 400,
+ },
+ {
+   id: '5',
+   name: 'Maria',
+   phone: '9876543214',
+   role: 'Painter',
+   attendanceStatus: null,
+   overtime: false,
+   maxAdvanceLimit: 3500,
+   hidden: false,
+   todayAdvanceTotal: 0,
+   dailyRate: 350,
+ },
 ];
 
 export default function WorkersPage() {
@@ -116,10 +122,19 @@ export default function WorkersPage() {
       const updatedWorkers = initialWorkers.map(worker => {
         const storedWorker = storedWorkers[worker.id];
         if (storedWorker) {
+          // Check if attendance is expired (24 hours old)
+          let attendanceStatus = null;
+          if (storedWorker.attendance && storedWorker.attendance.length > 0) {
+            const latestAttendance = storedWorker.attendance[storedWorker.attendance.length - 1];
+            if (!isExpired(latestAttendance.markedAt)) {
+              attendanceStatus = latestAttendance.status === 'present' ? 'present' :
+                                latestAttendance.status === 'half' ? 'halfday' :
+                                latestAttendance.status === 'absent' ? 'absent' : null;
+            }
+          }
           return {
             ...worker,
-            attendanceStatus: storedWorker.attendance && storedWorker.attendance.length > 0 ?
-              storedWorker.attendance[storedWorker.attendance.length - 1].status : null,
+            attendanceStatus: attendanceStatus,
             hidden: storedWorker.hidden || false,
             todayAdvanceTotal: calculateTodayAdvanceTotal(storedWorker)
           };
@@ -207,12 +222,25 @@ export default function WorkersPage() {
   };
 
   // Handle attendance status change
-  const updateAttendanceStatus = async (workerId: string, status: AttendanceStatus) => {
+  const updateAttendanceStatus = async (workerId: string, status: AttendanceStatus, dailyRate?: number) => {
     const today = new Date().toISOString().split('T')[0];
     const attendanceStatus = status === 'present' ? 'present' : status === 'halfday' ? 'half' : status === 'absent' ? 'absent' : 'holiday';
 
     // Save to AsyncStorage using the storage helper
     await updateAttendance(workerId, today, attendanceStatus);
+
+    // Update salary based on attendance status
+    if (dailyRate) {
+      let salaryAmount = 0;
+      if (status === 'present') {
+        salaryAmount = dailyRate;
+      } else if (status === 'halfday') {
+        salaryAmount = dailyRate * 0.5;
+      } else if (status === 'absent') {
+        salaryAmount = 0;
+      }
+      await updateSalary(workerId, today, salaryAmount);
+    }
 
     // Update local state
     setWorkers(prevWorkers =>
@@ -228,7 +256,7 @@ export default function WorkersPage() {
   // Handle badge click
   const handleBadgeClick = async (worker: Worker, status: AttendanceStatus) => {
     const newStatus = worker.attendanceStatus === status ? null : status;
-    await updateAttendanceStatus(worker.id, newStatus);
+    await updateAttendanceStatus(worker.id, newStatus, worker.dailyRate);
   };
 
   // Open options menu
@@ -542,6 +570,8 @@ export default function WorkersPage() {
       overtime: false,
       maxAdvanceLimit: 5000, // Default limit
       hidden: false,
+      todayAdvanceTotal: 0,
+      dailyRate: 400, // Default daily rate
     };
 
     setWorkers(prev => [...prev, newWorker]);

@@ -56,6 +56,36 @@ export async function updateAttendance(workerId, dateISO, status) {
   return workers[workerId];
 }
 
+export async function updateSalary(workerId, dateISO, amount) {
+  const workers = await loadWorkers();
+
+  if (!workers[workerId]) {
+    workers[workerId] = { salary: [] };
+  }
+
+  if (!workers[workerId].salary) {
+    workers[workerId].salary = [];
+  }
+
+  // Find existing or create new
+  const existingIndex = workers[workerId].salary.findIndex(s => s.date === dateISO);
+
+  const record = {
+    date: dateISO,
+    amount: amount,
+    recordedAt: Date.now()
+  };
+
+  if (existingIndex >= 0) {
+    workers[workerId].salary[existingIndex] = record;
+  } else {
+    workers[workerId].salary.push(record);
+  }
+
+  await saveWorkers(workers);
+  return workers[workerId];
+}
+
 export function isExpired(markedAt) {
   if (!markedAt) return false;
   const now = Date.now();
