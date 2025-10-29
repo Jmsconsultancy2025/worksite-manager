@@ -63,6 +63,20 @@ class Token(BaseModel):
     user: User
 
 
+# ==================== WORKER MODELS ====================
+
+class Site(BaseModel):
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    name: str
+    location: str
+    user_id: str
+    created_at: datetime = Field(default_factory=datetime.utcnow)
+
+class SiteCreate(BaseModel):
+    name: str
+    location: str
+
+
 # Define Models
 class StatusCheck(BaseModel):
     id: str = Field(default_factory=lambda: str(uuid.uuid4()))
