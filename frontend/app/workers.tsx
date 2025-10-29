@@ -14,7 +14,7 @@ import {
 import { Pressable } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { MaterialIcons } from '@expo/vector-icons';
-import { useRouter } from 'expo-router';
+import { useRouter, useLocalSearchParams } from 'expo-router';
 import { updateAttendance, loadWorkers, updateWorkerHiddenStatus, checkWorkerLimit, getUserSubscription, updateSalary } from '../lib/storage';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { AddWorkerModal, NewWorkerData } from '../components/AddWorkerModal';
@@ -33,78 +33,85 @@ interface Worker {
   hidden: boolean;
   todayAdvanceTotal: number;
   dailyRate: number;
+  site: string;
 }
 
 // Mock worker data
 const initialWorkers: Worker[] = [
- {
-   id: '1',
-   name: 'Sanga',
-   phone: '9876543210',
-   role: 'Mason',
-   attendanceStatus: null,
-   overtime: false,
-   maxAdvanceLimit: 5000,
-   hidden: false,
-   todayAdvanceTotal: 0,
-   dailyRate: 500,
- },
- {
-   id: '2',
-   name: 'Liana',
-   phone: '9876543211',
-   role: 'Helper',
-   attendanceStatus: null,
-   overtime: false,
-   maxAdvanceLimit: 3000,
-   hidden: false,
-   todayAdvanceTotal: 0,
-   dailyRate: 300,
- },
- {
-   id: '3',
-   name: 'Rema',
-   phone: '9876543212',
-   role: 'Carpenter',
-   attendanceStatus: null,
-   overtime: false,
-   maxAdvanceLimit: 4500,
-   hidden: false,
-   todayAdvanceTotal: 0,
-   dailyRate: 450,
- },
- {
-   id: '4',
-   name: 'Joseph',
-   phone: '9876543213',
-   role: 'Electrician',
-   attendanceStatus: null,
-   overtime: false,
-   maxAdvanceLimit: 4000,
-   hidden: false,
-   todayAdvanceTotal: 0,
-   dailyRate: 400,
- },
- {
-   id: '5',
-   name: 'Maria',
-   phone: '9876543214',
-   role: 'Painter',
-   attendanceStatus: null,
-   overtime: false,
-   maxAdvanceLimit: 3500,
-   hidden: false,
-   todayAdvanceTotal: 0,
-   dailyRate: 350,
- },
+  {
+    id: '1',
+    name: 'Sanga',
+    phone: '9876543210',
+    role: 'Mason',
+    attendanceStatus: null,
+    overtime: false,
+    maxAdvanceLimit: 5000,
+    hidden: false,
+    todayAdvanceTotal: 0,
+    dailyRate: 500,
+    site: 'Site A',
+  },
+  {
+    id: '2',
+    name: 'Liana',
+    phone: '9876543211',
+    role: 'Helper',
+    attendanceStatus: null,
+    overtime: false,
+    maxAdvanceLimit: 3000,
+    hidden: false,
+    todayAdvanceTotal: 0,
+    dailyRate: 300,
+    site: 'Site B',
+  },
+  {
+    id: '3',
+    name: 'Rema',
+    phone: '9876543212',
+    role: 'Carpenter',
+    attendanceStatus: null,
+    overtime: false,
+    maxAdvanceLimit: 4500,
+    hidden: false,
+    todayAdvanceTotal: 0,
+    dailyRate: 450,
+    site: 'Site A',
+  },
+  {
+    id: '4',
+    name: 'Joseph',
+    phone: '9876543213',
+    role: 'Electrician',
+    attendanceStatus: null,
+    overtime: false,
+    maxAdvanceLimit: 4000,
+    hidden: false,
+    todayAdvanceTotal: 0,
+    dailyRate: 400,
+    site: 'Site C',
+  },
+  {
+    id: '5',
+    name: 'Maria',
+    phone: '9876543214',
+    role: 'Painter',
+    attendanceStatus: null,
+    overtime: false,
+    maxAdvanceLimit: 3500,
+    hidden: false,
+    todayAdvanceTotal: 0,
+    dailyRate: 350,
+    site: 'Site B',
+  },
 ];
 
 export default function WorkersPage() {
   const router = useRouter();
+  const { site } = useLocalSearchParams();
   const [searchQuery, setSearchQuery] = useState('');
   const [workers, setWorkers] = useState<Worker[]>(initialWorkers);
   const [showHiddenWorkers, setShowHiddenWorkers] = useState(false);
-  const siteParam = router.query?.site as string;
+  const siteParam = site as string;
 
   // Helper function to calculate today's advance total for a worker
   const calculateTodayAdvanceTotal = (workerData: any): number => {
@@ -200,7 +207,7 @@ export default function WorkersPage() {
     (worker) => {
       const matchesSearch = worker.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
                             worker.phone.includes(searchQuery);
-      const matchesSite = !siteParam || worker.site === siteParam;
+      const matchesSite = !siteParam || siteParam === 'All Sites' || worker.site === siteParam;
       const matchesHidden = showHiddenWorkers || !worker.hidden;
       return matchesSearch && matchesSite && matchesHidden;
     }
@@ -571,7 +578,8 @@ export default function WorkersPage() {
       maxAdvanceLimit: 5000, // Default limit
       hidden: false,
       todayAdvanceTotal: 0,
-      dailyRate: 400, // Default daily rate
+      dailyRate: newWorkerData.dailyRate,
+      site: newWorkerData.site || siteParam || 'All Sites',
     };
 
     setWorkers(prev => [...prev, newWorker]);
