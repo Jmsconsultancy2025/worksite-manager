@@ -115,49 +115,55 @@ export default function WorkersPage() {
 
   // Helper function to calculate today's advance total for a worker
   const calculateTodayAdvanceTotal = (workerData: any): number => {
-    if (!workerData || !workerData.advances) return 0;
+    if (!workerData || !Array.isArray(workerData.advances)) return 0;
     const today = new Date().toISOString().split('T')[0];
     return workerData.advances
-      .filter((advance: any) => advance.date === today)
+      .filter((advance: any) => advance && typeof advance === 'object' && advance.date === today && typeof advance.amount === 'number')
       .reduce((total: number, advance: any) => total + advance.amount, 0);
   };
 
   // Load workers data from AsyncStorage on mount
   useEffect(() => {
     const loadData = async () => {
-      const storedWorkersList = await loadWorkersList();
-      const storedWorkers = await loadWorkers();
+      try {
+        const storedWorkersList = await loadWorkersList();
+        const storedWorkers = await loadWorkers();
 
-      // If no stored workers list, use initial workers and save them
-      let workersToUse = storedWorkersList.length > 0 ? storedWorkersList : initialWorkers;
+        // If no stored workers list, use initial workers and save them
+        let workersToUse = Array.isArray(storedWorkersList) && storedWorkersList.length > 0 ? storedWorkersList : initialWorkers;
 
-      const updatedWorkers = workersToUse.map(worker => {
-        const storedWorker = storedWorkers[worker.id];
-        if (storedWorker) {
-          // Check if attendance is expired (24 hours old)
-          let attendanceStatus = null;
-          if (storedWorker.attendance && storedWorker.attendance.length > 0) {
-            const latestAttendance = storedWorker.attendance[storedWorker.attendance.length - 1];
-            if (!isExpired(latestAttendance.markedAt)) {
-              attendanceStatus = latestAttendance.status === 'present' ? 'present' :
-                                latestAttendance.status === 'half' ? 'halfday' :
-                                latestAttendance.status === 'absent' ? 'absent' : null;
+        const updatedWorkers = workersToUse.map(worker => {
+          const storedWorker = storedWorkers[worker.id];
+          if (storedWorker) {
+            // Check if attendance is expired (24 hours old)
+            let attendanceStatus = null;
+            if (Array.isArray(storedWorker.attendance) && storedWorker.attendance.length > 0) {
+              const latestAttendance = storedWorker.attendance[storedWorker.attendance.length - 1];
+              if (latestAttendance && !isExpired(latestAttendance.markedAt)) {
+                attendanceStatus = latestAttendance.status === 'present' ? 'present' :
+                                  latestAttendance.status === 'half' ? 'halfday' :
+                                  latestAttendance.status === 'absent' ? 'absent' : null;
+              }
             }
+            return {
+              ...worker,
+              attendanceStatus: attendanceStatus,
+              hidden: storedWorker.hidden || false,
+              todayAdvanceTotal: calculateTodayAdvanceTotal(storedWorker)
+            };
           }
-          return {
-            ...worker,
-            attendanceStatus: attendanceStatus,
-            hidden: storedWorker.hidden || false,
-            todayAdvanceTotal: calculateTodayAdvanceTotal(storedWorker)
-          };
-        }
-        return worker;
-      });
-      setWorkers(updatedWorkers);
+          return worker;
+        });
+        setWorkers(updatedWorkers);
 
-      // Save initial workers if none were stored
-      if (storedWorkersList.length === 0) {
-        await saveWorkersList(initialWorkers);
+        // Save initial workers if none were stored
+        if (!Array.isArray(storedWorkersList) || storedWorkersList.length === 0) {
+          await saveWorkersList(initialWorkers);
+        }
+      } catch (error) {
+        console.error('Error loading workers data:', error);
+        // Fallback to initial workers
+        setWorkers(initialWorkers);
       }
     };
     loadData();
@@ -224,16 +230,20 @@ export default function WorkersPage() {
   );
 
   const getTodayAttendanceStatus = async (workerId: string): Promise<AttendanceStatus> => {
-    const storedWorkers = await loadWorkers();
-    const workerData = storedWorkers[workerId];
-    if (workerData && workerData.attendance) {
-      const today = new Date().toISOString().split('T')[0];
-      const todayRecord = workerData.attendance.find(a => a.date === today);
-      if (todayRecord) {
-        return todayRecord.status === 'present' ? 'present' :
-               todayRecord.status === 'half' ? 'halfday' :
-               todayRecord.status === 'absent' ? 'absent' : null;
+    try {
+      const storedWorkers = await loadWorkers();
+      const workerData = storedWorkers[workerId];
+      if (workerData && Array.isArray(workerData.attendance)) {
+        const today = new Date().toISOString().split('T')[0];
+        const todayRecord = workerData.attendance.find(a => a && typeof a === 'object' && a.date === today);
+        if (todayRecord) {
+          return todayRecord.status === 'present' ? 'present' :
+                 todayRecord.status === 'half' ? 'halfday' :
+                 todayRecord.status === 'absent' ? 'absent' : null;
+        }
       }
+    } catch (error) {
+      console.error('Error getting attendance status:', error);
     }
     return null;
   };
