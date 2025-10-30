@@ -683,8 +683,19 @@ export default function WorkersPage() {
           contentContainerStyle={styles.workersListContent}
           showsVerticalScrollIndicator={false}
         >
-          {filteredWorkers.map((worker) => {
-            const displayWorker = worker;
+          {filteredWorkers.length === 0 ? (
+            <View style={styles.emptyState}>
+              <MaterialIcons name="people-outline" size={64} color="#BDBDBD" />
+              <Text style={styles.emptyStateTitle}>No Workers Found</Text>
+              <Text style={styles.emptyStateText}>
+                {siteParam && siteParam !== 'All Sites' 
+                  ? `No workers found for ${siteParam}`
+                  : 'No workers available. Add a worker to get started!'}
+              </Text>
+            </View>
+          ) : (
+            filteredWorkers.map((worker) => {
+              const displayWorker = worker;
 
             return (
               <TouchableOpacity
