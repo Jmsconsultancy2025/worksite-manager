@@ -787,7 +787,7 @@ export default function WorkersPage() {
               </View>
             </TouchableOpacity>
             );
-          })}
+          }))}
 
           {/* Bottom spacing */}
           <View style={{ height: 100 }} />
