@@ -229,6 +229,14 @@ export default function WorkersPage() {
     }
   );
 
+  // Debug logging
+  useEffect(() => {
+    console.log('Workers Page - Site Param:', siteParam);
+    console.log('Workers Page - Total Workers:', workers.length);
+    console.log('Workers Page - Filtered Workers:', filteredWorkers.length);
+    console.log('Workers Page - Worker Sites:', workers.map(w => w.site));
+  }, [siteParam, workers, filteredWorkers]);
+
   const getTodayAttendanceStatus = async (workerId: string): Promise<AttendanceStatus> => {
     try {
       const storedWorkers = await loadWorkers();
