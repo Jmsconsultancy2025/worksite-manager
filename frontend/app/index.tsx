@@ -127,7 +127,9 @@ export default function Index() {
 
   console.log("App entry loaded");
   return (
-    <SafeAreaView style={styles.safeArea}>
+    <>
+      <Stack.Screen options={{ headerShown: false }} />
+      <SafeAreaView style={styles.safeArea}>
       <StatusBar barStyle="dark-content" backgroundColor="#FFFFFF" />
 
       {/* Top Navigation Bar */}
@@ -281,6 +283,7 @@ export default function Index() {
         </TouchableOpacity>
       </View>
     </SafeAreaView>
+    </>
   );
 }
 
