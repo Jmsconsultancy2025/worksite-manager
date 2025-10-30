@@ -197,29 +197,15 @@ export default function WorkerProfilePage() {
   // Get attendance for a specific date
   const getAttendanceForDate = (date: Date): AttendanceRecord | undefined => {
     const dateStr = date.toISOString().split('T')[0];
-    return worker.attendance.find(a => a.date === dateStr);
+    return worker?.attendance.find(a => a.date === dateStr);
   };
-
-  // Calculate weekly stats
-  const weeklyStats = useMemo(() => {
-    const weekDateStrings = weekDates.map(d => d.toISOString().split('T')[0]);
-    const weekAttendance = worker.attendance.filter(a => weekDateStrings.includes(a.date));
-    
-    return {
-      workingDays: weekAttendance.filter(a => a.status !== 'holiday').length,
-      present: weekAttendance.filter(a => a.status === 'present').length,
-      half: weekAttendance.filter(a => a.status === 'half').length,
-      absent: weekAttendance.filter(a => a.status === 'absent').length,
-    };
-  }, [selectedWeekOffset, worker.attendance]);
 
   // Get monthly calendar dates
   const getMonthDates = () => {
     const year = selectedMonth.getFullYear();
     const month = selectedMonth.getMonth();
-    const firstDay = new Date(year, month, 1);
     const lastDay = new Date(year, month + 1, 0);
-    
+
     const dates = [];
     for (let i = 1; i <= lastDay.getDate(); i++) {
       dates.push(new Date(year, month, i));
@@ -229,38 +215,49 @@ export default function WorkerProfilePage() {
 
   const monthDates = getMonthDates();
 
-  // Calculate salary stats
+  const weeklyStats = useMemo(() => {
+    const weekDateStrings = weekDates.map(d => d.toISOString().split('T')[0]);
+    const weekAttendance = worker?.attendance.filter(a => weekDateStrings.includes(a.date)) || [];
+
+    return {
+      workingDays: weekAttendance.filter(a => a.status !== 'holiday').length,
+      present: weekAttendance.filter(a => a.status === 'present').length,
+      half: weekAttendance.filter(a => a.status === 'half').length,
+      absent: weekAttendance.filter(a => a.status === 'absent').length,
+    };
+  }, [worker?.attendance, weekDates]);
+
   const salaryStats = useMemo(() => {
     const fromDate = new Date(dateFrom);
     const toDate = new Date(dateTo);
-    
-    const periodAttendance = worker.attendance.filter(a => {
+
+    const periodAttendance = worker?.attendance.filter(a => {
       const date = new Date(a.date);
       return date >= fromDate && date <= toDate;
-    });
-    
+    }) || [];
+
     const presentDays = periodAttendance.filter(a => a.status === 'present').length;
     const halfDays = periodAttendance.filter(a => a.status === 'half').length;
-    
-    const dailyEarnings = (worker.dailyRate * presentDays) + (worker.dailyRate * 0.5 * halfDays);
-    const totalAdvance = worker.advances
+
+    const dailyEarnings = (worker?.dailyRate || 0) * presentDays + (worker?.dailyRate || 0) * 0.5 * halfDays;
+    const totalAdvance = worker?.advances
       .filter(a => new Date(a.date) >= fromDate && new Date(a.date) <= toDate)
-      .reduce((sum, a) => sum + a.amount, 0);
-    
-    const totalEarnings = dailyEarnings + worker.overtime + worker.otherAdjustments;
+      .reduce((sum, a) => sum + a.amount, 0) || 0;
+
+    const totalEarnings = dailyEarnings + (worker?.overtime || 0) + (worker?.otherAdjustments || 0);
     const netPayable = totalEarnings - totalAdvance;
-    
+
     return {
       dailyEarnings,
       totalAdvance,
-      overtime: worker.overtime,
-      otherAdjustments: worker.otherAdjustments,
+      overtime: worker?.overtime || 0,
+      otherAdjustments: worker?.otherAdjustments || 0,
       totalEarnings,
       netPayable,
     };
   }, [dateFrom, dateTo, worker]);
 
-  // Handle advance payment
+  // Handle advance payment (unused function, keeping for potential future use)
   const handleAddAdvance = async () => {
     if (!workerData) return;
 
@@ -277,7 +274,7 @@ export default function WorkerProfilePage() {
 
     const updatedWorkerData = {
       ...workerData,
-      advances: [...workerData.advances, newAdvance],
+      advances: [...(workerData.advances || []), newAdvance],
     };
 
     // Note: Data persistence handled by storage helper
@@ -308,7 +305,7 @@ export default function WorkerProfilePage() {
 
     const updatedWorkerData = {
       ...workerData,
-      payments: [...workerData.payments, newPayment],
+      payments: [...(workerData.payments || []), newPayment],
     };
 
     // Note: Data persistence handled by storage helper
@@ -336,7 +333,7 @@ export default function WorkerProfilePage() {
 
     const updatedWorkerData = {
       ...workerData,
-      advances: [...workerData.advances, newAdvance],
+      advances: [...(workerData.advances || []), newAdvance],
     };
 
     // Note: Data persistence handled by storage helper
@@ -351,7 +348,7 @@ export default function WorkerProfilePage() {
   // Check if payout exists for a specific date
   const getPayoutForDate = (date: Date): number => {
     const dateStr = date.toISOString().split('T')[0];
-    const payout = worker.advances.find(a => a.date === dateStr);
+    const payout = worker?.advances.find(a => a.date === dateStr);
     return payout ? payout.amount : 0;
   };
 
@@ -424,6 +421,7 @@ export default function WorkerProfilePage() {
                             router.push('/workers');
                             showToast('Worker deleted successfully!');
                           } catch (error) {
+                            console.error('Error deleting worker:', error);
                             Alert.alert('Error', 'Failed to delete worker');
                           }
                         }
@@ -692,7 +690,7 @@ export default function WorkerProfilePage() {
           </View>
 
           {/* Transaction History */}
-          {workerData && workerData.payments.length > 0 && (
+          {workerData && workerData.payments && workerData.payments.length > 0 && (
             <View style={styles.transactionHistory}>
               <Text style={styles.transactionTitle}>Payment History</Text>
               {workerData.payments.map((payment) => (
@@ -700,10 +698,10 @@ export default function WorkerProfilePage() {
                   <View style={styles.transactionInfo}>
                     <Text style={styles.transactionAmount}>₹{payment.amount}</Text>
                     <Text style={styles.transactionDate}>
-                      {new Date(payment.date).toLocaleDateString('en-US', { 
-                        month: 'short', 
-                        day: 'numeric', 
-                        year: 'numeric' 
+                      {new Date(payment.date).toLocaleDateString('en-US', {
+                        month: 'short',
+                        day: 'numeric',
+                        year: 'numeric'
                       })}
                     </Text>
                   </View>
