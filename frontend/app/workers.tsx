@@ -1759,4 +1759,24 @@ const styles = StyleSheet.create({
     backgroundColor: '#E8F5E9',
     borderRadius: 8,
   },
+  emptyState: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 60,
+    paddingHorizontal: 32,
+  },
+  emptyStateTitle: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    color: '#424242',
+    marginTop: 16,
+    marginBottom: 8,
+  },
+  emptyStateText: {
+    fontSize: 14,
+    color: '#757575',
+    textAlign: 'center',
+    lineHeight: 20,
+  },
 });
