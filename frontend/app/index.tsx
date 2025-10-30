@@ -128,7 +128,7 @@ export default function Index() {
   console.log("App entry loaded");
   return (
     <>
-      <Stack.Screen options={{ headerShown: false }} />
+      {/* <Stack.Screen options={{ headerShown: false }} /> */}
       <SafeAreaView style={styles.safeArea}>
       <StatusBar barStyle="dark-content" backgroundColor="#FFFFFF" />
 
