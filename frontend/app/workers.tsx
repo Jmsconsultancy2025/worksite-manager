@@ -49,7 +49,7 @@ const initialWorkers: Worker[] = [
     hidden: false,
     todayAdvanceTotal: 0,
     dailyRate: 500,
-    site: 'Site A',
+    site: 'Zonuam Site',
   },
   {
     id: '2',
@@ -62,7 +62,7 @@ const initialWorkers: Worker[] = [
     hidden: false,
     todayAdvanceTotal: 0,
     dailyRate: 300,
-    site: 'Site B',
+    site: 'Pu Sanga Building Site',
   },
   {
     id: '3',
@@ -75,7 +75,7 @@ const initialWorkers: Worker[] = [
     hidden: false,
     todayAdvanceTotal: 0,
     dailyRate: 450,
-    site: 'Site A',
+    site: 'Zonuam Site',
   },
   {
     id: '4',
@@ -88,7 +88,7 @@ const initialWorkers: Worker[] = [
     hidden: false,
     todayAdvanceTotal: 0,
     dailyRate: 400,
-    site: 'Site C',
+    site: 'Chaltlang Site',
   },
   {
     id: '5',
@@ -101,7 +101,7 @@ const initialWorkers: Worker[] = [
     hidden: false,
     todayAdvanceTotal: 0,
     dailyRate: 350,
-    site: 'Site B',
+    site: 'Pu Sanga Building Site',
   },
 ];
 
