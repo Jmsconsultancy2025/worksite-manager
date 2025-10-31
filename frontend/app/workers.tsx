@@ -623,6 +623,9 @@ export default function WorkersPage() {
     await saveWorkersList(updatedWorkers);
 
     Alert.alert('Success', `Worker ${newWorkerData.name} added successfully!`);
+
+    // Close modal after successful addition
+    setIsAddWorkerModalOpen(false);
   };
 
   // Get badge style based on status
