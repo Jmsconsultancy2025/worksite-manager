@@ -11,6 +11,7 @@ import {
   Modal,
   Pressable,
   Alert,
+  Animated,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { MaterialIcons } from '@expo/vector-icons';
@@ -82,6 +83,21 @@ export default function CashbookPage() {
   const [formDescription, setFormDescription] = useState('');
   const [formAmount, setFormAmount] = useState('');
   const [formType, setFormType] = useState<'income' | 'expense'>('expense');
+
+  // Additional state variables for the extra modals
+  const [editingEntry, setEditingEntry] = useState<CashbookEntry | null>(null);
+  const [formDate, setFormDate] = useState('');
+  const [formCategory, setFormCategory] = useState('');
+  const [formPaymentMode, setFormPaymentMode] = useState<'cash' | 'upi' | 'bank'>('cash');
+  const [formHasGST, setFormHasGST] = useState(false);
+  const [formGSTAmount, setFormGSTAmount] = useState('');
+  const [datePickerVisible, setDatePickerVisible] = useState(false);
+  const [showToast, setShowToast] = useState(false);
+  const [toastMessage, setToastMessage] = useState('');
+  const toastOpacity = useState(new Animated.Value(0))[0];
+
+  // Categories for the entry modal
+  const categories = ['Labor', 'Materials', 'Equipment', 'Transport', 'Client Payment', 'Advance', 'Other'];
 
   // Filter entries by search and month
   const filteredEntries = useMemo(() => {
@@ -167,6 +183,42 @@ export default function CashbookPage() {
 
   const openTransactionModal = () => {
     setModalVisible(true);
+  };
+
+  // Additional functions for the extra modals
+  const formatDDMMYYYY = (dateStr: string) => {
+    const date = new Date(dateStr);
+    return date.toLocaleDateString('en-GB', { day: '2-digit', month: '2-digit', year: 'numeric' });
+  };
+
+  const openDatePicker = (type: 'entry') => {
+    setDatePickerVisible(true);
+  };
+
+  const handleDateSelect = (date: string) => {
+    setFormDate(date);
+    setDatePickerVisible(false);
+  };
+
+  const handleSaveEntry = () => {
+    // Placeholder for save logic
+    setModalVisible(false);
+    setEditingEntry(null);
+    setShowToast(true);
+    setToastMessage('Entry saved successfully!');
+    Animated.timing(toastOpacity, {
+      toValue: 1,
+      duration: 300,
+      useNativeDriver: true,
+    }).start(() => {
+      setTimeout(() => {
+        Animated.timing(toastOpacity, {
+          toValue: 0,
+          duration: 300,
+          useNativeDriver: true,
+        }).start(() => setShowToast(false));
+      }, 2000);
+    });
   };
 
   return (
@@ -358,8 +410,6 @@ export default function CashbookPage() {
           </Pressable>
         </Pressable>
       </Modal>
-    </SafeAreaView>
-  );
 
       {/* Entry Modal */}
       <Modal
@@ -372,10 +422,10 @@ export default function CashbookPage() {
           <Pressable style={styles.modalContent} onPress={(e) => e.stopPropagation()}>
             <ScrollView showsVerticalScrollIndicator={false}>
               <Text style={styles.modalTitle}>{editingEntry ? '✏️ Edit Entry' : '✨ Add New Entry'}</Text>
-              
+
               <View style={styles.formGroup}>
                 <Text style={styles.formLabel}>Date</Text>
-                <TouchableOpacity 
+                <TouchableOpacity
                   style={styles.formInput}
                   onPress={() => openDatePicker('entry')}
                 >
@@ -511,10 +561,10 @@ export default function CashbookPage() {
           <Pressable style={styles.datePickerModal} onPress={(e) => e.stopPropagation()}>
             <Text style={styles.datePickerTitle}>Select Date</Text>
             <Text style={styles.datePickerSubtitle}>Quick pick: Yesterday · Today · Custom</Text>
-            
+
             {/* Quick Date Buttons - Reordered: Yesterday | Today | Custom */}
             <View style={styles.quickDateButtons}>
-              <TouchableOpacity 
+              <TouchableOpacity
                 style={styles.quickDateButton}
                 accessibilityLabel="Select yesterday"
                 onPress={() => {
@@ -525,8 +575,8 @@ export default function CashbookPage() {
               >
                 <Text style={styles.quickDateText}>Yesterday</Text>
               </TouchableOpacity>
-              
-              <TouchableOpacity 
+
+              <TouchableOpacity
                 style={styles.quickDateButton}
                 accessibilityLabel="Select today"
                 onPress={() => {
@@ -536,8 +586,8 @@ export default function CashbookPage() {
               >
                 <Text style={styles.quickDateText}>Today</Text>
               </TouchableOpacity>
-              
-              <TouchableOpacity 
+
+              <TouchableOpacity
                 style={[styles.quickDateButton, styles.customButton]}
                 accessibilityLabel="Select custom date"
                 onPress={() => {
@@ -550,7 +600,7 @@ export default function CashbookPage() {
                 <Text style={[styles.quickDateText, styles.customButtonText]}>Custom</Text>
               </TouchableOpacity>
             </View>
-            
+
             {/* Custom Date Input */}
             <View style={styles.dateInputContainer}>
               <Text style={styles.customInputLabel}>Or enter custom date:</Text>
@@ -575,8 +625,8 @@ export default function CashbookPage() {
                 }}
               />
             </View>
-            
-            <TouchableOpacity 
+
+            <TouchableOpacity
               style={styles.datePickerClose}
               onPress={() => setDatePickerVisible(false)}
             >
@@ -593,30 +643,6 @@ export default function CashbookPage() {
           <Text style={styles.toastText}>{toastMessage}</Text>
         </Animated.View>
       )}
-
-      {/* Bottom Navigation */}
-      <View style={styles.bottomNav}>
-        <TouchableOpacity style={styles.navItem} onPress={() => router.push('/')}>
-          <MaterialIcons name="home" size={24} color="#9E9E9E" />
-          <Text style={styles.navLabel}>Home</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.navItem} onPress={() => router.push('/workers')}>
-          <MaterialIcons name="people" size={24} color="#9E9E9E" />
-          <Text style={styles.navLabel}>Workers</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.navItem}>
-          <MaterialIcons name="account-balance-wallet" size={24} color="#16A34A" />
-          <Text style={[styles.navLabel, styles.navLabelActive]}>Cashbook</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.navItem} onPress={() => router.push('/notes')}>
-          <MaterialIcons name="note" size={24} color="#9E9E9E" />
-          <Text style={styles.navLabel}>Notes</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.navItem}>
-          <MaterialIcons name="bar-chart" size={24} color="#9E9E9E" />
-          <Text style={styles.navLabel}>Reports</Text>
-        </TouchableOpacity>
-      </View>
     </SafeAreaView>
   );
 }
@@ -941,5 +967,212 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: '#FFFFFF',
     fontWeight: 'bold',
+  },
+  // Additional styles for the extra modals
+  formGroup: {
+    marginBottom: 16,
+  },
+  formLabel: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: '#374151',
+    marginBottom: 8,
+  },
+  formInput: {
+    borderWidth: 1,
+    borderColor: '#D1D5DB',
+    borderRadius: 8,
+    paddingHorizontal: 12,
+    paddingVertical: 12,
+    fontSize: 16,
+    color: '#111827',
+    backgroundColor: '#FFFFFF',
+  },
+  dateInputRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  dateInputText: {
+    fontSize: 16,
+    color: '#111827',
+    marginLeft: 8,
+  },
+  categoryScroll: {
+    marginTop: 8,
+  },
+  categoryChip: {
+    backgroundColor: '#F3F4F6',
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    borderRadius: 20,
+    marginRight: 8,
+  },
+  categoryChipActive: {
+    backgroundColor: '#4CAF50',
+  },
+  categoryChipText: {
+    fontSize: 14,
+    color: '#6B7280',
+  },
+  categoryChipTextActive: {
+    color: '#FFFFFF',
+  },
+  typeButtons: {
+    flexDirection: 'row',
+    marginTop: 8,
+  },
+  typeButtonExpense: {
+    backgroundColor: '#FEE2E2',
+    borderColor: '#F87171',
+  },
+  typeButtonIncome: {
+    backgroundColor: '#DCFCE7',
+    borderColor: '#4ADE80',
+  },
+  paymentModeButtons: {
+    flexDirection: 'row',
+    marginTop: 8,
+  },
+  paymentModeButton: {
+    flex: 1,
+    backgroundColor: '#F3F4F6',
+    paddingVertical: 12,
+    borderRadius: 8,
+    marginHorizontal: 4,
+    alignItems: 'center',
+  },
+  paymentModeButtonActive: {
+    backgroundColor: '#4CAF50',
+  },
+  paymentModeText: {
+    fontSize: 14,
+    color: '#6B7280',
+    fontWeight: '600',
+  },
+  paymentModeTextActive: {
+    color: '#FFFFFF',
+  },
+  gstToggleRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  gstToggle: {
+    width: 50,
+    height: 24,
+    borderRadius: 12,
+    backgroundColor: '#D1D5DB',
+    justifyContent: 'center',
+    paddingHorizontal: 2,
+  },
+  gstToggleActive: {
+    backgroundColor: '#4CAF50',
+  },
+  gstToggleThumb: {
+    width: 20,
+    height: 20,
+    borderRadius: 10,
+    backgroundColor: '#FFFFFF',
+    transform: [{ translateX: 0 }],
+  },
+  gstToggleThumbActive: {
+    transform: [{ translateX: 26 }],
+  },
+  datePickerModal: {
+    backgroundColor: '#FFFFFF',
+    borderRadius: 12,
+    padding: 24,
+    marginHorizontal: 20,
+    width: '90%',
+    maxWidth: 400,
+  },
+  datePickerTitle: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    color: '#1A237E',
+    textAlign: 'center',
+    marginBottom: 8,
+  },
+  datePickerSubtitle: {
+    fontSize: 14,
+    color: '#6B7280',
+    textAlign: 'center',
+    marginBottom: 24,
+  },
+  quickDateButtons: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginBottom: 24,
+  },
+  quickDateButton: {
+    flex: 1,
+    backgroundColor: '#F3F4F6',
+    paddingVertical: 12,
+    borderRadius: 8,
+    marginHorizontal: 4,
+    alignItems: 'center',
+  },
+  customButton: {
+    backgroundColor: '#4CAF50',
+  },
+  quickDateText: {
+    fontSize: 14,
+    color: '#374151',
+    fontWeight: '600',
+  },
+  customButtonText: {
+    color: '#FFFFFF',
+  },
+  dateInputContainer: {
+    marginBottom: 24,
+  },
+  customInputLabel: {
+    fontSize: 14,
+    color: '#6B7280',
+    marginBottom: 8,
+  },
+  datePickerInput: {
+    borderWidth: 1,
+    borderColor: '#D1D5DB',
+    borderRadius: 8,
+    paddingHorizontal: 12,
+    paddingVertical: 12,
+    fontSize: 16,
+    color: '#111827',
+    backgroundColor: '#FFFFFF',
+  },
+  datePickerClose: {
+    backgroundColor: '#F3F4F6',
+    paddingVertical: 12,
+    borderRadius: 8,
+    alignItems: 'center',
+  },
+  datePickerCloseText: {
+    fontSize: 16,
+    color: '#374151',
+    fontWeight: '600',
+  },
+  toast: {
+    position: 'absolute',
+    bottom: 120,
+    left: 20,
+    right: 20,
+    backgroundColor: '#4CAF50',
+    borderRadius: 8,
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    flexDirection: 'row',
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.25,
+    shadowRadius: 4,
+    elevation: 5,
+  },
+  toastText: {
+    fontSize: 14,
+    color: '#FFFFFF',
+    marginLeft: 8,
+    fontWeight: '600',
   },
 });
