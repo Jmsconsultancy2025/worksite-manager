@@ -18,8 +18,9 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { MaterialIcons } from '@expo/vector-icons';
 import { useRouter, useLocalSearchParams } from 'expo-router';
+import { useFocusEffect } from '@react-navigation/native';
 import { getWorkerById, Worker, AttendanceRecord } from '../../data/workers';
-import { updateAttendance as updateAttendanceStorage, isExpired } from '../../lib/storage';
+import { loadWorkers, updateAttendance as updateAttendanceStorage, isExpired } from '../../lib/storage';
 
 // Date formatting helper - DD-MM-YYYY format
 function formatDDMMYYYY(dateStr: string) {
@@ -93,32 +94,50 @@ export default function WorkerProfilePage() {
 
   const worker = workerData || initialWorker;
 
-  // Load worker data from AsyncStorage on mount
-  useEffect(() => {
-    const loadWorkerData = async () => {
-      const storedWorkers = await loadWorkers();
-      const storedWorker = storedWorkers[id as string];
+  useFocusEffect(
+    React.useCallback(() => {
+      let mounted = true;
 
-      if (storedWorker) {
-        // Merge with initial worker data for complete profile
-        const mergedWorker: Worker = {
-          ...initialWorker,
-          ...storedWorker,
-          attendance: storedWorker.attendance || [],
-          advances: storedWorker.advances || [],
-          payments: storedWorker.payments || [],
-          overtime: storedWorker.overtime || 0,
-          otherAdjustments: storedWorker.otherAdjustments || 0,
-        };
-        setWorkerData(mergedWorker);
-      } else {
-        // Use initial worker data if no stored data
-        setWorkerData(initialWorker);
-      }
-    };
+      const loadWorkerData = async () => {
+        try {
+          if (typeof loadWorkers !== 'function') {
+            console.warn('loadWorkers is not a function - check import');
+            if (mounted) setWorkerData(initialWorker);
+            return;
+          }
 
-    loadWorkerData();
-  }, [id, initialWorker]);
+          const storedWorkers = await loadWorkers();
+          const storedWorker = storedWorkers ? storedWorkers[id as string] : undefined;
+
+          if (!mounted) return;
+
+          if (storedWorker) {
+            const mergedWorker: Worker = {
+              ...initialWorker,
+              ...storedWorker,
+              attendance: storedWorker.attendance || [],
+              advances: storedWorker.advances || [],
+              payments: storedWorker.payments || [],
+              overtime: storedWorker.overtime || 0,
+              otherAdjustments: storedWorker.otherAdjustments || 0,
+            };
+            setWorkerData(mergedWorker);
+          } else {
+            setWorkerData(initialWorker);
+          }
+        } catch (err) {
+          console.error('Failed to load worker data', err);
+          if (mounted) setWorkerData(initialWorker);
+        }
+      };
+
+      loadWorkerData();
+
+      return () => {
+        mounted = false;
+      };
+    }, [id, initialWorker])
+  );
 
   // Show toast notification
   const showToast = (message: string) => {

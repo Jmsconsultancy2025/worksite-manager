@@ -15,6 +15,7 @@ import { Pressable } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { MaterialIcons } from '@expo/vector-icons';
 import { useRouter, useLocalSearchParams } from 'expo-router';
+import { useFocusEffect } from '@react-navigation/native';
 import { updateAttendance, loadWorkers, updateWorkerHiddenStatus, checkWorkerLimit, getUserSubscription, updateSalary, isExpired, loadWorkersList, saveWorkersList } from '../lib/storage';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { AddWorkerModal, NewWorkerData } from '../components/AddWorkerModal';
@@ -189,30 +190,32 @@ const useWorkersData = () => {
     await saveWorkersList(updatedWorkers);
   }, [workers]);
 
-  useEffect(() => {
-    loadData();
+  useFocusEffect(
+    React.useCallback(() => {
+      loadData();
 
-    // Set up interval to check for day change and reset advances at midnight
-    const checkDayChange = async () => {
-      const now = new Date();
-      const currentDate = now.toISOString().split('T')[0];
-      const lastCheckedDate = await AsyncStorage.getItem('lastAdvanceCheckDate');
+      // Set up interval to check for day change and reset advances at midnight
+      const checkDayChange = async () => {
+        const now = new Date();
+        const currentDate = now.toISOString().split('T')[0];
+        const lastCheckedDate = await AsyncStorage.getItem('lastAdvanceCheckDate');
 
-      if (lastCheckedDate !== currentDate) {
-        // Day has changed, reset todayAdvanceTotal for all workers
-        setWorkers(prevWorkers =>
-          prevWorkers.map(worker => ({ ...worker, todayAdvanceTotal: 0 }))
-        );
-        await AsyncStorage.setItem('lastAdvanceCheckDate', currentDate);
-      }
-    };
+        if (lastCheckedDate !== currentDate) {
+          // Day has changed, reset todayAdvanceTotal for all workers
+          setWorkers(prevWorkers =>
+            prevWorkers.map(worker => ({ ...worker, todayAdvanceTotal: 0 }))
+          );
+          await AsyncStorage.setItem('lastAdvanceCheckDate', currentDate);
+        }
+      };
 
-    // Check immediately and then every minute
-    checkDayChange();
-    const interval = setInterval(checkDayChange, 60000); // Check every minute
+      // Check immediately and then every minute
+      checkDayChange();
+      const interval = setInterval(checkDayChange, 60000); // Check every minute
 
-    return () => clearInterval(interval);
-  }, [loadData]);
+      return () => clearInterval(interval);
+    }, [loadData])
+  );
 
   return {
     workers,
