@@ -9,7 +9,7 @@ import {
   Alert,
 } from 'react-native';
 import { useRouter } from 'expo-router';
-import { MoreVertical, Trash2, Edit } from 'lucide-react-native';
+import { MaterialIcons } from '@expo/vector-icons';
 import { Menu, MenuOptions, MenuOption, MenuTrigger } from 'react-native-popup-menu';
 
 interface Site {
@@ -71,13 +71,13 @@ const SiteCard: React.FC<SiteCardProps> = ({ site, onDelete, onEdit }) => {
           >
             <MenuOption onSelect={handleEdit}>
               <View style={styles.menuOption}>
-                <Edit size={16} color="#424242" />
+                <MaterialIcons name="edit" size={16} color="#424242" />
                 <Text style={[styles.menuOptionText, { color: '#424242' }]}>Edit Site</Text>
               </View>
             </MenuOption>
             <MenuOption onSelect={handleDelete}>
               <View style={styles.menuOption}>
-                <Trash2 size={16} color="#E53935" />
+                <MaterialIcons name="delete" size={16} color="#E53935" />
                 <Text style={styles.menuOptionText}>Delete Site</Text>
               </View>
             </MenuOption>

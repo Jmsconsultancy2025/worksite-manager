@@ -1222,4 +1222,476 @@ export default function WorkersPage() {
               </View>
 
               <View style={styles.formGroup}>
-                <Text style
+                <Text style={styles.formLabel}>Role</Text>
+                <View style={styles.formInput}>
+                  <MaterialIcons name="work" size={20} color="#757575" />
+                  <TextInput
+                    style={styles.formInputField}
+                    value={formState.editRole}
+                    onChangeText={formState.setEditRole}
+                    placeholder="Enter worker role"
+                  />
+                </View>
+              </View>
+            </View>
+
+            <View style={styles.advanceModalButtons}>
+              <TouchableOpacity
+                style={styles.cancelButton}
+                onPress={() => modalState.setEditModalVisible(false)}
+              >
+                <Text style={styles.cancelButtonText}>Cancel</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={styles.giveAdvanceButton}
+                onPress={handleSaveEdit}
+              >
+                <Text style={styles.giveAdvanceButtonText}>Save Changes</Text>
+              </TouchableOpacity>
+            </View>
+          </Pressable>
+        </Pressable>
+      </Modal>
+    </SafeAreaView>
+  );
+}
+
+const styles = StyleSheet.create({
+ safeArea: {
+   flex: 1,
+   backgroundColor: '#FFFFFF',
+ },
+ container: {
+   flex: 1,
+   backgroundColor: '#FFFFFF',
+ },
+ loadingContainer: {
+   flex: 1,
+   justifyContent: 'center',
+   alignItems: 'center',
+ },
+ header: {
+   flexDirection: 'row',
+   alignItems: 'center',
+   paddingHorizontal: 16,
+   paddingVertical: 12,
+   borderBottomWidth: 1,
+   borderBottomColor: '#E0E0E0',
+ },
+ backButton: {
+   marginRight: 12,
+ },
+ headerTextContainer: {
+   flex: 1,
+ },
+ headerTitle: {
+   fontSize: 18,
+   fontWeight: 'bold',
+   color: '#1A237E',
+ },
+ headerSubtitle: {
+   fontSize: 14,
+   color: '#757575',
+   marginTop: 2,
+ },
+ searchContainer: {
+   flexDirection: 'row',
+   alignItems: 'center',
+   marginHorizontal: 16,
+   marginVertical: 12,
+   paddingHorizontal: 12,
+   paddingVertical: 8,
+   backgroundColor: '#F5F5F5',
+   borderRadius: 8,
+ },
+ searchIcon: {
+   marginRight: 8,
+ },
+ searchInput: {
+   flex: 1,
+   fontSize: 16,
+   color: '#333333',
+ },
+ toggleContainer: {
+   flexDirection: 'row',
+   alignItems: 'center',
+   justifyContent: 'space-between',
+   marginHorizontal: 16,
+   marginVertical: 8,
+ },
+ toggleLabel: {
+   fontSize: 16,
+   color: '#333333',
+ },
+ toggleSwitch: {
+   width: 50,
+   height: 24,
+   borderRadius: 12,
+   backgroundColor: '#E0E0E0',
+   justifyContent: 'center',
+   paddingHorizontal: 2,
+ },
+ toggleSwitchActive: {
+   backgroundColor: '#4CAF50',
+ },
+ toggleKnob: {
+   width: 20,
+   height: 20,
+   borderRadius: 10,
+   backgroundColor: '#FFFFFF',
+   transform: [{ translateX: 0 }],
+ },
+ toggleKnobActive: {
+   transform: [{ translateX: 26 }],
+ },
+ workersList: {
+   flex: 1,
+ },
+ workersListContent: {
+   paddingHorizontal: 16,
+   paddingTop: 8,
+ },
+ emptyState: {
+   alignItems: 'center',
+   justifyContent: 'center',
+   paddingVertical: 64,
+ },
+ emptyStateTitle: {
+   fontSize: 20,
+   fontWeight: 'bold',
+   color: '#757575',
+   marginTop: 16,
+ },
+ emptyStateText: {
+   fontSize: 16,
+   color: '#BDBDBD',
+   textAlign: 'center',
+   marginTop: 8,
+   paddingHorizontal: 32,
+ },
+ workerCard: {
+   flexDirection: 'row',
+   backgroundColor: '#FFFFFF',
+   borderRadius: 8,
+   padding: 16,
+   marginVertical: 4,
+   shadowColor: '#000',
+   shadowOffset: {
+     width: 0,
+     height: 1,
+   },
+   shadowOpacity: 0.1,
+   shadowRadius: 2,
+   elevation: 2,
+ },
+ leftColumn: {
+   flex: 1,
+ },
+ workerBasicInfo: {
+   flex: 1,
+ },
+ workerName: {
+   fontSize: 16,
+   fontWeight: 'bold',
+   color: '#333333',
+ },
+ workerPhone: {
+   fontSize: 14,
+   color: '#757575',
+   marginTop: 2,
+ },
+ workerRole: {
+   fontSize: 14,
+   color: '#757575',
+   marginTop: 2,
+ },
+ statusOptions: {
+   flexDirection: 'row',
+   alignItems: 'center',
+   marginTop: 8,
+ },
+ statusText: {
+   fontSize: 12,
+   fontWeight: 'bold',
+   marginRight: 8,
+ },
+ activeStatus: {
+   color: '#4CAF50',
+ },
+ hideButton: {
+   backgroundColor: '#FFC107',
+   paddingHorizontal: 8,
+   paddingVertical: 4,
+   borderRadius: 4,
+ },
+ hideButtonText: {
+   fontSize: 12,
+   color: '#FFFFFF',
+   fontWeight: 'bold',
+ },
+ activateButton: {
+   backgroundColor: '#4CAF50',
+   paddingHorizontal: 8,
+   paddingVertical: 4,
+   borderRadius: 4,
+ },
+ activateButtonText: {
+   fontSize: 12,
+   color: '#FFFFFF',
+   fontWeight: 'bold',
+ },
+ middleColumn: {
+   justifyContent: 'center',
+   marginHorizontal: 12,
+ },
+ statusRow: {
+   flexDirection: 'row',
+   alignItems: 'center',
+ },
+ badge: {
+   width: 32,
+   height: 32,
+   borderRadius: 16,
+   justifyContent: 'center',
+   alignItems: 'center',
+   marginRight: 8,
+ },
+ badgeText: {
+   fontSize: 14,
+   fontWeight: 'bold',
+ },
+ moreButton: {
+   width: 32,
+   height: 32,
+   borderRadius: 16,
+   justifyContent: 'center',
+   alignItems: 'center',
+   backgroundColor: '#F5F5F5',
+ },
+ rightColumn: {
+   justifyContent: 'center',
+ },
+ advanceButton: {
+   flexDirection: 'row',
+   alignItems: 'center',
+   paddingHorizontal: 12,
+   paddingVertical: 6,
+   borderRadius: 16,
+   borderWidth: 1,
+ },
+ advanceButtonDefault: {
+   borderColor: '#16A34A',
+   backgroundColor: '#F0FDF4',
+ },
+ advanceButtonPaid: {
+   borderColor: '#DC2626',
+   backgroundColor: '#FEF2F2',
+ },
+ advanceButtonText: {
+   fontSize: 12,
+   fontWeight: 'bold',
+   marginLeft: 4,
+ },
+ advanceButtonTextDefault: {
+   color: '#16A34A',
+ },
+ advanceButtonTextPaid: {
+   color: '#DC2626',
+ },
+ floatingButton: {
+   position: 'absolute',
+   bottom: 100,
+   right: 20,
+   width: 56,
+   height: 56,
+   borderRadius: 28,
+   backgroundColor: '#4CAF50',
+   justifyContent: 'center',
+   alignItems: 'center',
+   shadowColor: '#000',
+   shadowOffset: {
+     width: 0,
+     height: 2,
+   },
+   shadowOpacity: 0.25,
+   shadowRadius: 4,
+   elevation: 5,
+ },
+ bottomNav: {
+   flexDirection: 'row',
+   backgroundColor: '#FFFFFF',
+   borderTopWidth: 1,
+   borderTopColor: '#E0E0E0',
+   paddingVertical: 8,
+   paddingHorizontal: 16,
+ },
+ navItem: {
+   flex: 1,
+   alignItems: 'center',
+   justifyContent: 'center',
+ },
+ navLabel: {
+   fontSize: 12,
+   color: '#9E9E9E',
+   marginTop: 4,
+ },
+ navLabelActive: {
+   color: '#4CAF50',
+ },
+ modalOverlay: {
+   flex: 1,
+   backgroundColor: 'rgba(0, 0, 0, 0.5)',
+   justifyContent: 'center',
+   alignItems: 'center',
+ },
+ optionsModalContent: {
+   backgroundColor: '#FFFFFF',
+   borderRadius: 8,
+   padding: 16,
+   marginHorizontal: 32,
+   width: '80%',
+ },
+ optionsModalTitle: {
+   fontSize: 18,
+   fontWeight: 'bold',
+   color: '#333333',
+   marginBottom: 16,
+   textAlign: 'center',
+ },
+ optionItem: {
+   flexDirection: 'row',
+   alignItems: 'center',
+   paddingVertical: 12,
+   paddingHorizontal: 16,
+   borderBottomWidth: 1,
+   borderBottomColor: '#E0E0E0',
+ },
+ optionText: {
+   fontSize: 16,
+   color: '#333333',
+   marginLeft: 12,
+ },
+ advanceModalContent: {
+   backgroundColor: '#FFFFFF',
+   borderRadius: 8,
+   padding: 20,
+   marginHorizontal: 20,
+   width: '90%',
+   maxHeight: '80%',
+ },
+ advanceModalTitle: {
+   fontSize: 20,
+   fontWeight: 'bold',
+   color: '#333333',
+   marginBottom: 4,
+   textAlign: 'center',
+ },
+ modalSubtitle: {
+   fontSize: 16,
+   color: '#757575',
+   marginBottom: 20,
+   textAlign: 'center',
+ },
+ advanceForm: {
+   marginBottom: 20,
+ },
+ formGroup: {
+   marginBottom: 16,
+ },
+ formLabel: {
+   fontSize: 16,
+   fontWeight: 'bold',
+   color: '#333333',
+   marginBottom: 8,
+ },
+ formInputDisabled: {
+   flexDirection: 'row',
+   alignItems: 'center',
+   paddingHorizontal: 12,
+   paddingVertical: 12,
+   backgroundColor: '#F5F5F5',
+   borderRadius: 8,
+   borderWidth: 1,
+   borderColor: '#E0E0E0',
+ },
+ formInputText: {
+   fontSize: 16,
+   color: '#757575',
+   flex: 1,
+ },
+ formInput: {
+   flexDirection: 'row',
+   alignItems: 'center',
+   paddingHorizontal: 12,
+   paddingVertical: 8,
+   backgroundColor: '#FFFFFF',
+   borderRadius: 8,
+   borderWidth: 1,
+   borderColor: '#E0E0E0',
+ },
+ formInputField: {
+   fontSize: 16,
+   color: '#333333',
+   flex: 1,
+   marginLeft: 8,
+ },
+ formHint: {
+   fontSize: 12,
+   color: '#757575',
+   marginTop: 4,
+ },
+ textAreaInput: {
+   paddingHorizontal: 12,
+   paddingVertical: 8,
+   backgroundColor: '#FFFFFF',
+   borderRadius: 8,
+   borderWidth: 1,
+   borderColor: '#E0E0E0',
+   fontSize: 16,
+   color: '#333333',
+   textAlignVertical: 'top',
+ },
+ characterCount: {
+   fontSize: 12,
+   color: '#757575',
+   textAlign: 'right',
+   marginTop: 4,
+ },
+ calculationHint: {
+   fontSize: 14,
+   color: '#4CAF50',
+   fontWeight: 'bold',
+   textAlign: 'center',
+   marginTop: 8,
+ },
+ advanceModalButtons: {
+   flexDirection: 'row',
+   justifyContent: 'space-between',
+ },
+ cancelButton: {
+   flex: 1,
+   backgroundColor: '#F5F5F5',
+   paddingVertical: 12,
+   borderRadius: 8,
+   marginRight: 8,
+   alignItems: 'center',
+ },
+ cancelButtonText: {
+   fontSize: 16,
+   color: '#757575',
+   fontWeight: 'bold',
+ },
+ giveAdvanceButton: {
+   flex: 1,
+   backgroundColor: '#4CAF50',
+   paddingVertical: 12,
+   borderRadius: 8,
+   marginLeft: 8,
+   alignItems: 'center',
+ },
+ giveAdvanceButtonText: {
+   fontSize: 16,
+   color: '#FFFFFF',
+   fontWeight: 'bold',
+ },
+});
