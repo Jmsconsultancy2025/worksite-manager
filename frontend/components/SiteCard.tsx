@@ -61,7 +61,7 @@ const SiteCard: React.FC<SiteCardProps> = ({ site, onDelete, onEdit }) => {
           <MenuTrigger>
             {/* The outer View prevents the card's onPress from firing */}
             <View onStartShouldSetResponder={() => true} style={styles.menuTrigger}>
-              <MoreVertical size={20} color="#757575" />
+              <MaterialIcons name="more-vert" size={20} color="#757575" />
             </View>
           </MenuTrigger>
           <MenuOptions
