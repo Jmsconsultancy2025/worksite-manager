@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import {
   Text,
   View,
@@ -10,558 +10,356 @@ import {
   StatusBar,
   Modal,
   Pressable,
-  Animated,
   Alert,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { MaterialIcons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 
-// Date formatting helper (presentation only)
-function formatDDMMYYYY(dateStr: string) {
-  if (!dateStr) return '';
-  const d = new Date(dateStr);
-  const dd = String(d.getDate()).padStart(2, '0');
-  const mm = String(d.getMonth() + 1).padStart(2, '0');
-  const yyyy = d.getFullYear();
-  return `${dd}-${mm}-${yyyy}`;
-}
-
 // Types
 interface CashbookEntry {
   id: string;
   date: string;
+  time: string;
   description: string;
-  category: string;
   type: 'income' | 'expense';
-  paymentMode: 'cash' | 'upi' | 'bank';
   amount: number;
-  linkedProject: string;
-  hasGST: boolean;
-  gstAmount?: number;
 }
 
-// Sample data
+// Sample data - grouped by date for demonstration
 const sampleEntries: CashbookEntry[] = [
   {
     id: '1',
-    date: '2025-05-01',
+    date: '2025-09-20',
+    time: '04:54 PM',
     description: 'Client Payment - Grace Resort',
-    category: 'Booking Income',
     type: 'income',
-    paymentMode: 'bank',
     amount: 120000,
-    linkedProject: 'Zonuam Site',
-    hasGST: false,
   },
   {
     id: '2',
-    date: '2025-05-03',
+    date: '2025-09-20',
+    time: '02:30 PM',
     description: 'Worker Wages - Site A',
-    category: 'Payroll',
     type: 'expense',
-    paymentMode: 'cash',
     amount: 45000,
-    linkedProject: 'Zonuam Site',
-    hasGST: false,
   },
   {
     id: '3',
-    date: '2025-05-05',
+    date: '2025-09-19',
+    time: '11:15 AM',
     description: 'Construction Materials',
-    category: 'Materials',
     type: 'expense',
-    paymentMode: 'bank',
     amount: 35000,
-    linkedProject: 'Grace Resort',
-    hasGST: true,
-    gstAmount: 5250,
   },
   {
     id: '4',
-    date: '2025-05-07',
+    date: '2025-09-19',
+    time: '09:45 AM',
     description: 'Advance from Client',
-    category: 'Advance Payment',
     type: 'income',
-    paymentMode: 'upi',
     amount: 25000,
-    linkedProject: 'Chaltlang Site',
-    hasGST: false,
+  },
+  {
+    id: '5',
+    date: '2025-09-18',
+    time: '03:20 PM',
+    description: 'Equipment Purchase',
+    type: 'expense',
+    amount: 75000,
   },
 ];
-
-// Category colors mapping
-const categoryColors: { [key: string]: { bg: string; text: string } } = {
-  'Booking Income': { bg: '#D1FAE5', text: '#047857' },
-  'Payroll': { bg: '#E9D5FF', text: '#7C3AED' },
-  'Materials': { bg: '#FED7AA', text: '#C2410C' },
-  'Equipment': { bg: '#DBEAFE', text: '#1E40AF' },
-  'Transportation': { bg: '#CFFAFE', text: '#0E7490' },
-  'Utilities': { bg: '#FEF3C7', text: '#A16207' },
-  'Professional Services': { bg: '#FCE7F3', text: '#BE185D' },
-  'Office Expenses': { bg: '#E0E7FF', text: '#4338CA' },
-  'Marketing': { bg: '#FEE2E2', text: '#B91C1C' },
-  'Client Payment': { bg: '#D1FAE5', text: '#059669' },
-  'Advance Payment': { bg: '#CCFBF1', text: '#0F766E' },
-  'Other': { bg: '#F3F4F6', text: '#374151' },
-};
 
 export default function CashbookPage() {
   const router = useRouter();
   const [entries, setEntries] = useState<CashbookEntry[]>(sampleEntries);
   const [searchQuery, setSearchQuery] = useState('');
-  const [fromDate, setFromDate] = useState('');
-  const [toDate, setToDate] = useState('');
+  const [selectedMonth, setSelectedMonth] = useState('Sep 2025');
+  const [transactionType, setTransactionType] = useState<'income' | 'expense' | null>(null);
   const [modalVisible, setModalVisible] = useState(false);
-  const [editingEntry, setEditingEntry] = useState<CashbookEntry | null>(null);
-  const [toastMessage, setToastMessage] = useState('');
-  const [showToast, setShowToast] = useState(false);
-  const [datePickerVisible, setDatePickerVisible] = useState(false);
-  const [datePickerMode, setDatePickerMode] = useState<'from' | 'to' | 'entry'>('from');
-  
-  // Form state
-  const [formDate, setFormDate] = useState('');
+
+  // Form state for adding transactions
   const [formDescription, setFormDescription] = useState('');
-  const [formCategory, setFormCategory] = useState('');
-  const [formType, setFormType] = useState<'income' | 'expense'>('expense');
-  const [formPaymentMode, setFormPaymentMode] = useState<'cash' | 'upi' | 'bank'>('cash');
   const [formAmount, setFormAmount] = useState('');
-  const [formHasGST, setFormHasGST] = useState(false);
-  const [formGSTAmount, setFormGSTAmount] = useState('');
-  
-  // Animated values
-  const fabScale = useRef(new Animated.Value(0)).current;
-  const fabRotation = useRef(new Animated.Value(0)).current;
-  const toastOpacity = useRef(new Animated.Value(0)).current;
-  
-  // Load animations
-  useEffect(() => {
-    Animated.parallel([
-      Animated.spring(fabScale, {
-        toValue: 1,
-        delay: 300,
-        tension: 50,
-        friction: 7,
-        useNativeDriver: true,
-      }),
-      Animated.spring(fabRotation, {
-        toValue: 1,
-        delay: 300,
-        tension: 50,
-        friction: 7,
-        useNativeDriver: true,
-      }),
-    ]).start();
-  }, []);
+  const [formType, setFormType] = useState<'income' | 'expense'>('expense');
 
-  const fabRotate = fabRotation.interpolate({
-    inputRange: [0, 1],
-    outputRange: ['-180deg', '0deg'],
-  });
+  // Filter entries by search and month
+  const filteredEntries = useMemo(() => {
+    return entries.filter((entry) => {
+      const matchesSearch = entry.description.toLowerCase().includes(searchQuery.toLowerCase());
+      const entryDate = new Date(entry.date);
+      const entryMonthYear = entryDate.toLocaleDateString('en-US', { month: 'short', year: 'numeric' });
+      const matchesMonth = entryMonthYear === selectedMonth;
+      const matchesType = !transactionType || entry.type === transactionType;
+      return matchesSearch && matchesMonth && matchesType;
+    });
+  }, [entries, searchQuery, selectedMonth, transactionType]);
 
-  // Filter entries
-  const filteredEntries = entries.filter((entry) => {
-    const matchesSearch = entry.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                         entry.category.toLowerCase().includes(searchQuery.toLowerCase());
-    const matchesFromDate = !fromDate || entry.date >= fromDate;
-    const matchesToDate = !toDate || entry.date <= toDate;
-    return matchesSearch && matchesFromDate && matchesToDate;
-  });
+  // Group entries by date
+  const groupedEntries = useMemo(() => {
+    const groups: { [date: string]: CashbookEntry[] } = {};
+    filteredEntries.forEach(entry => {
+      if (!groups[entry.date]) {
+        groups[entry.date] = [];
+      }
+      groups[entry.date].push(entry);
+    });
 
-  // Calculate metrics
-  const totalIncome = filteredEntries
-    .filter(e => e.type === 'income')
-    .reduce((sum, e) => sum + e.amount, 0);
-  
-  const totalExpenses = filteredEntries
-    .filter(e => e.type === 'expense')
-    .reduce((sum, e) => sum + e.amount, 0);
-  
-  const cashFlow = totalIncome - totalExpenses;
-  const balance = 230000; // Mock balance
+    // Sort dates in descending order
+    return Object.keys(groups)
+      .sort((a, b) => new Date(b).getTime() - new Date(a).getTime())
+      .map(date => ({
+        date,
+        entries: groups[date].sort((a, b) => b.time.localeCompare(a.time)) // Sort by time descending
+      }));
+  }, [filteredEntries]);
+
+  // Calculate totals
+  const totalIncome = useMemo(() => {
+    return filteredEntries
+      .filter(e => e.type === 'income')
+      .reduce((sum, e) => sum + e.amount, 0);
+  }, [filteredEntries]);
+
+  const totalExpense = useMemo(() => {
+    return filteredEntries
+      .filter(e => e.type === 'expense')
+      .reduce((sum, e) => sum + e.amount, 0);
+  }, [filteredEntries]);
 
   const formatAmount = (amount: number) => {
     return `₹${amount.toLocaleString('en-IN')}`;
   };
 
-  const handleDelete = (id: string) => {
-    Alert.alert(
-      'Delete Entry',
-      'Are you sure you want to delete this entry? This action cannot be undone.',
-      [
-        { text: 'Cancel', style: 'cancel' },
-        {
-          text: 'Delete',
-          style: 'destructive',
-          onPress: () => {
-            setEntries(entries.filter(e => e.id !== id));
-            showToastMessage('🗑️ Entry deleted successfully!');
-          },
-        },
-      ]
-    );
+  const formatDate = (dateStr: string) => {
+    const date = new Date(dateStr);
+    return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
   };
 
-  const categories = [
-    'Booking Income',
-    'Payroll',
-    'Materials',
-    'Equipment',
-    'Transportation',
-    'Utilities',
-    'Professional Services',
-    'Office Expenses',
-    'Marketing',
-    'Client Payment',
-    'Advance Payment',
-    'Other',
-  ];
-
-  const clearFilters = () => {
-    setFromDate('');
-    setToDate('');
-    showToastMessage('Date filters cleared');
-  };
-
-  // Show toast
-  const showToastMessage = (message: string) => {
-    setToastMessage(message);
-    setShowToast(true);
-    Animated.sequence([
-      Animated.timing(toastOpacity, {
-        toValue: 1,
-        duration: 300,
-        useNativeDriver: true,
-      }),
-      Animated.delay(2000),
-      Animated.timing(toastOpacity, {
-        toValue: 0,
-        duration: 300,
-        useNativeDriver: true,
-      }),
-    ]).start(() => setShowToast(false));
-  };
-
-  // Open modal for adding
-  const openAddModal = () => {
-    setEditingEntry(null);
-    setFormDate(new Date().toISOString().split('T')[0]);
-    setFormDescription('');
-    setFormCategory('');
-    setFormType('expense');
-    setFormPaymentMode('cash');
-    setFormAmount('');
-    setFormHasGST(false);
-    setFormGSTAmount('');
-    setModalVisible(true);
-  };
-
-  // Open modal for editing
-  const openEditModal = (entry: CashbookEntry) => {
-    setEditingEntry(entry);
-    setFormDate(entry.date);
-    setFormDescription(entry.description);
-    setFormCategory(entry.category);
-    setFormType(entry.type);
-    setFormPaymentMode(entry.paymentMode);
-    setFormAmount(entry.amount.toString());
-    setFormHasGST(entry.hasGST);
-    setFormGSTAmount(entry.gstAmount?.toString() || '');
-    setModalVisible(true);
-  };
-
-  // Handle date picker
-  const openDatePicker = (mode: 'from' | 'to' | 'entry') => {
-    setDatePickerMode(mode);
-    setDatePickerVisible(true);
-  };
-
-  const handleDateSelect = (dateString: string) => {
-    if (datePickerMode === 'from') {
-      setFromDate(dateString);
-    } else if (datePickerMode === 'to') {
-      setToDate(dateString);
-    } else {
-      setFormDate(dateString);
-    }
-    setDatePickerVisible(false);
-  };
-
-  // Save entry with GST calculation
-  const handleSaveEntry = () => {
-    if (!formDescription || !formCategory || !formAmount) {
-      Alert.alert('Error', 'Please fill all required fields');
+  const handleAddTransaction = () => {
+    if (!formDescription.trim() || !formAmount.trim()) {
+      Alert.alert('Error', 'Please fill in all fields');
       return;
     }
 
-    const baseAmount = parseFloat(formAmount);
-    if (isNaN(baseAmount) || baseAmount <= 0) {
+    const amount = parseFloat(formAmount);
+    if (isNaN(amount) || amount <= 0) {
       Alert.alert('Error', 'Please enter a valid amount');
       return;
     }
 
-    // Calculate total amount including GST
-    let totalAmount = baseAmount;
-    let gstValue = 0;
-    
-    if (formHasGST && formGSTAmount) {
-      gstValue = parseFloat(formGSTAmount);
-      if (!isNaN(gstValue) && gstValue > 0) {
-        totalAmount = baseAmount + gstValue;
-      }
-    }
-
+    const now = new Date();
     const newEntry: CashbookEntry = {
-      id: editingEntry?.id || Date.now().toString(),
-      date: formDate,
-      description: formDescription,
-      category: formCategory,
+      id: Date.now().toString(),
+      date: now.toISOString().split('T')[0],
+      time: now.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true }),
+      description: formDescription.trim(),
       type: formType,
-      paymentMode: formPaymentMode,
-      amount: totalAmount, // Total amount including GST
-      linkedProject: 'Zonuam Site',
-      hasGST: formHasGST,
-      gstAmount: gstValue > 0 ? gstValue : undefined,
+      amount: amount,
     };
 
-    if (editingEntry) {
-      setEntries(entries.map(e => e.id === editingEntry.id ? newEntry : e));
-      showToastMessage('✏️ Entry updated successfully!');
-    } else {
-      setEntries([newEntry, ...entries]);
-      showToastMessage(`✨ Entry added! ${formType === 'income' ? 'Income' : 'Expense'} of ${formatAmount(totalAmount)}`);
-    }
-
+    setEntries([newEntry, ...entries]);
+    setFormDescription('');
+    setFormAmount('');
     setModalVisible(false);
+    Alert.alert('Success', `${formType === 'income' ? 'Income' : 'Expense'} entry added successfully!`);
+  };
+
+  const openTransactionModal = () => {
+    setModalVisible(true);
   };
 
   return (
     <SafeAreaView style={styles.safeArea}>
       <StatusBar barStyle="dark-content" backgroundColor="#FFFFFF" />
-      
+
       {/* Header */}
       <View style={styles.header}>
+        <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
+          <MaterialIcons name="arrow-back" size={24} color="#1A237E" />
+        </TouchableOpacity>
         <View style={styles.headerContent}>
-          <View style={styles.headerLeft}>
-            <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
-              <MaterialIcons name="arrow-back" size={24} color="#1A237E" />
-            </TouchableOpacity>
-            <View>
-              <Text style={styles.headerTitle}>💰 Cashbook</Text>
-              <Text style={styles.headerSubtitle}>Zonuam Site</Text>
-            </View>
-          </View>
+          <Text style={styles.headerTitle}>Cash Book</Text>
+          <Text style={styles.headerSubtitle}>Track Income & Expenses</Text>
         </View>
       </View>
 
       <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
-        {/* Search and Filter */}
-        <View style={styles.searchSection}>
-          <View style={styles.searchBar}>
-            <MaterialIcons name="search" size={20} color="#9CA3AF" />
-            <TextInput
-              style={styles.searchInput}
-              placeholder="Search transactions..."
-              placeholderTextColor="#9CA3AF"
-              value={searchQuery}
-              onChangeText={setSearchQuery}
-            />
-          </View>
+        {/* Month Filter */}
+        <View style={styles.monthFilter}>
+          <TouchableOpacity style={styles.monthButton}>
+            <MaterialIcons name="calendar-today" size={20} color="#4CAF50" />
+            <Text style={styles.monthText}>{selectedMonth}</Text>
+            <MaterialIcons name="arrow-drop-down" size={20} color="#4CAF50" />
+          </TouchableOpacity>
+        </View>
 
-          <View style={styles.dateFilters}>
-            <TouchableOpacity 
-              style={[styles.dateButton, fromDate && styles.dateButtonActive]}
-              onPress={() => openDatePicker('from')}
-            >
-              <MaterialIcons name="calendar-today" size={16} color={fromDate ? "#16A34A" : "#6B7280"} />
-              <Text style={[styles.dateButtonText, fromDate && styles.dateButtonTextActive]}>
-                {fromDate ? formatDDMMYYYY(fromDate) : 'From Date'}
-              </Text>
-            </TouchableOpacity>
-            
-            <MaterialIcons name="arrow-forward" size={16} color="#9CA3AF" />
-            
-            <TouchableOpacity 
-              style={[styles.dateButton, toDate && styles.dateButtonActive]}
-              onPress={() => openDatePicker('to')}
-            >
-              <MaterialIcons name="calendar-today" size={16} color={toDate ? "#16A34A" : "#6B7280"} />
-              <Text style={[styles.dateButtonText, toDate && styles.dateButtonTextActive]}>
-                {toDate ? formatDDMMYYYY(toDate) : 'To Date'}
-              </Text>
-            </TouchableOpacity>
-
-            {(fromDate || toDate) && (
-              <TouchableOpacity onPress={clearFilters} style={styles.clearButton}>
-                <MaterialIcons name="close" size={16} color="#6B7280" />
-              </TouchableOpacity>
-            )}
-          </View>
+        {/* Search Bar */}
+        <View style={styles.searchContainer}>
+          <MaterialIcons name="search" size={20} color="#9E9E9E" />
+          <TextInput
+            style={styles.searchInput}
+            placeholder="Search transaction name"
+            placeholderTextColor="#BDBDBD"
+            value={searchQuery}
+            onChangeText={setSearchQuery}
+          />
         </View>
 
         {/* Summary Cards */}
-        <View style={styles.summaryGrid}>
-          {/* Income Card */}
-          <View style={[styles.summaryCard, styles.incomeCard]}>
-            <View style={styles.cardHeader}>
-              <MaterialIcons name="trending-up" size={16} color="#047857" />
-              <Text style={styles.cardLabel}>Income</Text>
-            </View>
-            <Text style={[styles.cardValue, styles.incomeText]}>
+        <View style={styles.summaryContainer}>
+          <View style={styles.summaryCard}>
+            <Text style={styles.summaryLabel}>TOTAL INCOME</Text>
+            <Text style={[styles.summaryAmount, styles.incomeAmount]}>
               {formatAmount(totalIncome)}
             </Text>
-            <View style={[styles.decorativeCircle, styles.greenCircle]} />
           </View>
-
-          {/* Expenses Card */}
-          <View style={[styles.summaryCard, styles.expenseCard]}>
-            <View style={styles.cardHeader}>
-              <MaterialIcons name="trending-down" size={16} color="#B91C1C" />
-              <Text style={styles.cardLabel}>Expenses</Text>
-            </View>
-            <Text style={[styles.cardValue, styles.expenseText]}>
-              {formatAmount(totalExpenses)}
+          <View style={styles.summaryCard}>
+            <Text style={styles.summaryLabel}>TOTAL OUT</Text>
+            <Text style={[styles.summaryAmount, styles.expenseAmount]}>
+              {formatAmount(totalExpense)}
             </Text>
-            <View style={[styles.decorativeCircle, styles.redCircle]} />
-          </View>
-
-          {/* Cash Flow Card */}
-          <View style={[styles.summaryCard, styles.cashFlowCard]}>
-            <View style={styles.cardHeader}>
-              <MaterialIcons name="attach-money" size={16} color="#1E40AF" />
-              <Text style={styles.cardLabel}>Cash Flow</Text>
-            </View>
-            <Text style={[styles.cardValue, cashFlow >= 0 ? styles.incomeText : styles.expenseText]}>
-              {formatAmount(cashFlow)}
-            </Text>
-            <View style={[styles.decorativeCircle, styles.blueCircle]} />
-          </View>
-
-          {/* Balance Card */}
-          <View style={[styles.summaryCard, styles.balanceCard]}>
-            <View style={styles.cardHeader}>
-              <MaterialIcons name="account-balance-wallet" size={16} color="#7C3AED" />
-              <Text style={styles.cardLabel}>Balance</Text>
-            </View>
-            <Text style={[styles.cardValue, styles.balanceText]}>
-              {formatAmount(balance)}
-            </Text>
-            <View style={[styles.decorativeCircle, styles.purpleCircle]} />
           </View>
         </View>
 
-        {/* Transactions */}
-        <View style={styles.transactionsSection}>
-          <View style={styles.sectionHeader}>
-            <Text style={styles.sectionTitle}>Recent Transactions</Text>
-            <Text style={styles.entryCount}>{filteredEntries.length} entries</Text>
-          </View>
-
-          {filteredEntries.length === 0 ? (
+        {/* Transactions List */}
+        <View style={styles.transactionsContainer}>
+          {groupedEntries.length === 0 ? (
             <View style={styles.emptyState}>
-              <View style={styles.emptyIcon}>
-                <MaterialIcons name="search" size={32} color="#9CA3AF" />
-              </View>
+              <MaterialIcons name="receipt" size={48} color="#BDBDBD" />
               <Text style={styles.emptyTitle}>No transactions found</Text>
-              <Text style={styles.emptySubtitle}>Try adjusting your search or filters</Text>
+              <Text style={styles.emptyText}>Add your first transaction to get started</Text>
             </View>
           ) : (
-            filteredEntries.map((entry) => (
-              <View key={entry.id} style={styles.transactionCard}>
-                <View style={[styles.accentBar, entry.type === 'income' ? styles.greenAccent : styles.redAccent]} />
-                
-                <View style={styles.cardContent}>
-                  <View style={styles.cardTop}>
-                    <View style={styles.dateBadge}>
-                      <Text style={styles.dateText}>
-                        {new Date(entry.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
-                      </Text>
+            groupedEntries.map(({ date, entries: dayEntries }) => (
+              <View key={date} style={styles.dateGroup}>
+                <Text style={styles.dateHeader}>{formatDate(date)}</Text>
+                {dayEntries.map((entry) => (
+                  <View key={entry.id} style={styles.transactionItem}>
+                    <View style={styles.transactionLeft}>
+                      <Text style={styles.transactionTime}>{entry.time}</Text>
+                      <Text style={styles.transactionDesc}>{entry.description}</Text>
                     </View>
-                    <Text style={[styles.amount, entry.type === 'income' ? styles.amountIncome : styles.amountExpense]}>
-                      {entry.type === 'income' ? '+' : '-'}{formatAmount(entry.amount)}
-                    </Text>
-                  </View>
-
-                  <Text style={styles.description}>{entry.description}</Text>
-
-                  <View style={styles.badges}>
-                    <View style={[
-                      styles.categoryBadge,
-                      { backgroundColor: categoryColors[entry.category]?.bg || '#F3F4F6' }
-                    ]}>
+                    <View style={styles.transactionRight}>
                       <Text style={[
-                        styles.categoryText,
-                        { color: categoryColors[entry.category]?.text || '#374151' }
+                        styles.transactionAmount,
+                        entry.type === 'income' ? styles.amountIncome : styles.amountExpense
                       ]}>
-                        {entry.category}
+                        {entry.type === 'income' ? '+' : '-'}{formatAmount(entry.amount)}
+                      </Text>
+                      <Text style={styles.transactionType}>
+                        {entry.type.toUpperCase()}
                       </Text>
                     </View>
-
-                    <View style={[
-                      styles.paymentBadge,
-                      entry.paymentMode === 'cash' && styles.cashBadge,
-                      entry.paymentMode === 'upi' && styles.upiBadge,
-                      entry.paymentMode === 'bank' && styles.bankBadge,
-                    ]}>
-                      <Text style={[
-                        styles.paymentText,
-                        entry.paymentMode === 'cash' && styles.cashText,
-                        entry.paymentMode === 'upi' && styles.upiText,
-                        entry.paymentMode === 'bank' && styles.bankText,
-                      ]}>
-                        {entry.paymentMode.toUpperCase()}
-                      </Text>
-                    </View>
-
-                    {entry.hasGST && (
-                      <View style={styles.gstBadge}>
-                        <Text style={styles.gstText}>GST</Text>
-                      </View>
-                    )}
                   </View>
-                </View>
-
-                <View style={styles.actions}>
-                  <TouchableOpacity 
-                    style={styles.editButton}
-                    onPress={() => openEditModal(entry)}
-                  >
-                    <MaterialIcons name="edit" size={16} color="#2563EB" />
-                  </TouchableOpacity>
-                  <TouchableOpacity 
-                    style={styles.deleteButton}
-                    onPress={() => handleDelete(entry.id)}
-                  >
-                    <MaterialIcons name="delete" size={16} color="#DC2626" />
-                  </TouchableOpacity>
-                </View>
+                ))}
               </View>
             ))
           )}
-
-          <View style={{ height: 100 }} />
         </View>
+
+        <View style={{ height: 120 }} />
       </ScrollView>
 
-      {/* FAB */}
-      <Animated.View
-        style={[
-          styles.fab,
-          {
-            transform: [
-              { scale: fabScale },
-              { rotate: fabRotate },
-            ],
-          },
-        ]}
+      {/* Add Transaction Button */}
+      <TouchableOpacity
+        style={styles.addButton}
+        onPress={openTransactionModal}
       >
-        <TouchableOpacity
-          style={styles.fabButton}
-          onPress={openAddModal}
-        >
-          <MaterialIcons name="add" size={28} color="#FFFFFF" />
+        <MaterialIcons name="add" size={24} color="#FFFFFF" />
+        <Text style={styles.addButtonText}>Cash Out</Text>
+      </TouchableOpacity>
+
+      {/* Bottom Navigation */}
+      <View style={styles.bottomNav}>
+        <TouchableOpacity style={styles.navItem} onPress={() => router.push('/')}>
+          <MaterialIcons name="home" size={24} color="#9E9E9E" />
+          <Text style={styles.navLabel}>Home</Text>
         </TouchableOpacity>
-      </Animated.View>
+        <TouchableOpacity style={styles.navItem} onPress={() => router.push('/workers')}>
+          <MaterialIcons name="people" size={24} color="#9E9E9E" />
+          <Text style={styles.navLabel}>Labor</Text>
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.navItem}>
+          <MaterialIcons name="account-balance-wallet" size={24} color="#4CAF50" />
+          <Text style={[styles.navLabel, styles.navLabelActive]}>Expense</Text>
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.navItem} onPress={() => router.push('/reports')}>
+          <MaterialIcons name="bar-chart" size={24} color="#9E9E9E" />
+          <Text style={styles.navLabel}>Income</Text>
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.navItem} onPress={() => router.push('/plans')}>
+          <MaterialIcons name="settings" size={24} color="#9E9E9E" />
+          <Text style={styles.navLabel}>Settings</Text>
+        </TouchableOpacity>
+      </View>
+
+      {/* Add Transaction Modal */}
+      <Modal
+        animationType="slide"
+        transparent={true}
+        visible={modalVisible}
+        onRequestClose={() => setModalVisible(false)}
+      >
+        <Pressable style={styles.modalOverlay} onPress={() => setModalVisible(false)}>
+          <Pressable style={styles.modalContent} onPress={(e) => e.stopPropagation()}>
+            <Text style={styles.modalTitle}>Add Transaction</Text>
+
+            <View style={styles.typeSelector}>
+              <TouchableOpacity
+                style={[styles.typeButton, formType === 'income' && styles.typeButtonActive]}
+                onPress={() => setFormType('income')}
+              >
+                <MaterialIcons name="trending-up" size={20} color={formType === 'income' ? '#FFFFFF' : '#4CAF50'} />
+                <Text style={[styles.typeButtonText, formType === 'income' && styles.typeButtonTextActive]}>
+                  Income
+                </Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={[styles.typeButton, formType === 'expense' && styles.typeButtonActive]}
+                onPress={() => setFormType('expense')}
+              >
+                <MaterialIcons name="trending-down" size={20} color={formType === 'expense' ? '#FFFFFF' : '#DC2626'} />
+                <Text style={[styles.typeButtonText, formType === 'expense' && styles.typeButtonTextActive]}>
+                  Expense
+                </Text>
+              </TouchableOpacity>
+            </View>
+
+            <TextInput
+              style={styles.modalInput}
+              placeholder="Transaction description"
+              value={formDescription}
+              onChangeText={setFormDescription}
+            />
+
+            <TextInput
+              style={styles.modalInput}
+              placeholder="Amount (₹)"
+              value={formAmount}
+              onChangeText={setFormAmount}
+              keyboardType="numeric"
+            />
+
+            <View style={styles.modalButtons}>
+              <TouchableOpacity
+                style={styles.cancelButton}
+                onPress={() => setModalVisible(false)}
+              >
+                <Text style={styles.cancelButtonText}>Cancel</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={styles.saveButton}
+                onPress={handleAddTransaction}
+              >
+                <Text style={styles.saveButtonText}>Add Transaction</Text>
+              </TouchableOpacity>
+            </View>
+          </Pressable>
+        </Pressable>
+      </Modal>
+    </SafeAreaView>
+  );
 
       {/* Entry Modal */}
       <Modal
@@ -826,724 +624,322 @@ export default function CashbookPage() {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: '#F9FAFB',
+    backgroundColor: '#FFFFFF',
   },
   container: {
     flex: 1,
+    backgroundColor: '#F5F5F5',
   },
   // Header
   header: {
-    backgroundColor: '#FFFFFF',
-    borderBottomWidth: 1,
-    borderBottomColor: '#E5E7EB',
-    ...Platform.select({
-      ios: {
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.05,
-        shadowRadius: 3,
-      },
-      android: {
-        elevation: 2,
-      },
-    }),
-  },
-  headerContent: {
-    paddingHorizontal: 16,
-    paddingVertical: 20,
-  },
-  headerLeft: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 12,
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    backgroundColor: '#FFFFFF',
+    borderBottomWidth: 1,
+    borderBottomColor: '#E0E0E0',
   },
   backButton: {
-    padding: 4,
+    marginRight: 12,
+  },
+  headerContent: {
+    flex: 1,
   },
   headerTitle: {
-    fontSize: 22,
+    fontSize: 20,
     fontWeight: 'bold',
-    color: '#111827',
+    color: '#1A237E',
   },
   headerSubtitle: {
     fontSize: 14,
-    color: '#6B7280',
+    color: '#757575',
     marginTop: 2,
   },
-  // Search and Filter
-  searchSection: {
+  // Month Filter
+  monthFilter: {
+    paddingHorizontal: 16,
+    paddingVertical: 12,
     backgroundColor: '#FFFFFF',
-    padding: 16,
-    borderBottomWidth: 1,
-    borderBottomColor: '#E5E7EB',
   },
-  searchBar: {
+  monthButton: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#F9FAFB',
-    borderRadius: 12,
-    paddingHorizontal: 12,
+    backgroundColor: '#F5F5F5',
+    paddingHorizontal: 16,
     paddingVertical: 12,
-    gap: 8,
+    borderRadius: 8,
+    justifyContent: 'center',
+  },
+  monthText: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#4CAF50',
+    marginHorizontal: 8,
+  },
+  // Search
+  searchContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginHorizontal: 16,
+    marginVertical: 12,
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    backgroundColor: '#FFFFFF',
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: '#E0E0E0',
   },
   searchInput: {
     flex: 1,
-    fontSize: 14,
-    color: '#111827',
-  },
-  dateFilters: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-    marginTop: 12,
-  },
-  dateButton: {
-    flex: 1,
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#F9FAFB',
-    borderRadius: 12,
-    paddingHorizontal: 12,
-    paddingVertical: 10,
-    gap: 8,
-  },
-  dateButtonText: {
-    fontSize: 12,
-    color: '#6B7280',
-  },
-  dateButtonActive: {
-    backgroundColor: '#E8F5E9',
-    borderColor: '#A7F3D0',
-    borderWidth: 1,
-  },
-  dateButtonTextActive: {
-    color: '#16A34A',
-    fontWeight: '600',
-  },
-  clearButton: {
-    padding: 8,
+    fontSize: 16,
+    color: '#333333',
+    marginLeft: 8,
   },
   // Summary Cards
-  summaryGrid: {
+  summaryContainer: {
     flexDirection: 'row',
-    flexWrap: 'wrap',
-    padding: 16,
-    gap: 12,
+    marginHorizontal: 16,
+    marginBottom: 16,
   },
   summaryCard: {
-    width: '48%',
-    borderRadius: 16,
+    flex: 1,
+    backgroundColor: '#FFFFFF',
+    borderRadius: 8,
     padding: 16,
-    position: 'relative',
-    overflow: 'hidden',
-    ...Platform.select({
-      ios: {
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 4 },
-        shadowOpacity: 0.1,
-        shadowRadius: 8,
-      },
-      android: {
-        elevation: 4,
-      },
-    }),
-  },
-  incomeCard: {
-    backgroundColor: '#D1FAE5',
-  },
-  expenseCard: {
-    backgroundColor: '#FEE2E2',
-  },
-  cashFlowCard: {
-    backgroundColor: '#DBEAFE',
-  },
-  balanceCard: {
-    backgroundColor: '#E9D5FF',
-  },
-  cardHeader: {
-    flexDirection: 'row',
+    marginHorizontal: 4,
     alignItems: 'center',
-    gap: 8,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.1,
+    shadowRadius: 2,
+    elevation: 2,
+  },
+  summaryLabel: {
+    fontSize: 12,
+    fontWeight: 'bold',
+    color: '#757575',
     marginBottom: 8,
   },
-  cardLabel: {
-    fontSize: 12,
-    fontWeight: '500',
-    color: '#374151',
-  },
-  cardValue: {
+  summaryAmount: {
     fontSize: 18,
     fontWeight: 'bold',
   },
-  incomeText: {
-    color: '#047857',
+  incomeAmount: {
+    color: '#4CAF50',
   },
-  expenseText: {
-    color: '#B91C1C',
-  },
-  balanceText: {
-    color: '#7C3AED',
-  },
-  decorativeCircle: {
-    position: 'absolute',
-    top: -20,
-    right: -20,
-    width: 80,
-    height: 80,
-    borderRadius: 40,
-    opacity: 0.3,
-  },
-  greenCircle: {
-    backgroundColor: '#10B981',
-  },
-  redCircle: {
-    backgroundColor: '#6B7280',
-  },
-  blueCircle: {
-    backgroundColor: '#3B82F6',
-  },
-  purpleCircle: {
-    backgroundColor: '#9333EA',
+  expenseAmount: {
+    color: '#F44336',
   },
   // Transactions
-  transactionsSection: {
+  transactionsContainer: {
     paddingHorizontal: 16,
-    marginTop: 20,
   },
-  sectionHeader: {
+  dateGroup: {
+    marginBottom: 16,
+  },
+  dateHeader: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    color: '#1A237E',
+    marginBottom: 8,
+    paddingHorizontal: 4,
+  },
+  transactionItem: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 16,
+    backgroundColor: '#FFFFFF',
+    borderRadius: 8,
+    padding: 16,
+    marginBottom: 8,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.1,
+    shadowRadius: 2,
+    elevation: 2,
   },
-  sectionTitle: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    color: '#111827',
+  transactionLeft: {
+    flex: 1,
   },
-  entryCount: {
-    fontSize: 14,
-    color: '#6B7280',
-  },
-  emptyState: {
-    alignItems: 'center',
-    paddingVertical: 60,
-  },
-  emptyIcon: {
-    width: 64,
-    height: 64,
-    borderRadius: 32,
-    backgroundColor: '#F3F4F6',
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginBottom: 16,
-  },
-  emptyTitle: {
-    fontSize: 16,
-    fontWeight: '500',
-    color: '#6B7280',
+  transactionTime: {
+    fontSize: 12,
+    color: '#757575',
     marginBottom: 4,
   },
-  emptySubtitle: {
-    fontSize: 14,
-    color: '#9CA3AF',
-  },
-  // Transaction Card
-  transactionCard: {
-    backgroundColor: '#FFFFFF',
-    borderRadius: 16,
-    borderWidth: 1,
-    borderColor: '#F3F4F6',
-    marginBottom: 12,
-    flexDirection: 'row',
-    position: 'relative',
-    ...Platform.select({
-      ios: {
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.08,
-        shadowRadius: 4,
-      },
-      android: {
-        elevation: 3,
-      },
-    }),
-  },
-  accentBar: {
-    position: 'absolute',
-    left: 0,
-    top: 0,
-    bottom: 0,
-    width: 4,
-    borderTopLeftRadius: 16,
-    borderBottomLeftRadius: 16,
-  },
-  greenAccent: {
-    backgroundColor: '#10B981',
-  },
-  redAccent: {
-    backgroundColor: '#6B7280',
-  },
-  cardContent: {
-    flex: 1,
-    padding: 16,
-    paddingLeft: 20,
-  },
-  cardTop: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 8,
-  },
-  dateBadge: {
-    backgroundColor: '#F3F4F6',
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-    borderRadius: 6,
-  },
-  dateText: {
-    fontSize: 12,
-    color: '#6B7280',
-  },
-  amount: {
-    fontSize: 18,
-    fontWeight: 'bold',
-  },
-  amountIncome: {
-    color: '#10B981',
-  },
-  amountExpense: {
-    color: '#6B7280',
-  },
-  description: {
+  transactionDesc: {
     fontSize: 16,
-    fontWeight: '600',
-    color: '#111827',
-    marginBottom: 8,
-  },
-  badges: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: 8,
-  },
-  categoryBadge: {
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-    borderRadius: 8,
-  },
-  categoryText: {
-    fontSize: 12,
+    color: '#333333',
     fontWeight: '500',
   },
-  paymentBadge: {
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-    borderRadius: 8,
-    borderWidth: 1,
+  transactionRight: {
+    alignItems: 'flex-end',
   },
-  cashBadge: {
-    backgroundColor: '#D1FAE5',
-    borderColor: '#A7F3D0',
+  transactionAmount: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    marginBottom: 4,
   },
-  upiBadge: {
-    backgroundColor: '#DBEAFE',
-    borderColor: '#BFDBFE',
+  amountIncome: {
+    color: '#4CAF50',
   },
-  bankBadge: {
-    backgroundColor: '#E9D5FF',
-    borderColor: '#D8B4FE',
+  amountExpense: {
+    color: '#F44336',
   },
-  paymentText: {
+  transactionType: {
     fontSize: 12,
-    fontWeight: '600',
+    fontWeight: 'bold',
+    color: '#757575',
   },
-  cashText: {
-    color: '#047857',
-  },
-  upiText: {
-    color: '#1E40AF',
-  },
-  bankText: {
-    color: '#7C3AED',
-  },
-  gstBadge: {
-    backgroundColor: '#FEF3C7',
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-    borderRadius: 8,
-  },
-  gstText: {
-    fontSize: 12,
-    fontWeight: '600',
-    color: '#A16207',
-  },
-  actions: {
-    justifyContent: 'center',
-    gap: 8,
-    paddingRight: 12,
-  },
-  editButton: {
-    width: 32,
-    height: 32,
-    borderRadius: 8,
-    backgroundColor: '#EFF6FF',
+  // Empty State
+  emptyState: {
     alignItems: 'center',
-    justifyContent: 'center',
+    paddingVertical: 64,
   },
-  deleteButton: {
-    width: 32,
-    height: 32,
-    borderRadius: 8,
-    backgroundColor: '#FEE2E2',
-    alignItems: 'center',
-    justifyContent: 'center',
+  emptyTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: '#757575',
+    marginTop: 16,
+    marginBottom: 8,
   },
-  // FAB
-  fab: {
+  emptyText: {
+    fontSize: 14,
+    color: '#BDBDBD',
+    textAlign: 'center',
+  },
+  // Add Button
+  addButton: {
     position: 'absolute',
-    bottom: 90,
+    bottom: 100,
     right: 16,
-    width: 64,
-    height: 64,
-  },
-  fabButton: {
-    width: 64,
-    height: 64,
-    borderRadius: 32,
-    backgroundColor: '#16A34A',
+    flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'center',
-    ...Platform.select({
-      ios: {
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 8 },
-        shadowOpacity: 0.3,
-        shadowRadius: 12,
-      },
-      android: {
-        elevation: 12,
-      },
-    }),
+    backgroundColor: '#4CAF50',
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    borderRadius: 24,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.25,
+    shadowRadius: 4,
+    elevation: 5,
   },
-  // Bottom Nav
+  addButtonText: {
+    color: '#FFFFFF',
+    fontSize: 14,
+    fontWeight: 'bold',
+    marginLeft: 8,
+  },
+  // Bottom Navigation
   bottomNav: {
     flexDirection: 'row',
     backgroundColor: '#FFFFFF',
     borderTopWidth: 1,
     borderTopColor: '#E0E0E0',
     paddingVertical: 8,
-    paddingBottom: Platform.OS === 'ios' ? 24 : 8,
-    ...Platform.select({
-      ios: {
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: -2 },
-        shadowOpacity: 0.1,
-        shadowRadius: 4,
-      },
-      android: {
-        elevation: 8,
-      },
-    }),
+    paddingHorizontal: 16,
   },
   navItem: {
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
-    paddingVertical: 4,
   },
   navLabel: {
-    fontSize: 11,
+    fontSize: 12,
     color: '#9E9E9E',
     marginTop: 4,
   },
   navLabelActive: {
-    color: '#16A34A',
-    fontWeight: '600',
+    color: '#4CAF50',
   },
   // Modal
   modalOverlay: {
     flex: 1,
     backgroundColor: 'rgba(0, 0, 0, 0.5)',
-    justifyContent: 'flex-end',
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   modalContent: {
     backgroundColor: '#FFFFFF',
-    borderTopLeftRadius: 24,
-    borderTopRightRadius: 24,
+    borderRadius: 12,
     padding: 24,
-    maxHeight: '90%',
+    marginHorizontal: 20,
+    width: '90%',
+    maxWidth: 400,
   },
   modalTitle: {
     fontSize: 20,
     fontWeight: 'bold',
-    color: '#111827',
-    marginBottom: 20,
+    color: '#1A237E',
     textAlign: 'center',
+    marginBottom: 20,
   },
-  formGroup: {
-    marginBottom: 16,
-  },
-  formLabel: {
-    fontSize: 14,
-    fontWeight: '600',
-    color: '#374151',
-    marginBottom: 8,
-  },
-  formInput: {
-    backgroundColor: '#F9FAFB',
-    borderRadius: 8,
-    paddingHorizontal: 12,
-    paddingVertical: 12,
-    fontSize: 14,
-    borderWidth: 1,
-    borderColor: '#E5E7EB',
-  },
-  categoryScroll: {
+  typeSelector: {
     flexDirection: 'row',
-  },
-  categoryChip: {
-    paddingHorizontal: 12,
-    paddingVertical: 8,
-    borderRadius: 16,
-    backgroundColor: '#F3F4F6',
-    marginRight: 8,
-  },
-  categoryChipActive: {
-    backgroundColor: '#16A34A',
-  },
-  categoryChipText: {
-    fontSize: 12,
-    color: '#6B7280',
-  },
-  categoryChipTextActive: {
-    color: '#FFFFFF',
-    fontWeight: '600',
-  },
-  typeButtons: {
-    flexDirection: 'row',
-    gap: 12,
+    marginBottom: 20,
   },
   typeButton: {
     flex: 1,
-    paddingVertical: 12,
-    borderRadius: 12,
-    backgroundColor: '#F9FAFB',
+    flexDirection: 'row',
     alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 12,
+    marginHorizontal: 4,
+    borderRadius: 8,
     borderWidth: 2,
-    borderColor: '#E5E7EB',
+    borderColor: '#E0E0E0',
   },
-  typeButtonExpense: {
-    backgroundColor: '#FEE2E2',
-    borderColor: '#FCA5A5',
-  },
-  typeButtonIncome: {
-    backgroundColor: '#D1FAE5',
-    borderColor: '#6EE7B7',
+  typeButtonActive: {
+    borderColor: '#4CAF50',
+    backgroundColor: '#4CAF50',
   },
   typeButtonText: {
     fontSize: 14,
-    color: '#6B7280',
-    fontWeight: '600',
+    fontWeight: 'bold',
+    marginLeft: 8,
   },
   typeButtonTextActive: {
-    color: '#111827',
-  },
-  paymentModeButtons: {
-    flexDirection: 'row',
-    gap: 8,
-  },
-  paymentModeButton: {
-    flex: 1,
-    paddingVertical: 10,
-    borderRadius: 8,
-    backgroundColor: '#F3F4F6',
-    alignItems: 'center',
-  },
-  paymentModeButtonActive: {
-    backgroundColor: '#16A34A',
-  },
-  paymentModeText: {
-    fontSize: 12,
-    fontWeight: '600',
-    color: '#6B7280',
-  },
-  paymentModeTextActive: {
     color: '#FFFFFF',
   },
-  gstToggleRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-  },
-  gstToggle: {
-    width: 50,
-    height: 28,
-    borderRadius: 14,
-    backgroundColor: '#E5E7EB',
-    padding: 2,
-  },
-  gstToggleActive: {
-    backgroundColor: '#16A34A',
-  },
-  gstToggleThumb: {
-    width: 24,
-    height: 24,
-    borderRadius: 12,
-    backgroundColor: '#FFFFFF',
-  },
-  gstToggleThumbActive: {
-    transform: [{ translateX: 22 }],
+  modalInput: {
+    borderWidth: 1,
+    borderColor: '#E0E0E0',
+    borderRadius: 8,
+    paddingHorizontal: 12,
+    paddingVertical: 12,
+    fontSize: 16,
+    marginBottom: 16,
+    color: '#333333',
   },
   modalButtons: {
     flexDirection: 'row',
-    gap: 12,
-    marginTop: 20,
+    justifyContent: 'space-between',
   },
   cancelButton: {
     flex: 1,
-    paddingVertical: 14,
-    borderRadius: 12,
-    backgroundColor: '#F3F4F6',
+    backgroundColor: '#F5F5F5',
+    paddingVertical: 12,
+    borderRadius: 8,
+    marginRight: 8,
     alignItems: 'center',
   },
   cancelButtonText: {
     fontSize: 16,
-    fontWeight: '600',
-    color: '#6B7280',
+    color: '#757575',
+    fontWeight: 'bold',
   },
   saveButton: {
     flex: 1,
-    paddingVertical: 14,
-    borderRadius: 12,
-    backgroundColor: '#16A34A',
+    backgroundColor: '#4CAF50',
+    paddingVertical: 12,
+    borderRadius: 8,
+    marginLeft: 8,
     alignItems: 'center',
   },
   saveButtonText: {
     fontSize: 16,
-    fontWeight: '600',
     color: '#FFFFFF',
-  },
-  dateInputRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-  },
-  dateInputText: {
-    fontSize: 14,
-    color: '#374151',
-  },
-  // Date Picker Modal
-  datePickerModal: {
-    backgroundColor: '#FFFFFF',
-    borderRadius: 16,
-    padding: 24,
-    margin: 20,
-    ...Platform.select({
-      ios: {
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 4 },
-        shadowOpacity: 0.3,
-        shadowRadius: 8,
-      },
-      android: {
-        elevation: 8,
-      },
-    }),
-  },
-  datePickerTitle: {
-    fontSize: 18,
     fontWeight: 'bold',
-    color: '#111827',
-    marginBottom: 8,
-    textAlign: 'center',
-  },
-  datePickerSubtitle: {
-    fontSize: 12,
-    color: '#6B7280',
-    textAlign: 'center',
-    marginBottom: 16,
-  },
-  dateInputContainer: {
-    marginBottom: 16,
-  },
-  customInputLabel: {
-    fontSize: 12,
-    color: '#6B7280',
-    marginBottom: 8,
-    textAlign: 'center',
-  },
-  datePickerInput: {
-    backgroundColor: '#F9FAFB',
-    borderRadius: 8,
-    paddingHorizontal: 12,
-    paddingVertical: 12,
-    fontSize: 14,
-    borderWidth: 1,
-    borderColor: '#E5E7EB',
-    textAlign: 'center',
-  },
-  quickDateButtons: {
-    flexDirection: 'row',
-    gap: 8,
-    marginBottom: 16,
-  },
-  quickDateButton: {
-    flex: 1,
-    paddingVertical: 10,
-    backgroundColor: '#F3F4F6',
-    borderRadius: 8,
-    alignItems: 'center',
-  },
-  customButton: {
-    backgroundColor: '#16A34A',
-  },
-  quickDateText: {
-    fontSize: 12,
-    color: '#374151',
-    fontWeight: '600',
-  },
-  customButtonText: {
-    color: '#FFFFFF',
-  },
-  datePickerClose: {
-    backgroundColor: '#16A34A',
-    borderRadius: 8,
-    paddingVertical: 12,
-    alignItems: 'center',
-  },
-  datePickerCloseText: {
-    fontSize: 14,
-    fontWeight: '600',
-    color: '#FFFFFF',
-  },
-  // Toast
-  toast: {
-    position: 'absolute',
-    bottom: 100,
-    left: 20,
-    right: 20,
-    backgroundColor: '#16A34A',
-    borderRadius: 12,
-    padding: 16,
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 12,
-    ...Platform.select({
-      ios: {
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 4 },
-        shadowOpacity: 0.3,
-        shadowRadius: 8,
-      },
-      android: {
-        elevation: 8,
-      },
-    }),
-  },
-  toastText: {
-    fontSize: 14,
-    color: '#FFFFFF',
-    fontWeight: '500',
-    flex: 1,
   },
 });
