@@ -94,6 +94,7 @@ export default function WorkerProfilePage() {
 
   const worker = workerData || initialWorker;
 
+  // Load worker data from AsyncStorage on mount and focus
   useFocusEffect(
     React.useCallback(() => {
       let mounted = true;
@@ -201,7 +202,7 @@ export default function WorkerProfilePage() {
     const currentDay = today.getDay();
     const monday = new Date(today);
     monday.setDate(today.getDate() - currentDay + 1 + (offset * 7));
-    
+
     const week = [];
     for (let i = 0; i < 7; i++) {
       const date = new Date(monday);

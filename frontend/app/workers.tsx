@@ -10,8 +10,7 @@ import {
   StatusBar,
   Modal,
   Alert,
-} from 'react-native';
-import { Pressable } from 'react-native';
+ Pressable } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { MaterialIcons } from '@expo/vector-icons';
 import { useRouter, useLocalSearchParams } from 'expo-router';

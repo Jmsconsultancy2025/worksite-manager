@@ -8,8 +8,7 @@ import { Button } from '../ui/button';
 import { Input } from '../ui/input';
 import { Label } from '../ui/label';
 import { Switch } from '../ui/switch';
-import { Select, SelectTrigger, SelectValue, SelectContent } from '../ui/select';
-import { SelectItem } from '../ui/select';
+import { Select, SelectTrigger, SelectValue, SelectContent , SelectItem } from '../ui/select';
 import { Separator } from '../ui/separator';
 
 type SettingsView = 'main' | 'profile' | 'preferences' | 'attendance' | 'salary' | 'cashbook';
