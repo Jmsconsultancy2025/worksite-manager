@@ -319,6 +319,29 @@ const styles = StyleSheet.create({
   bottomPadding: {
     height: 80,
   },
+  // Bottom Navigation
+  bottomNav: {
+    flexDirection: 'row',
+    backgroundColor: '#FFFFFF',
+    borderTopWidth: 1,
+    borderTopColor: '#E8E8E8',
+    paddingVertical: 8,
+  },
+  navItem: {
+    flex: 1,
+    alignItems: 'center',
+    paddingVertical: 8,
+  },
+  navItemActive: {},
+  navText: {
+    fontSize: 12,
+    color: '#95A5A6',
+    marginTop: 4,
+  },
+  navTextActive: {
+    color: '#16A34A',
+    fontWeight: '600',
+  },
 });
 
 export default ReportsPage;
