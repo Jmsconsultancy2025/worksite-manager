@@ -685,39 +685,52 @@ export default function WorkersPage() {
   }, [formState, modalState, updateWorker]);
 
   const handleAddWorker = useCallback(async (newWorkerData: NewWorkerData) => {
-    // Check worker limit before adding
-    const canAddWorker = await checkWorkerLimit(workers.length);
-    if (!canAddWorker) {
-      const subscription = await getUserSubscription();
-      const planName = subscription.plan.charAt(0).toUpperCase() + subscription.plan.slice(1);
-      Alert.alert(
-        'Worker Limit Reached',
-        `Your ${planName} plan allows up to ${subscription.plan === 'basic' ? '10' : subscription.plan === 'standard' ? '50' : 'unlimited'} workers. Upgrade to add more workers.`,
-        [
-          { text: 'Cancel', style: 'cancel' },
-          { text: 'Upgrade', onPress: () => router.push('/plans') }
-        ]
-      );
-      return;
-    }
+    try {
+      // Create worker via API
+      const response = await fetch('http://localhost:8001/api/workers', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          name: newWorkerData.name,
+          phone: newWorkerData.phone,
+          role: newWorkerData.role,
+          daily_rate: newWorkerData.dailyRate,
+          site_id: newWorkerData.site || siteParam || 'Zonuam Site',
+        }),
+      });
 
-    // Generate new worker ID
-    const newWorkerId = Math.max(...workers.map(w => parseInt(w.id)), 0) + 1;
-    const newWorker: Worker = {
-      id: newWorkerId.toString(),
-      name: newWorkerData.name,
-      phone: newWorkerData.phone,
-      role: newWorkerData.role,
-      attendanceStatus: null,
-      overtime: false,
-      maxAdvanceLimit: 5000, // Default limit
-      hidden: false,
-      todayAdvanceTotal: 0,
-      dailyRate: newWorkerData.dailyRate,
-      site: newWorkerData.site || siteParam || 'All Sites',
-    };
+      if (response.ok) {
+        const newWorker = await response.json();
+        console.log('✅ Worker added to backend:', newWorker);
+        
+        // Reload workers from backend
+        await loadData();
+        Alert.alert('Success', 'Worker added successfully!');
+      } else {
+        throw new Error('Failed to add worker');
+      }
+    } catch (error) {
+      console.error('❌ Error adding worker:', error);
+      
+      // Fallback to localStorage
+      const newWorkerId = Math.max(...workers.map(w => parseInt(w.id)), 0) + 1;
+      const newWorker: Worker = {
+        id: newWorkerId.toString(),
+        name: newWorkerData.name,
+        phone: newWorkerData.phone,
+        role: newWorkerData.role,
+        attendanceStatus: null,
+        overtime: false,
+        maxAdvanceLimit: 5000,
+        hidden: false,
+        todayAdvanceTotal: 0,
+        dailyRate: newWorkerData.dailyRate,
+        site: newWorkerData.site || siteParam || 'All Sites',
+      };
 
-    await addWorker(newWorker);
+      await addWorker(newWorker);
     Alert.alert('Success', `Worker ${newWorkerData.name} added successfully!`);
 
     // Close modal and reset form
