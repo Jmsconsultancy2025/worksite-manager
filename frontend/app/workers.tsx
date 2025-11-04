@@ -731,12 +731,13 @@ export default function WorkersPage() {
       };
 
       await addWorker(newWorker);
-    Alert.alert('Success', `Worker ${newWorkerData.name} added successfully!`);
+      Alert.alert('Success', `Worker ${newWorkerData.name} added successfully!`);
+    }
 
     // Close modal and reset form
     modalState.setIsAddWorkerModalOpen(false);
     formState.resetForm();
-  }, [workers, siteParam, addWorker, modalState, formState, router]);
+  }, [workers, siteParam, addWorker, modalState, formState, router, loadData]);
 
   // Get badge style based on status
   const getBadgeStyle = useCallback((worker: Worker, badgeType: 'P' | 'H' | 'A') => {
