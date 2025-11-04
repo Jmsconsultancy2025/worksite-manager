@@ -17,32 +17,24 @@ function ReportsPage({
   const router = useRouter();
 
   const handleAttendanceReport = () => {
-    console.log('Attendance Report button clicked');
-    Alert.alert('Attendance Report', 'Generating attendance report...');
+    router.push('/attendance-report');
   };
 
   const handlePayrollReport = () => {
-    console.log('Payroll Report button clicked');
-    Alert.alert('Payroll Report', 'Generating payroll report...');
+    router.push('/payroll-report');
   };
 
   const handleFinancialReport = () => {
-    console.log('Financial Report button clicked');
-    Alert.alert('Financial Report', 'Generating financial report...');
+    router.push('/financial-report');
   };
 
   return (
     <ScrollView style={styles.container}>
       {/* Header */}
       <View style={styles.header}>
-        <View style={styles.headerLeft}>
-          <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
-            <ArrowLeft size={24} color="#111827" />
-          </TouchableOpacity>
-          <View style={styles.titleContainer}>
-            <Text style={styles.headerTitle}>Reports</Text>
-            <Text style={styles.headerSubtitle}>Analytics and insights</Text>
-          </View>
+        <View style={styles.titleContainer}>
+          <Text style={styles.headerTitle}>Reports</Text>
+          <Text style={styles.headerSubtitle}>Analytics and insights</Text>
         </View>
         <TouchableOpacity style={styles.exportButton}>
           <Download size={16} color="#16A34A" />
@@ -155,15 +147,6 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
     borderBottomColor: '#E5E7EB',
     backgroundColor: '#FFFFFF',
-  },
-  headerLeft: {
-    flex: 1,
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  backButton: {
-    marginRight: 12,
-    padding: 4,
   },
   titleContainer: {
     flex: 1,
