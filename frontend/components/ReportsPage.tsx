@@ -177,6 +177,10 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#FFFFFF',
   },
+  scrollContainer: {
+    flex: 1,
+    backgroundColor: '#FFFFFF',
+  },
   // Header
   header: {
     flexDirection: 'row',
