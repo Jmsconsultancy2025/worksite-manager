@@ -144,6 +144,31 @@ function ReportsPage({
       {/* Bottom padding for navigation */}
       <View style={styles.bottomPadding} />
     </ScrollView>
+    
+    {/* Bottom Navigation */}
+    <View style={styles.bottomNav}>
+      <TouchableOpacity style={styles.navItem} onPress={() => router.push('/')}>
+        <MaterialIcons name="home" size={24} color="#95A5A6" />
+        <Text style={styles.navText}>Home</Text>
+      </TouchableOpacity>
+      <TouchableOpacity style={styles.navItem} onPress={() => router.push('/workers')}>
+        <MaterialIcons name="people" size={24} color="#95A5A6" />
+        <Text style={styles.navText}>Workers</Text>
+      </TouchableOpacity>
+      <TouchableOpacity style={styles.navItem} onPress={() => router.push('/cashbook')}>
+        <MaterialIcons name="account-balance-wallet" size={24} color="#95A5A6" />
+        <Text style={styles.navText}>Cashbook</Text>
+      </TouchableOpacity>
+      <TouchableOpacity style={styles.navItem} onPress={() => router.push('/notes')}>
+        <MaterialIcons name="note" size={24} color="#95A5A6" />
+        <Text style={styles.navText}>Notes</Text>
+      </TouchableOpacity>
+      <TouchableOpacity style={[styles.navItem, styles.navItemActive]}>
+        <MaterialIcons name="bar-chart" size={24} color="#16A34A" />
+        <Text style={[styles.navText, styles.navTextActive]}>Reports</Text>
+      </TouchableOpacity>
+    </View>
+  </View>
   );
 }
 
