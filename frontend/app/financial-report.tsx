@@ -8,6 +8,7 @@ import {
   Alert,
   TextInput,
   FlatList,
+  Modal,
 } from 'react-native';
 import {
   ArrowLeft,
@@ -22,6 +23,7 @@ import {
   BarChart3,
   Plus,
   Minus,
+  X,
 } from 'lucide-react-native';
 import { useRouter } from 'expo-router';
 
@@ -114,6 +116,10 @@ export default function FinancialReportPage() {
   const [sortField, setSortField] = useState<SortField>('date');
   const [sortDirection, setSortDirection] = useState<SortDirection>('desc');
   const [showCharts, setShowCharts] = useState(true);
+  const [showSiteDropdown, setShowSiteDropdown] = useState(false);
+  const [showCategoryDropdown, setShowCategoryDropdown] = useState(false);
+  const [showDatePicker, setShowDatePicker] = useState(false);
+  const [datePickerType, setDatePickerType] = useState<'from' | 'to'>('from');
 
   // Filtered and sorted transactions
   const filteredTransactions = useMemo(() => {
@@ -229,6 +235,30 @@ export default function FinancialReportPage() {
     Alert.alert('Export PDF', 'PDF export functionality would be implemented here');
   };
 
+  const handleSiteSelect = (siteId: string) => {
+    setSelectedSite(siteId);
+    setShowSiteDropdown(false);
+  };
+
+  const handleCategorySelect = (category: string) => {
+    setSelectedCategory(category);
+    setShowCategoryDropdown(false);
+  };
+
+  const handleDateSelect = (date: string) => {
+    if (datePickerType === 'from') {
+      setCustomDateFrom(date);
+    } else {
+      setCustomDateTo(date);
+    }
+    setShowDatePicker(false);
+  };
+
+  const openDatePicker = (type: 'from' | 'to') => {
+    setDatePickerType(type);
+    setShowDatePicker(true);
+  };
+
   const renderTransactionRow = ({ item }: { item: typeof mockTransactions[0] }) => (
     <View style={styles.transactionRow}>
       <View style={styles.transactionCell}>
@@ -305,7 +335,7 @@ export default function FinancialReportPage() {
             <Text style={styles.headerSubtitle}>Income, expenses, and cash flow analysis</Text>
           </View>
         </View>
-        <TouchableOpacity style={styles.exportButton}>
+        <TouchableOpacity style={styles.exportButton} onPress={() => Alert.alert('Export', 'Export functionality would be implemented here')}>
           <Download size={16} color="#16A34A" />
           <Text style={styles.exportButtonText}>Export</Text>
         </TouchableOpacity>
@@ -353,7 +383,7 @@ export default function FinancialReportPage() {
         <View style={styles.filterRow}>
           <View style={styles.filterItem}>
             <Text style={styles.filterLabel}>Site</Text>
-            <TouchableOpacity style={styles.selectButton}>
+            <TouchableOpacity style={styles.selectButton} onPress={() => setShowSiteDropdown(true)}>
               <Text style={styles.selectText}>
                 {mockSites.find(site => site.id === selectedSite)?.name || 'All Sites'}
               </Text>
@@ -362,7 +392,7 @@ export default function FinancialReportPage() {
           </View>
           <View style={styles.filterItem}>
             <Text style={styles.filterLabel}>Category</Text>
-            <TouchableOpacity style={styles.selectButton}>
+            <TouchableOpacity style={styles.selectButton} onPress={() => setShowCategoryDropdown(true)}>
               <Text style={styles.selectText}>
                 {selectedCategory === 'all' ? 'All Categories' : selectedCategory}
               </Text>
@@ -386,14 +416,14 @@ export default function FinancialReportPage() {
           <View style={styles.filterRow}>
             <View style={styles.filterItem}>
               <Text style={styles.filterLabel}>From</Text>
-              <TouchableOpacity style={styles.dateButton}>
+              <TouchableOpacity style={styles.dateButton} onPress={() => openDatePicker('from')}>
                 <CalendarDays size={16} color="#6B7280" />
                 <Text style={styles.dateText}>{customDateFrom || 'Pick date'}</Text>
               </TouchableOpacity>
             </View>
             <View style={styles.filterItem}>
               <Text style={styles.filterLabel}>To</Text>
-              <TouchableOpacity style={styles.dateButton}>
+              <TouchableOpacity style={styles.dateButton} onPress={() => openDatePicker('to')}>
                 <CalendarDays size={16} color="#6B7280" />
                 <Text style={styles.dateText}>{customDateTo || 'Pick date'}</Text>
               </TouchableOpacity>
@@ -539,6 +569,117 @@ export default function FinancialReportPage() {
           </TouchableOpacity>
         </View>
       </View>
+
+      {/* Dropdown Modals */}
+      <Modal
+        visible={showSiteDropdown}
+        transparent={true}
+        animationType="fade"
+        onRequestClose={() => setShowSiteDropdown(false)}
+      >
+        <TouchableOpacity
+          style={styles.modalOverlay}
+          activeOpacity={1}
+          onPress={() => setShowSiteDropdown(false)}
+        >
+          <View style={styles.dropdownContainer}>
+            <View style={styles.dropdownHeader}>
+              <Text style={styles.dropdownTitle}>Select Site</Text>
+              <TouchableOpacity onPress={() => setShowSiteDropdown(false)}>
+                <X size={20} color="#6B7280" />
+              </TouchableOpacity>
+            </View>
+            {mockSites.map((site) => (
+              <TouchableOpacity
+                key={site.id}
+                style={styles.dropdownItem}
+                onPress={() => handleSiteSelect(site.id)}
+              >
+                <Text style={styles.dropdownItemText}>{site.name}</Text>
+              </TouchableOpacity>
+            ))}
+          </View>
+        </TouchableOpacity>
+      </Modal>
+
+      <Modal
+        visible={showCategoryDropdown}
+        transparent={true}
+        animationType="fade"
+        onRequestClose={() => setShowCategoryDropdown(false)}
+      >
+        <TouchableOpacity
+          style={styles.modalOverlay}
+          activeOpacity={1}
+          onPress={() => setShowCategoryDropdown(false)}
+        >
+          <View style={styles.dropdownContainer}>
+            <View style={styles.dropdownHeader}>
+              <Text style={styles.dropdownTitle}>Select Category</Text>
+              <TouchableOpacity onPress={() => setShowCategoryDropdown(false)}>
+                <X size={20} color="#6B7280" />
+              </TouchableOpacity>
+            </View>
+            <TouchableOpacity
+              style={styles.dropdownItem}
+              onPress={() => handleCategorySelect('all')}
+            >
+              <Text style={styles.dropdownItemText}>All Categories</Text>
+            </TouchableOpacity>
+            {mockCategories.map((category) => (
+              <TouchableOpacity
+                key={category.id}
+                style={styles.dropdownItem}
+                onPress={() => handleCategorySelect(category.name)}
+              >
+                <Text style={styles.dropdownItemText}>{category.name}</Text>
+              </TouchableOpacity>
+            ))}
+          </View>
+        </TouchableOpacity>
+      </Modal>
+
+      <Modal
+        visible={showDatePicker}
+        transparent={true}
+        animationType="fade"
+        onRequestClose={() => setShowDatePicker(false)}
+      >
+        <TouchableOpacity
+          style={styles.modalOverlay}
+          activeOpacity={1}
+          onPress={() => setShowDatePicker(false)}
+        >
+          <View style={styles.dropdownContainer}>
+            <View style={styles.dropdownHeader}>
+              <Text style={styles.dropdownTitle}>Select Date</Text>
+              <TouchableOpacity onPress={() => setShowDatePicker(false)}>
+                <X size={20} color="#6B7280" />
+              </TouchableOpacity>
+            </View>
+            <View style={styles.datePickerContainer}>
+              <TextInput
+                style={styles.dateInput}
+                placeholder="YYYY-MM-DD"
+                value={datePickerType === 'from' ? customDateFrom : customDateTo}
+                onChangeText={(text) => {
+                  if (datePickerType === 'from') {
+                    setCustomDateFrom(text);
+                  } else {
+                    setCustomDateTo(text);
+                  }
+                }}
+              />
+              <TouchableOpacity
+                style={styles.datePickerButton}
+                onPress={() => handleDateSelect(datePickerType === 'from' ? customDateFrom : customDateTo)}
+              >
+                <Text style={styles.datePickerButtonText}>Select</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </TouchableOpacity>
+      </Modal>
 
       {/* Bottom padding */}
       <View style={styles.bottomPadding} />
@@ -1013,5 +1154,64 @@ const styles = StyleSheet.create({
   // Bottom padding
   bottomPadding: {
     height: 80,
+  },
+  // Modal styles
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  dropdownContainer: {
+    backgroundColor: '#FFFFFF',
+    borderRadius: 8,
+    padding: 16,
+    margin: 20,
+    maxHeight: '60%',
+    width: '80%',
+  },
+  dropdownHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 16,
+  },
+  dropdownTitle: {
+    fontSize: 18,
+    fontWeight: '600',
+    color: '#111827',
+  },
+  dropdownItem: {
+    paddingVertical: 12,
+    paddingHorizontal: 16,
+    borderBottomWidth: 1,
+    borderBottomColor: '#F3F4F6',
+  },
+  dropdownItemText: {
+    fontSize: 16,
+    color: '#374151',
+  },
+  datePickerContainer: {
+    padding: 16,
+  },
+  dateInput: {
+    borderWidth: 1,
+    borderColor: '#D1D5DB',
+    borderRadius: 6,
+    padding: 12,
+    fontSize: 16,
+    marginBottom: 16,
+  },
+  datePickerButton: {
+    backgroundColor: '#2563EB',
+    paddingVertical: 12,
+    paddingHorizontal: 24,
+    borderRadius: 6,
+    alignItems: 'center',
+  },
+  datePickerButtonText: {
+    color: '#FFFFFF',
+    fontSize: 16,
+    fontWeight: '500',
   },
 });
