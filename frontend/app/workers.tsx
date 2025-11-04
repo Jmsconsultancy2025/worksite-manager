@@ -107,7 +107,7 @@ const initialWorkers: Worker[] = [
 
 // Custom hooks for data management
 const useWorkersData = () => {
-  const [workers, setWorkers] = useState<Worker[]>(initialWorkers);
+  const [workers, setWorkers] = useState<Worker[]>([]);
   const [loading, setLoading] = useState(true);
 
   // Helper function to calculate today's advance total for a worker
@@ -119,10 +119,42 @@ const useWorkersData = () => {
       .reduce((total: number, advance: any) => total + advance.amount, 0);
   }, []);
 
-  // Load workers data from AsyncStorage
+  // Load workers data from Backend API
   const loadData = useCallback(async () => {
     try {
       setLoading(true);
+      
+      // Try to fetch from backend first
+      try {
+        const response = await fetch('http://localhost:8001/api/workers');
+        if (response.ok) {
+          const backendWorkers = await response.json();
+          console.log('✅ Workers loaded from backend:', backendWorkers.length);
+          
+          // Map backend data to frontend format
+          const mappedWorkers = backendWorkers.map((w: any) => ({
+            id: w.id,
+            name: w.name,
+            phone: w.phone,
+            role: w.role,
+            site: w.site_id || 'Zonuam Site',
+            dailyRate: w.daily_rate || 500,
+            attendanceStatus: 'absent',
+            advances: w.advances || [],
+            payments: w.payments || [],
+            hidden: w.hidden || false,
+            todayAdvanceTotal: 0,
+          }));
+          
+          setWorkers(mappedWorkers);
+          setLoading(false);
+          return;
+        }
+      } catch (apiError) {
+        console.log('⚠️ Backend not available, using localStorage fallback');
+      }
+      
+      // Fallback to localStorage if backend fails
       const storedWorkersList = await loadWorkersList();
       const storedWorkers = await loadWorkers();
 
