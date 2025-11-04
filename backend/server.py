@@ -89,8 +89,42 @@ class StatusCheckCreate(BaseModel):
 # Add your routes to the router instead of directly to app
 @api_router.get("/")
 async def root():
-    return {"message": "Hello World"}
+    return {"message": "Attendance Management API", "status": "active"}
 
+# Worker Endpoints
+@api_router.post("/workers")
+async def create_worker(worker: dict):
+    """Create a new worker"""
+    worker_id = str(uuid.uuid4())
+    worker_data = {
+        "id": worker_id,
+        "name": worker.get("name"),
+        "phone": worker.get("phone"),
+        "role": worker.get("role"),
+        "daily_rate": worker.get("daily_rate", 500),
+        "site_id": worker.get("site_id", "Zonuam Site"),
+        "status": "active",
+        "created_at": datetime.utcnow()
+    }
+    await db.workers.insert_one(worker_data)
+    return worker_data
+
+@api_router.get("/workers")
+async def get_workers(site_id: str = None):
+    """Get all workers or filter by site"""
+    query = {"site_id": site_id} if site_id else {}
+    workers = await db.workers.find(query).to_list(length=1000)
+    return workers
+
+@api_router.get("/workers/{worker_id}")
+async def get_worker(worker_id: str):
+    """Get worker by ID"""
+    worker = await db.workers.find_one({"id": worker_id})
+    if not worker:
+        raise HTTPException(status_code=404, detail="Worker not found")
+    return worker
+
+# Old status endpoints (keep for compatibility)
 @api_router.post("/status", response_model=StatusCheck)
 async def create_status_check(input: StatusCheckCreate):
     status_dict = input.dict()
