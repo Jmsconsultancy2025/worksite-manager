@@ -2,6 +2,7 @@ import React from 'react';
 import { View, TouchableOpacity, Text, ScrollView, StyleSheet, Alert } from 'react-native';
 import { ArrowLeft, Download, Building, Users, TrendingUp, BarChart } from 'lucide-react-native';
 import { useRouter } from 'expo-router';
+import { MaterialIcons } from '@expo/vector-icons';
 
 interface ReportsPageProps {
   onAttendanceReportClick?: () => void;
@@ -27,9 +28,22 @@ function ReportsPage({
   const handleFinancialReport = () => {
     router.push('/financial-report');
   };
+  
+  const handleExport = () => {
+    Alert.alert(
+      'Export Reports',
+      'Choose export format:',
+      [
+        { text: 'PDF', onPress: () => Alert.alert('Export', 'Exporting as PDF...') },
+        { text: 'Excel', onPress: () => Alert.alert('Export', 'Exporting as Excel...') },
+        { text: 'Cancel', style: 'cancel' }
+      ]
+    );
+  };
 
   return (
-    <ScrollView style={styles.container}>
+    <View style={styles.container}>
+      <ScrollView style={styles.scrollContainer}>
       {/* Header */}
       <View style={styles.header}>
         <View style={styles.titleContainer}>
