@@ -50,7 +50,7 @@ function ReportsPage({
           <Text style={styles.headerTitle}>Reports</Text>
           <Text style={styles.headerSubtitle}>Analytics and insights</Text>
         </View>
-        <TouchableOpacity style={styles.exportButton} onPress={() => Alert.alert('Export', 'Export functionality would be implemented here')}>
+        <TouchableOpacity style={styles.exportButton} onPress={handleExport}>
           <Download size={16} color="#16A34A" />
           <Text style={styles.exportButtonText}>Export</Text>
         </TouchableOpacity>
