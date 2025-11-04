@@ -104,22 +104,24 @@ async def create_worker(worker: dict):
         "daily_rate": worker.get("daily_rate", 500),
         "site_id": worker.get("site_id", "Zonuam Site"),
         "status": "active",
-        "created_at": datetime.utcnow()
+        "created_at": datetime.utcnow().isoformat()
     }
     await db.workers.insert_one(worker_data)
+    # Remove MongoDB's _id before returning
+    worker_data.pop('_id', None)
     return worker_data
 
 @api_router.get("/workers")
 async def get_workers(site_id: str = None):
     """Get all workers or filter by site"""
     query = {"site_id": site_id} if site_id else {}
-    workers = await db.workers.find(query).to_list(length=1000)
+    workers = await db.workers.find(query, {'_id': 0}).to_list(length=1000)
     return workers
 
 @api_router.get("/workers/{worker_id}")
 async def get_worker(worker_id: str):
     """Get worker by ID"""
-    worker = await db.workers.find_one({"id": worker_id})
+    worker = await db.workers.find_one({"id": worker_id}, {'_id': 0})
     if not worker:
         raise HTTPException(status_code=404, detail="Worker not found")
     return worker
