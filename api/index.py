@@ -12,10 +12,10 @@ import uuid
 from datetime import datetime, timedelta
 import jwt
 import hashlib
-from auth import get_current_user, hash_password, verify_password, create_access_token
+from .auth import get_current_user, hash_password, verify_password, create_access_token
 
-
-ROOT_DIR = Path(__file__).parent
+# Load environment variables
+ROOT_DIR = Path(__file__).parent.parent
 load_dotenv(ROOT_DIR / '.env')
 
 # MongoDB connection
@@ -62,6 +62,20 @@ class Token(BaseModel):
     access_token: str
     token_type: str
     user: User
+
+
+# ==================== SITE MODELS ====================
+
+class Site(BaseModel):
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    name: str
+    location: str
+    user_id: str
+    created_at: datetime = Field(default_factory=datetime.utcnow)
+
+class SiteCreate(BaseModel):
+    name: str
+    location: str
 
 
 # ==================== ATTENDANCE MODELS ====================
@@ -118,29 +132,6 @@ class AdvanceCreate(BaseModel):
     amount: float
     date: str
 
-
-# ==================== WORKER MODELS ====================
-
-class Site(BaseModel):
-    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
-    name: str
-    location: str
-    user_id: str
-    created_at: datetime = Field(default_factory=datetime.utcnow)
-
-class SiteCreate(BaseModel):
-    name: str
-    location: str
-
-
-# Define Models
-class StatusCheck(BaseModel):
-    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
-    client_name: str
-    timestamp: datetime = Field(default_factory=datetime.utcnow)
-
-class StatusCheckCreate(BaseModel):
-    client_name: str
 
 # ==================== AUTHENTICATION ENDPOINTS ====================
 
@@ -233,7 +224,7 @@ async def get_sites(current_user: dict = Depends(get_current_user)):
 # Add your routes to the router instead of directly to app
 @api_router.get("/")
 async def root():
-    return {"message": "Attendance Management API", "status": "active"}
+    return {"message": "Worksite Manager API", "status": "active"}
 
 # Worker Endpoints
 @api_router.post("/workers")
@@ -272,6 +263,7 @@ async def get_worker(worker_id: str, current_user: dict = Depends(get_current_us
     if not worker:
         raise HTTPException(status_code=404, detail="Worker not found")
     return worker
+
 
 # ==================== ATTENDANCE ENDPOINTS ====================
 
@@ -471,19 +463,6 @@ async def get_worker_advances(
     return advances
 
 
-# Old status endpoints (keep for compatibility)
-@api_router.post("/status", response_model=StatusCheck)
-async def create_status_check(input: StatusCheckCreate):
-    status_dict = input.dict()
-    status_obj = StatusCheck(**status_dict)
-    _ = await db.status_checks.insert_one(status_obj.dict())
-    return status_obj
-
-@api_router.get("/status", response_model=List[StatusCheck])
-async def get_status_checks():
-    status_checks = await db.status_checks.find().to_list(1000)
-    return [StatusCheck(**status_check) for status_check in status_checks]
-
 # Include the router in the main app
 app.include_router(api_router)
 
@@ -502,6 +481,13 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
-@app.on_event("shutdown")
-async def shutdown_db_client():
-    client.close()
+
+# Vercel serverless function handler
+def handler(event, context):
+    """Vercel serverless function handler"""
+    from mangum import Mangum
+
+    # Create Mangum handler for FastAPI
+    mangum_handler = Mangum(app, lifespan="off")
+
+    return mangum_handler(event, context)
