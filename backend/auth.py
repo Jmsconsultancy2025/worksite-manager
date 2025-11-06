@@ -60,3 +60,29 @@ async def get_current_user(credentials: HTTPAuthorizationCredentials = Security(
         return user
     
     return {"id": user_id, "email": payload.get("email")}
+
+
+async def get_current_user_optional(credentials: HTTPAuthorizationCredentials = Security(HTTPBearer(auto_error=False)), db=None):
+    """Get current user from JWT token - OPTIONAL (returns None if no auth)"""
+    if credentials is None:
+        # No authentication provided - return default user for development
+        return {"id": "default-user", "email": "user@example.com"}
+    
+    try:
+        token = credentials.credentials
+        payload = decode_token(token)
+        user_id = payload.get("user_id")
+        
+        if not user_id:
+            return {"id": "default-user", "email": "user@example.com"}
+        
+        if db:
+            user = await db.users.find_one({"id": user_id})
+            if not user:
+                return {"id": "default-user", "email": "user@example.com"}
+            return user
+        
+        return {"id": user_id, "email": payload.get("email")}
+    except:
+        # If any error, return default user
+        return {"id": "default-user", "email": "user@example.com"}
