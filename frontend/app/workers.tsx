@@ -740,6 +740,95 @@ export default function WorkersPage() {
     formState.resetForm();
   }, [workers, siteParam, addWorker, modalState, formState, router, loadData]);
 
+  // Edit worker handler
+  const handleEditWorker = useCallback((worker: Worker) => {
+    formState.setFormName(worker.name);
+    formState.setFormPhone(worker.phone);
+    formState.setFormRole(worker.role);
+    formState.setFormDailyRate(worker.dailyRate.toString());
+    formState.setEditingWorkerId(worker.id);
+    modalState.setIsAddWorkerModalOpen(true);
+  }, [formState, modalState]);
+
+  // Update worker handler
+  const handleUpdateWorker = useCallback(async (workerId: string, updatedData: NewWorkerData) => {
+    try {
+      // Try backend API first
+      const response = await fetch(`http://localhost:8001/api/workers/${workerId}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          name: updatedData.name,
+          phone: updatedData.phone,
+          role: updatedData.role,
+          daily_rate: updatedData.dailyRate,
+        }),
+      });
+
+      if (response.ok) {
+        await loadData();
+        Alert.alert('Success', 'Worker updated successfully!');
+      } else {
+        throw new Error('Failed to update worker');
+      }
+    } catch (error) {
+      console.error('❌ Error updating worker:', error);
+      
+      // Fallback to localStorage
+      const updatedWorker = workers.find(w => w.id === workerId);
+      if (updatedWorker) {
+        updatedWorker.name = updatedData.name;
+        updatedWorker.phone = updatedData.phone;
+        updatedWorker.role = updatedData.role;
+        updatedWorker.dailyRate = updatedData.dailyRate;
+        await updateWorker(updatedWorker);
+        Alert.alert('Success', 'Worker updated successfully!');
+      }
+    }
+
+    modalState.setIsAddWorkerModalOpen(false);
+    formState.resetForm();
+    formState.setEditingWorkerId(null);
+  }, [workers, updateWorker, loadData, modalState, formState]);
+
+  // Delete worker handler
+  const handleDeleteWorker = useCallback(async (workerId: string, workerName: string) => {
+    Alert.alert(
+      'Delete Worker',
+      `Are you sure you want to delete ${workerName}? This action cannot be undone.`,
+      [
+        { text: 'Cancel', style: 'cancel' },
+        {
+          text: 'Delete',
+          style: 'destructive',
+          onPress: async () => {
+            try {
+              // Try backend API first
+              const response = await fetch(`http://localhost:8001/api/workers/${workerId}`, {
+                method: 'DELETE',
+              });
+
+              if (response.ok) {
+                await loadData();
+                Alert.alert('Success', 'Worker deleted successfully!');
+              } else {
+                throw new Error('Failed to delete worker');
+              }
+            } catch (error) {
+              console.error('❌ Error deleting worker:', error);
+              
+              // Fallback to localStorage
+              await deleteWorker(workerId);
+              Alert.alert('Success', 'Worker deleted successfully!');
+            }
+          },
+        },
+      ]
+    );
+  }, [loadData, deleteWorker]);
+
   // Get badge style based on status
   const getBadgeStyle = useCallback((worker: Worker, badgeType: 'P' | 'H' | 'A') => {
     const statusMap = { P: 'present', H: 'halfday', A: 'absent' };
