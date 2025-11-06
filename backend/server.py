@@ -12,7 +12,7 @@ import uuid
 from datetime import datetime, timedelta
 import jwt
 import hashlib
-from auth import get_current_user, hash_password, verify_password, create_access_token
+from auth import get_current_user, get_current_user_optional, hash_password, verify_password, create_access_token
 
 
 ROOT_DIR = Path(__file__).parent
