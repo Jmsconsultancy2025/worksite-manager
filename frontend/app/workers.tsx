@@ -18,6 +18,10 @@ import { useFocusEffect } from '@react-navigation/native';
 import { updateAttendance, loadWorkers, updateWorkerHiddenStatus, checkWorkerLimit, getUserSubscription, updateSalary, isExpired, loadWorkersList, saveWorkersList } from '../lib/storage';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { AddWorkerModal, NewWorkerData } from '../components/AddWorkerModal';
+import Constants from 'expo-constants';
+
+// Get API URL from environment
+const API_URL = Constants.expoConfig?.extra?.apiUrl || process.env.EXPO_PUBLIC_BACKEND_URL || 'http://localhost:8001';
 
 // Types
 type AttendanceStatus = 'present' | 'absent' | 'halfday' | null;
