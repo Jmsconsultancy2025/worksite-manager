@@ -674,6 +674,100 @@ export default function WorkersPage() {
     formState.resetForm();
   }, [workers, siteParam, addWorker, modalState, formState, router, loadData]);
 
+  const handleEditWorker = useCallback((worker: Worker) => {
+    formState.setSelectedWorker(worker);
+    formState.setEditName(worker.name);
+    formState.setEditPhone(worker.phone);
+    formState.setEditRole(worker.role);
+    modalState.setEditModalVisible(true);
+  }, [formState, modalState]);
+
+  const handleSaveEdit = useCallback(async () => {
+    if (!formState.selectedWorker) return;
+
+    if (!formState.editName.trim() || !formState.editPhone.trim() || !formState.editRole.trim()) {
+      Alert.alert('Error', 'Please fill in all fields');
+      return;
+    }
+
+    try {
+      // Try backend API first
+      const response = await fetch(`http://localhost:8001/api/workers/${formState.selectedWorker.id}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          name: formState.editName.trim(),
+          phone: formState.editPhone.trim(),
+          role: formState.editRole.trim(),
+        }),
+      });
+
+      if (response.ok) {
+        await loadData();
+        Alert.alert('Success', 'Worker updated successfully!');
+      } else {
+        throw new Error('Failed to update worker');
+      }
+    } catch (error) {
+      console.error('❌ Error updating worker:', error);
+      
+      // Fallback to localStorage
+      const storedData = await AsyncStorage.getItem(`worker_${formState.selectedWorker.id}`);
+      let workerData = storedData ? JSON.parse(storedData) : {};
+      workerData.name = formState.editName.trim();
+      workerData.phone = formState.editPhone.trim();
+      workerData.role = formState.editRole.trim();
+      await AsyncStorage.setItem(`worker_${formState.selectedWorker.id}`, JSON.stringify(workerData));
+      
+      updateWorker(formState.selectedWorker.id, {
+        name: formState.editName.trim(),
+        phone: formState.editPhone.trim(),
+        role: formState.editRole.trim()
+      });
+      Alert.alert('Success', 'Worker updated successfully!');
+    }
+
+    modalState.setEditModalVisible(false);
+    formState.resetForm();
+  }, [formState, modalState, updateWorker, loadData]);
+
+  const handleDeleteWorker = useCallback(async (workerId: string, workerName: string) => {
+    Alert.alert(
+      'Delete Worker',
+      `Are you sure you want to delete ${workerName}? This action cannot be undone.`,
+      [
+        { text: 'Cancel', style: 'cancel' },
+        {
+          text: 'Delete',
+          style: 'destructive',
+          onPress: async () => {
+            try {
+              // Try backend API first
+              const response = await fetch(`http://localhost:8001/api/workers/${workerId}`, {
+                method: 'DELETE',
+              });
+
+              if (response.ok) {
+                await loadData();
+                Alert.alert('Success', 'Worker deleted successfully!');
+              } else {
+                throw new Error('Failed to delete worker');
+              }
+            } catch (error) {
+              console.error('❌ Error deleting worker:', error);
+              
+              // Fallback to localStorage
+              await deleteWorker(workerId);
+              Alert.alert('Success', 'Worker deleted successfully!');
+            }
+          },
+        },
+      ]
+    );
+  }, [loadData, deleteWorker]);
+
   // Get badge style based on status
   const getBadgeStyle = useCallback((worker: Worker, badgeType: 'P' | 'H' | 'A') => {
     const statusMap = { P: 'present', H: 'halfday', A: 'absent' };
