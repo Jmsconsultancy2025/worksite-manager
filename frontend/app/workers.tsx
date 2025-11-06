@@ -107,8 +107,8 @@ const initialWorkers: Worker[] = [
 
 // Custom hooks for data management
 const useWorkersData = () => {
-  const [workers, setWorkers] = useState<Worker[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [workers, setWorkers] = useState<Worker[]>(initialWorkers);
+  const [loading, setLoading] = useState(false);
 
   // Helper function to calculate today's advance total for a worker
   const calculateTodayAdvanceTotal = useCallback((workerData: any): number => {
