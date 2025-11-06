@@ -216,7 +216,7 @@ async def login(credentials: UserLogin):
 # ==================== SITE ENDPOINTS ====================
 
 @api_router.post("/sites")
-async def create_site(site: SiteCreate, current_user: dict = Depends(get_current_user)):
+async def create_site(site: SiteCreate, current_user: dict = Depends(get_current_user_optional)):
     """Create a new site"""
     site_data = {
         "id": str(uuid.uuid4()),
@@ -231,7 +231,7 @@ async def create_site(site: SiteCreate, current_user: dict = Depends(get_current
 
 
 @api_router.get("/sites")
-async def get_sites(current_user: dict = Depends(get_current_user)):
+async def get_sites(current_user: dict = Depends(get_current_user_optional)):
     """Get all sites for current user"""
     sites = await db.sites.find({"user_id": current_user["id"]}, {'_id': 0}).to_list(length=100)
     return sites
@@ -342,7 +342,7 @@ async def get_workers(site_id: str = None, current_user: dict = Depends(get_curr
     return workers
 
 @api_router.get("/workers/{worker_id}")
-async def get_worker(worker_id: str, current_user: dict = Depends(get_current_user)):
+async def get_worker(worker_id: str, current_user: dict = Depends(get_current_user_optional)):
     """Get worker by ID"""
     worker = await db.workers.find_one({"id": worker_id, "user_id": current_user["id"]}, {'_id': 0})
     if not worker:
@@ -350,7 +350,7 @@ async def get_worker(worker_id: str, current_user: dict = Depends(get_current_us
     return worker
 
 @api_router.put("/workers/{worker_id}")
-async def update_worker(worker_id: str, worker_data: dict, current_user: dict = Depends(get_current_user)):
+async def update_worker(worker_id: str, worker_data: dict, current_user: dict = Depends(get_current_user_optional)):
     """Update worker details"""
     update_fields = {}
     if "name" in worker_data:
@@ -377,7 +377,7 @@ async def update_worker(worker_id: str, worker_data: dict, current_user: dict = 
     return updated_worker
 
 @api_router.delete("/workers/{worker_id}")
-async def delete_worker(worker_id: str, current_user: dict = Depends(get_current_user)):
+async def delete_worker(worker_id: str, current_user: dict = Depends(get_current_user_optional)):
     """Delete worker"""
     result = await db.workers.delete_one({"id": worker_id, "user_id": current_user["id"]})
     
@@ -389,7 +389,7 @@ async def delete_worker(worker_id: str, current_user: dict = Depends(get_current
 # ==================== ATTENDANCE ENDPOINTS ====================
 
 @api_router.post("/attendance")
-async def mark_attendance(attendance_data: AttendanceCreate, current_user: dict = Depends(get_current_user)):
+async def mark_attendance(attendance_data: AttendanceCreate, current_user: dict = Depends(get_current_user_optional)):
     """Mark or update attendance for a worker"""
     # Check if worker exists and belongs to user
     worker = await db.workers.find_one({"id": attendance_data.worker_id, "user_id": current_user["id"]})
@@ -434,7 +434,7 @@ async def get_worker_attendance(
     worker_id: str,
     date_from: str = None,
     date_to: str = None,
-    current_user: dict = Depends(get_current_user)
+    current_user: dict = Depends(get_current_user_optional)
 ):
     """Get attendance records for a worker"""
     # Check if worker exists and belongs to user
@@ -454,7 +454,7 @@ async def get_worker_attendance(
 async def update_attendance(
     attendance_id: str,
     update_data: AttendanceUpdate,
-    current_user: dict = Depends(get_current_user)
+    current_user: dict = Depends(get_current_user_optional)
 ):
     """Update attendance status"""
     # Find attendance record
@@ -489,7 +489,7 @@ async def calculate_salary(
     worker_id: str,
     date_from: str,
     date_to: str,
-    current_user: dict = Depends(get_current_user)
+    current_user: dict = Depends(get_current_user_optional)
 ):
     """Calculate salary for a worker over a period"""
     # Check if worker exists and belongs to user
@@ -544,7 +544,7 @@ async def calculate_salary(
 # ==================== ADVANCE ENDPOINTS ====================
 
 @api_router.post("/advances")
-async def record_advance(advance_data: AdvanceCreate, current_user: dict = Depends(get_current_user)):
+async def record_advance(advance_data: AdvanceCreate, current_user: dict = Depends(get_current_user_optional)):
     """Record an advance payment"""
     # Check if worker exists and belongs to user
     worker = await db.workers.find_one({"id": advance_data.worker_id, "user_id": current_user["id"]})
@@ -568,7 +568,7 @@ async def get_worker_advances(
     worker_id: str,
     date_from: str = None,
     date_to: str = None,
-    current_user: dict = Depends(get_current_user)
+    current_user: dict = Depends(get_current_user_optional)
 ):
     """Get advance payments for a worker"""
     # Check if worker exists and belongs to user
