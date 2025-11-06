@@ -251,6 +251,7 @@ const useWorkersData = () => {
   return {
     workers,
     loading,
+    loadData,
     updateWorker,
     addWorker,
     deleteWorker,
