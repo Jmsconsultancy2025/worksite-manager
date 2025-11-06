@@ -333,7 +333,7 @@ async def create_worker(worker: dict, current_user: dict = Depends(get_current_u
     return worker_data
 
 @api_router.get("/workers")
-async def get_workers(site_id: str = None, current_user: dict = Depends(get_current_user)):
+async def get_workers(site_id: str = None, current_user: dict = Depends(get_current_user_optional)):
     """Get all workers or filter by site"""
     query = {"user_id": current_user["id"]}
     if site_id:
