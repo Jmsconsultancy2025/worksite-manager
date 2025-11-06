@@ -626,7 +626,7 @@ export default function WorkersPage() {
   const handleAddWorker = useCallback(async (newWorkerData: NewWorkerData) => {
     try {
       // Create worker via API
-      const response = await fetch('http://localhost:8001/api/workers', {
+      const response = await fetch(`${API_URL}/api/workers`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
