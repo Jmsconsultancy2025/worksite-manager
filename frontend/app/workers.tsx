@@ -130,7 +130,7 @@ const useWorkersData = () => {
       
       // Try to fetch from backend first
       try {
-        const response = await fetch('http://localhost:8001/api/workers');
+        const response = await fetch(`${API_URL}/api/workers`);
         if (response.ok) {
           const backendWorkers = await response.json();
           console.log('✅ Workers loaded from backend:', backendWorkers.length);
