@@ -749,7 +749,7 @@ export default function WorkersPage() {
           onPress: async () => {
             try {
               // Try backend API first
-              const response = await fetch(`http://localhost:8001/api/workers/${workerId}`, {
+              const response = await fetch(`${API_URL}/api/workers/${workerId}`, {
                 method: 'DELETE',
               });
 
