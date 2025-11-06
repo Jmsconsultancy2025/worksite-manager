@@ -340,6 +340,43 @@ async def get_worker(worker_id: str, current_user: dict = Depends(get_current_us
         raise HTTPException(status_code=404, detail="Worker not found")
     return worker
 
+@api_router.put("/workers/{worker_id}")
+async def update_worker(worker_id: str, worker_data: dict, current_user: dict = Depends(get_current_user)):
+    """Update worker details"""
+    update_fields = {}
+    if "name" in worker_data:
+        update_fields["name"] = worker_data["name"]
+    if "phone" in worker_data:
+        update_fields["phone"] = worker_data["phone"]
+    if "role" in worker_data:
+        update_fields["role"] = worker_data["role"]
+    if "daily_rate" in worker_data:
+        update_fields["daily_rate"] = worker_data["daily_rate"]
+    
+    if not update_fields:
+        raise HTTPException(status_code=400, detail="No fields to update")
+    
+    result = await db.workers.update_one(
+        {"id": worker_id, "user_id": current_user["id"]},
+        {"$set": update_fields}
+    )
+    
+    if result.matched_count == 0:
+        raise HTTPException(status_code=404, detail="Worker not found")
+    
+    updated_worker = await db.workers.find_one({"id": worker_id, "user_id": current_user["id"]}, {'_id': 0})
+    return updated_worker
+
+@api_router.delete("/workers/{worker_id}")
+async def delete_worker(worker_id: str, current_user: dict = Depends(get_current_user)):
+    """Delete worker"""
+    result = await db.workers.delete_one({"id": worker_id, "user_id": current_user["id"]})
+    
+    if result.deleted_count == 0:
+        raise HTTPException(status_code=404, detail="Worker not found")
+    
+    return {"message": "Worker deleted successfully"}
+
 # ==================== ATTENDANCE ENDPOINTS ====================
 
 @api_router.post("/attendance")
