@@ -830,6 +830,26 @@ export default function WorkersPage() {
                     <Text style={styles.workerName}>{worker.name}</Text>
                     <Text style={styles.workerPhone}>{worker.phone}</Text>
                     <Text style={styles.workerRole}>{worker.role}</Text>
+                    
+                    {/* Action Buttons */}
+                    <View style={styles.workerActions}>
+                      <TouchableOpacity 
+                        style={styles.editButton}
+                        onPress={() => handleEditWorker(worker)}
+                      >
+                        <MaterialIcons name="edit" size={16} color="#3B82F6" />
+                        <Text style={styles.editButtonText}>Edit</Text>
+                      </TouchableOpacity>
+                      
+                      <TouchableOpacity 
+                        style={styles.deleteButton}
+                        onPress={() => handleDeleteWorker(worker.id, worker.name)}
+                      >
+                        <MaterialIcons name="delete" size={16} color="#EF4444" />
+                        <Text style={styles.deleteButtonText}>Delete</Text>
+                      </TouchableOpacity>
+                    </View>
+                    
                     {/* Status Options */}
                     <View style={styles.statusOptions}>
                       {!worker.hidden ? (
