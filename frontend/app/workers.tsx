@@ -352,7 +352,7 @@ export default function WorkersPage() {
   const [showHiddenWorkers, setShowHiddenWorkers] = useState(false);
 
   // Custom hooks
-  const { workers, loading, updateWorker, addWorker, deleteWorker } = useWorkersData();
+  const { workers, loading, loadData, updateWorker, addWorker, deleteWorker } = useWorkersData();
   const modalState = useModalState();
   const formState = useFormState();
 
