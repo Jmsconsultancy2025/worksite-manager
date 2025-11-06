@@ -313,7 +313,7 @@ async def root():
 
 # Worker Endpoints
 @api_router.post("/workers")
-async def create_worker(worker: dict, current_user: dict = Depends(get_current_user)):
+async def create_worker(worker: dict, current_user: dict = Depends(get_current_user_optional)):
     """Create a new worker"""
     worker_id = str(uuid.uuid4())
     worker_data = {
