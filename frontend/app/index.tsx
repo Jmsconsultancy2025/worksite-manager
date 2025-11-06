@@ -136,7 +136,7 @@ export default function Index() {
       <View style={styles.topBar}>
         <Text style={styles.brandTitle}>Worksite Manager</Text>
         <View style={styles.topBarRight}>
-          <TouchableOpacity style={styles.signInButton} onPress={() => setIsSignupSigninModalOpen(true)}>
+          <TouchableOpacity style={styles.signInButton} onPress={() => router.push('/login')}>
             <MaterialIcons name="person-add" size={16} color="#4CAF50" />
             <Text style={styles.signInText}>Sign In</Text>
           </TouchableOpacity>
