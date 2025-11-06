@@ -31,11 +31,20 @@ ACCESS_TOKEN_EXPIRE_HOURS = 24 * 30  # 30 days
 # Create the main app without a prefix
 app = FastAPI(title="Worksite Manager API", version="1.0.0")
 
+# Add CORS middleware
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # Allow all origins for development
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
 # Create a router with the /api prefix
 api_router = APIRouter(prefix="/api")
 
 # Security
-security = HTTPBearer()
+security = HTTPBearer(auto_error=False)  # Make authentication optional for now
 
 
 # ==================== AUTHENTICATION MODELS ====================
