@@ -231,6 +231,73 @@ async def get_sites(current_user: dict = Depends(get_current_user)):
 # ==================== WORKER ENDPOINTS ====================
 
 # Add your routes to the router instead of directly to app
+# Authentication Endpoints
+@api_router.post("/auth/register")
+async def register(user_data: dict):
+    """Register a new user"""
+    # Check if user exists
+    existing_user = await db.users.find_one({"email": user_data.get("email")})
+    if existing_user:
+        raise HTTPException(status_code=400, detail="Email already registered")
+    
+    # Hash password
+    from auth import hash_password, create_access_token
+    
+    user_id = str(uuid.uuid4())
+    hashed_pw = hash_password(user_data.get("password"))
+    
+    new_user = {
+        "id": user_id,
+        "email": user_data.get("email"),
+        "password_hash": hashed_pw,
+        "name": user_data.get("name"),
+        "company_name": user_data.get("company_name", ""),
+        "role": "manager",
+        "created_at": datetime.utcnow().isoformat()
+    }
+    
+    await db.users.insert_one(new_user)
+    
+    # Create token
+    token = create_access_token({"user_id": user_id, "email": new_user["email"]})
+    
+    # Remove password before sending
+    new_user.pop("password_hash")
+    new_user.pop("_id", None)
+    
+    return {
+        "access_token": token,
+        "token_type": "bearer",
+        "user": new_user
+    }
+
+@api_router.post("/auth/login")
+async def login(credentials: dict):
+    """Login user"""
+    from auth import verify_password, create_access_token
+    
+    # Find user
+    user = await db.users.find_one({"email": credentials.get("email")})
+    if not user:
+        raise HTTPException(status_code=401, detail="Invalid credentials")
+    
+    # Verify password
+    if not verify_password(credentials.get("password"), user["password_hash"]):
+        raise HTTPException(status_code=401, detail="Invalid credentials")
+    
+    # Create token
+    token = create_access_token({"user_id": user["id"], "email": user["email"]})
+    
+    # Remove password before sending
+    user.pop("password_hash")
+    user.pop("_id", None)
+    
+    return {
+        "access_token": token,
+        "token_type": "bearer",
+        "user": user
+    }
+
 @api_router.get("/")
 async def root():
     return {"message": "Attendance Management API", "status": "active"}
