@@ -610,3 +610,164 @@ logger = logging.getLogger(__name__)
 @app.on_event("shutdown")
 async def shutdown_db_client():
     client.close()
+
+
+# ==================== ADDITIONAL AUTH ENDPOINTS ====================
+# These are already implemented: /auth/register (POST)
+# Need to add: /auth/login, /auth/refresh, /auth/logout
+
+@app.post("/auth/login")
+async def login(user_credentials: dict):
+    """Login endpoint - authenticates user and returns JWT token"""
+    email = user_credentials.get("email")
+    password = user_credentials.get("password")
+    
+    user = await db.users.find_one({"email": email})
+    if not user or not verify_password(user.get("password"), password):
+        raise HTTPException(status_code=401, detail="Invalid credentials")
+    
+    access_token = create_access_token(data={"sub": str(user["_id"])})
+    return {"access_token": access_token, "token_type": "bearer", "user_id": str(user["_id"])}
+
+@app.post("/auth/refresh")
+async def refresh_token(current_user: dict = Depends(get_current_user)):
+    """Refresh JWT token"""
+    new_token = create_access_token(data={"sub": current_user["_id"]})
+    return {"access_token": new_token, "token_type": "bearer"}
+
+@app.post("/auth/logout")
+async def logout(current_user: dict = Depends(get_current_user)):
+    """Logout endpoint"""
+    return {"message": "Successfully logged out"}
+
+# ==================== USER ENDPOINTS ====================
+
+@app.get("/users/me")
+async def get_current_user_profile(current_user: dict = Depends(get_current_user)):
+    """Get current user profile"""
+    return {"_id": str(current_user["_id"]), "email": current_user["email"], "name": current_user.get("name")}
+
+@app.put("/users/me")
+async def update_current_user(user_data: dict, current_user: dict = Depends(get_current_user)):
+    """Update current user profile"""
+    await db.users.update_one({"_id": current_user["_id"]}, {"$set": user_data})
+    updated_user = await db.users.find_one({"_id": current_user["_id"]})
+    updated_user.pop("_id", None)
+    return updated_user
+
+@app.get("/users")
+async def list_all_users(current_user: dict = Depends(get_current_user)):
+    """Get all users (admin only)"""
+    if current_user.get("role") != "admin":
+        raise HTTPException(status_code=403, detail="Admin access required")
+    users = await db.users.find().to_list(length=1000)
+    return [{"_id": str(u["_id"]), **{k: v for k, v in u.items() if k != "_id" and k != "password"}} for u in users]
+
+@app.delete("/users/{user_id}")
+async def delete_user(user_id: str, current_user: dict = Depends(get_current_user)):
+    """Delete a user (admin only)"""
+    if current_user.get("role") != "admin":
+        raise HTTPException(status_code=403, detail="Admin access required")
+    result = await db.users.delete_one({"_id": ObjectId(user_id)})
+    return {"deleted": result.deleted_count > 0}
+
+# ==================== SITES CRUD ENDPOINTS ====================
+# GET /sites is already implemented
+
+@app.post("/sites")
+async def create_site(site_data: dict, current_user: dict = Depends(get_current_user)):
+    """Create a new worksite"""
+    site_obj = {"name": site_data["name"], "location": site_data.get("location"), "user_id": current_user["_id"], "created_at": datetime.utcnow()}
+    result = await db.sites.insert_one(site_obj)
+    return {"_id": str(result.inserted_id), **site_obj}
+
+@app.get("/sites/{site_id}")
+async def get_site_detail(site_id: str, current_user: dict = Depends(get_current_user)):
+    """Get details of a specific worksite"""
+    site = await db.sites.find_one({"_id": ObjectId(site_id), "user_id": current_user["_id"]})
+    if not site:
+        raise HTTPException(status_code=404, detail="Site not found")
+    site["_id"] = str(site["_id"])
+    return site
+
+@app.put("/sites/{site_id}")
+async def update_site(site_id: str, site_data: dict, current_user: dict = Depends(get_current_user)):
+    """Update a worksite"""
+    await db.sites.update_one({"_id": ObjectId(site_id), "user_id": current_user["_id"]}, {"$set": site_data})
+    updated_site = await db.sites.find_one({"_id": ObjectId(site_id)})
+    updated_site["_id"] = str(updated_site["_id"])
+    return updated_site
+
+@app.delete("/sites/{site_id}")
+async def delete_site(site_id: str, current_user: dict = Depends(get_current_user)):
+    """Delete a worksite"""
+    result = await db.sites.delete_one({"_id": ObjectId(site_id), "user_id": current_user["_id"]})
+    return {"deleted": result.deleted_count > 0}
+
+# ==================== WORKERS CRUD ENDPOINTS ====================
+# POST, GET, GET/{id}, PUT/{id} are already implemented
+
+@app.delete("/workers/{worker_id}")
+async def delete_worker(worker_id: str, current_user: dict = Depends(get_current_user)):
+    """Delete a worker"""
+    result = await db.workers.delete_one({"_id": ObjectId(worker_id), "user_id": current_user["_id"]})
+    return {"deleted": result.deleted_count > 0}
+
+# ==================== PAYMENTS ENDPOINTS ====================
+
+@app.post("/payments")
+async def record_payment(payment_data: dict, current_user: dict = Depends(get_current_user)):
+    """Record a payment for a worker"""
+    payment = {"worker_id": ObjectId(payment_data["worker_id"]), "amount": payment_data["amount"], "date": datetime.utcnow(), "user_id": current_user["_id"], "description": payment_data.get("description", "")}
+    result = await db.payments.insert_one(payment)
+    return {"_id": str(result.inserted_id), **payment}
+
+@app.get("/payments")
+async def get_payments(worker_id: str = None, current_user: dict = Depends(get_current_user)):
+    """Get all payments (filtered by worker if specified)"""
+    query = {"user_id": current_user["_id"]}
+    if worker_id:
+        query["worker_id"] = ObjectId(worker_id)
+    payments = await db.payments.find(query).to_list(length=1000)
+    return [{"_id": str(p["_id"]), "worker_id": str(p["worker_id"]), **{k: v for k, v in p.items() if k not in ["_id", "worker_id"]}} for p in payments]
+
+@app.put("/payments/{payment_id}")
+async def update_payment(payment_id: str, payment_data: dict, current_user: dict = Depends(get_current_user)):
+    """Update a payment record"""
+    await db.payments.update_one({"_id": ObjectId(payment_id), "user_id": current_user["_id"]}, {"$set": payment_data})
+    updated = await db.payments.find_one({"_id": ObjectId(payment_id)})
+    return {"_id": str(updated["_id"]), **{k: v for k, v in updated.items() if k != "_id"}}
+
+# ==================== REPORTS ENDPOINTS ====================
+
+@app.get("/reports/attendance")
+async def get_attendance_report(site_id: str = None, start_date: str = None, end_date: str = None, current_user: dict = Depends(get_current_user)):
+    """Get attendance report"""
+    query = {"user_id": current_user["_id"]}
+    if site_id:
+        query["site_id"] = ObjectId(site_id)
+    if start_date:
+        query["marked_at"] = {"$gte": datetime.fromisoformat(start_date)}
+    if end_date:
+        if "marked_at" in query:
+            query["marked_at"]["$lte"] = datetime.fromisoformat(end_date)
+        else:
+            query["marked_at"] = {"$lte": datetime.fromisoformat(end_date)}
+    
+    attendance_records = await db.attendance.find(query).to_list(length=5000)
+    return [{"_id": str(a["_id"]), **{k: v for k, v in a.items() if k != "_id"}} for a in attendance_records]
+
+@app.get("/reports/payroll")
+async def get_payroll_report(start_date: str = None, end_date: str = None, current_user: dict = Depends(get_current_user)):
+    """Get payroll report with salary calculations"""
+    query = {"user_id": current_user["_id"]}
+    if start_date:
+        query["date"] = {"$gte": datetime.fromisoformat(start_date)}
+    if end_date:
+        if "date" in query:
+            query["date"]["$lte"] = datetime.fromisoformat(end_date)
+        else:
+            query["date"] = {"$lte": datetime.fromisoformat(end_date)}
+    
+    payments = await db.payments.find(query).to_list(length=5000)
+    return {"total_payments": len(payments), "total_amount": sum([p["amount"] for p in payments]), "payments": [{"_id": str(p["_id"]), "worker_id": str(p["worker_id"]), **{k: v for k, v in p.items() if k not in ["_id", "worker_id"]}} for p in payments]}

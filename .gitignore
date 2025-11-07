@@ -10,3 +10,7 @@ node_modules/
 .venv/
 venv/
 project_export.tar.gz
+-e 
+# Environment files
+*.env
+*.env.*
