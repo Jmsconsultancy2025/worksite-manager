@@ -1,6 +1,10 @@
 {
-  "buildCommand": "",
-  "outputDirectory": "frontend",
-  "public": true,
-  "framework": "static"
+  "version": 2,
+  "builds": [
+    { "src": "frontend/package.json", "use": "@vercel/static-build" }
+  ],
+  "routes": [
+    { "src": "/(.*)", "dest": "frontend/dist/$1" }
+  ],
+  "ignoreCommand": "echo 'Ignore backend folders'"
 }
