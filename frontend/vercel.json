@@ -1,12 +1,23 @@
 {
+  "buildCommand": "npm install --legacy-peer-deps && npx expo export -p web && rm -rf .expo node_modules/.cache 2>/dev/null; true",
+  "outputDirectory": "dist",
+  "cleanUrls": true,
+  "framework": null,
   "rewrites": [
     {
-      "source": "/api/(.*)",
-      "destination": "/api/$1"
-    },
-    {
       "source": "/(.*)",
-      "destination": "/index.html"
+      "destination": "/"
+    }
+  ],
+  "headers": [
+    {
+      "source": "/:path*",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=3600, must-revalidate"
+        }
+      ]
     }
   ]
 }
