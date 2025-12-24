@@ -8,7 +8,7 @@
     "android": "expo start --android",
     "ios": "expo start --ios",
     "web": "expo start --web",
-    "build": "npx expo export --platform web --output-dir web-build",
+    "build": "npx expo export -p web && rm -rf .expo .next node_modules/.cache 2>/dev/null; true",
     "lint": "expo lint"
   },
   "dependencies": {
